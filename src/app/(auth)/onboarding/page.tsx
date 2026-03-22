@@ -49,7 +49,7 @@ export default function OnboardingPage() {
       }
 
       toast.success("프로필이 저장되었습니다.");
-      router.push(role === "assistant" ? "/dashboard" : "/projects");
+      router.push("/");
     } catch {
       toast.error("네트워크 오류가 발생했습니다.");
     } finally {
@@ -137,7 +137,7 @@ export default function OnboardingPage() {
                 placeholder="간략한 소개를 입력해주세요"
                 value={form.headline}
                 onChange={handleChange}
-                maxLength={120}
+                maxLength={80}
               />
             </div>
             <div className="mt-2 flex gap-2">

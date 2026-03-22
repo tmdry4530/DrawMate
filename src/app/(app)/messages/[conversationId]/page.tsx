@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { MessageBubble } from "@/components/messaging/message-bubble"
 import { MessageInput } from "@/components/messaging/message-input"
 import { ConversationList } from "@/components/messaging/conversation-list"
+import { unwrapApiData } from "@/lib/utils/client-api"
 
 interface Message {
   id: string
@@ -15,6 +16,14 @@ interface Message {
   imageUrl?: string | null
   createdAt: string
   senderId: string
+}
+
+interface MessageApiItem {
+  id: string
+  body: string | null
+  createdAt: string
+  senderId: string
+  attachments?: { storagePath: string }[]
 }
 
 interface MessagesPage {
@@ -33,7 +42,24 @@ async function fetchMessages(
     `/api/v1/conversations/${conversationId}/messages?${params.toString()}`
   )
   if (!res.ok) throw new Error("메시지를 불러오는데 실패했습니다")
-  return res.json()
+  const json = await res.json()
+  const data = unwrapApiData<{
+    items: MessageApiItem[]
+    nextCursor: string | null
+    currentUserId: string
+  }>(json)
+
+  return {
+    messages: (data?.items ?? []).map((item) => ({
+      id: item.id,
+      content: item.body ?? "",
+      imageUrl: null,
+      createdAt: item.createdAt,
+      senderId: item.senderId,
+    })),
+    nextCursor: data?.nextCursor ?? null,
+    currentUserId: data?.currentUserId ?? "",
+  }
 }
 
 export default function ConversationPage() {

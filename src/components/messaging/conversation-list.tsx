@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { unwrapApiData } from "@/lib/utils/client-api"
 
 interface Conversation {
   id: string
@@ -25,10 +26,40 @@ interface Conversation {
   unreadCount: number
 }
 
+interface ConversationApiItem {
+  conversationId: string
+  lastMessageSnippet: string | null
+  lastMessageAt: string | null
+  unreadCount: number
+  peer: {
+    id: string
+    displayName: string | null
+    avatarUrl: string | null
+  } | null
+}
+
 async function fetchConversations(): Promise<Conversation[]> {
   const res = await fetch("/api/v1/conversations")
   if (!res.ok) throw new Error("대화 목록을 불러오는데 실패했습니다")
-  return res.json()
+  const json = await res.json()
+  const data = unwrapApiData<{ items: ConversationApiItem[] }>(json)
+  const items = data?.items ?? []
+
+  return items.map((item) => ({
+    id: item.conversationId,
+    otherUser: {
+      id: item.peer?.id ?? "unknown",
+      name: item.peer?.displayName ?? "알 수 없음",
+      profileImage: item.peer?.avatarUrl ?? null,
+    },
+    lastMessage: item.lastMessageAt
+      ? {
+          content: item.lastMessageSnippet ?? "",
+          createdAt: item.lastMessageAt,
+        }
+      : null,
+    unreadCount: item.unreadCount ?? 0,
+  }))
 }
 
 export function ConversationList({ activeId }: { activeId?: string }) {

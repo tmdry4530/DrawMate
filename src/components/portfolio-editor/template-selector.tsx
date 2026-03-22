@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useEditorStore } from "@/store/editor-store";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { unwrapApiData } from "@/lib/utils/client-api";
 
 interface Template {
   id: string;
@@ -33,8 +34,8 @@ export function TemplateSelector() {
         if (!res.ok) throw new Error("templates fetch failed");
         return res.json();
       })
-      .then((data) => {
-        const list = data?.templates ?? data;
+      .then((json) => {
+        const list = unwrapApiData<Template[]>(json);
         if (Array.isArray(list) && list.length > 0) setTemplates(list);
       })
       .catch(() => {

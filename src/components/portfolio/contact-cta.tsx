@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { unwrapApiData } from "@/lib/utils/client-api"
 
 interface ContactCtaProps {
   targetUserId: string
@@ -22,7 +23,8 @@ export function ContactCta({ targetUserId }: ContactCtaProps) {
         body: JSON.stringify({ targetUserId }),
       })
       if (!res.ok) throw new Error("대화 생성 실패")
-      const data = await res.json()
+      const json = await res.json()
+      const data = unwrapApiData<{ conversationId: string }>(json)
       router.push(`/messages/${data.conversationId}`)
     } catch (err) {
       console.error(err)

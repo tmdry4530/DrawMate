@@ -16,20 +16,24 @@ async function getProfile(userId: string) {
   const { data: profile } = await supabase
     .from("profiles")
     .select(
-      "id, role, display_name, avatar_url, headline, bio, availability_status, is_profile_public"
+      "id, role, display_name, avatar_path, headline, bio, availability_status, is_profile_public"
     )
     .eq("id", userId)
     .single();
 
   if (!profile || !profile.is_profile_public) return null;
 
+  const avatarUrl = profile.avatar_path
+    ? supabase.storage.from("profile-avatars").getPublicUrl(profile.avatar_path).data.publicUrl
+    : null;
+
   const { count: portfolioCount } = await supabase
     .from("portfolios")
     .select("id", { count: "exact", head: true })
-    .eq("user_id", userId)
+    .eq("owner_id", userId)
     .eq("status", "published");
 
-  return { ...profile, portfolioCount: portfolioCount ?? 0 };
+  return { ...profile, avatar_path: avatarUrl, portfolioCount: portfolioCount ?? 0 };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -78,7 +82,7 @@ export default async function UserProfilePage({ params }: Props) {
         {/* Avatar + info */}
         <div className="-mt-16 flex items-end gap-4 pb-6">
           <Avatar className="h-32 w-32 border-4 border-background">
-            <AvatarImage src={profile.avatar_url ?? undefined} alt={profile.display_name ?? "사용자"} />
+            <AvatarImage src={profile.avatar_path ?? undefined} alt={profile.display_name ?? "사용자"} />
             <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
           </Avatar>
           <div className="mb-2 flex-1">

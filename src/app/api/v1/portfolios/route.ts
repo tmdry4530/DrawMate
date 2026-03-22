@@ -22,6 +22,14 @@ interface CursorPayload {
   id: string;
 }
 
+interface PortfolioQueryRow {
+  id: string;
+  published_at: string;
+  bookmark_count: number;
+  starting_price_krw: number | null;
+  [key: string]: unknown;
+}
+
 function encodeCursor(payload: CursorPayload): string {
   return Buffer.from(JSON.stringify(payload)).toString("base64");
 }
@@ -64,20 +72,19 @@ export async function GET(request: Request) {
 
   // Build select with owner profile join
   const selectColumns = hasTagFilters
-    ? `id, slug, title, summary, status, visibility, bookmark_count, view_count, published_at, starting_price_krw, user_id, template_id,
+    ? `id, slug, title, summary, status, visibility, bookmark_count, view_count, published_at, starting_price_krw, owner_id, template_id,
        profiles:owner_id(display_name, avatar_path),
        portfolio_tags!inner(tags!inner(slug, category))`
-    : `id, slug, title, summary, status, visibility, bookmark_count, view_count, published_at, starting_price_krw, user_id, template_id,
+    : `id, slug, title, summary, status, visibility, bookmark_count, view_count, published_at, starting_price_krw, owner_id, template_id,
        profiles:owner_id(display_name, avatar_path)`;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = supabase
     .from("portfolios")
     .select(selectColumns)
     .eq("status", "published")
     .eq("visibility", "public")
     .is("deleted_at", null)
-    .limit(limit + 1) as any;
+    .limit(limit + 1);
 
   // Full-text / trigram search on search_text column
   if (q) {
@@ -110,11 +117,23 @@ export async function GET(request: Request) {
         `published_at.lt.${decoded.published_at},and(published_at.eq.${decoded.published_at},id.lt.${decoded.id})`
       );
     } else if (sort === "popular") {
-      query = query.lt("bookmark_count", decoded.published_at); // reuse field as bookmark_count cursor
+      const bookmarkCursor = Number(decoded.published_at);
+      if (!Number.isFinite(bookmarkCursor)) {
+        return response.validationError("유효하지 않은 커서 형식입니다.");
+      }
+      query = query.lt("bookmark_count", bookmarkCursor); // reuse field as bookmark_count cursor
     } else if (sort === "price_asc") {
-      query = query.gt("starting_price_krw", Number(decoded.published_at));
+      const priceCursor = Number(decoded.published_at);
+      if (!Number.isFinite(priceCursor)) {
+        return response.validationError("유효하지 않은 커서 형식입니다.");
+      }
+      query = query.gt("starting_price_krw", priceCursor);
     } else if (sort === "price_desc") {
-      query = query.lt("starting_price_krw", Number(decoded.published_at));
+      const priceCursor = Number(decoded.published_at);
+      if (!Number.isFinite(priceCursor)) {
+        return response.validationError("유효하지 않은 커서 형식입니다.");
+      }
+      query = query.lt("starting_price_krw", priceCursor);
     }
   }
 
@@ -135,7 +154,7 @@ export async function GET(request: Request) {
     return response.error("INTERNAL_ERROR", "포트폴리오 목록을 불러오는데 실패했습니다.", 500);
   }
 
-  const items = portfolios ?? [];
+  const items = (portfolios ?? []) as unknown as PortfolioQueryRow[];
   const hasMore = items.length > limit;
   const pageItems = hasMore ? items.slice(0, limit) : items;
 
@@ -149,10 +168,33 @@ export async function GET(request: Request) {
     nextCursor = encodeCursor({ published_at: cursorValue, id: last.id });
   }
 
-  return response.success(
-    { items: toCamelCaseKeys(pageItems), nextCursor, hasMore },
-    { total: pageItems.length }
+  const mappedItems = (toCamelCaseKeys(pageItems) as Array<Record<string, unknown>>).map(
+    (item) => {
+      const rawProfile = item.profiles as
+        | { displayName?: string | null; avatarPath?: string | null }
+        | Array<{ displayName?: string | null; avatarPath?: string | null }>
+        | null
+        | undefined;
+      const profile = Array.isArray(rawProfile) ? rawProfile[0] : rawProfile;
+      const avatarPath = profile?.avatarPath ?? null;
+      const avatarUrl = avatarPath
+        ? supabase.storage.from("profile-avatars").getPublicUrl(avatarPath).data.publicUrl
+        : null;
+
+      return {
+        ...item,
+        thumbnailUrl: null,
+        profiles: profile
+          ? {
+              displayName: profile.displayName ?? null,
+              avatarUrl,
+            }
+          : null,
+      };
+    }
   );
+
+  return response.success({ items: mappedItems, nextCursor, hasMore }, { total: mappedItems.length });
 }
 
 export async function POST(request: Request) {
@@ -189,22 +231,24 @@ export async function POST(request: Request) {
   const { count: portfolioCount } = await supabase
     .from("portfolios")
     .select("id", { count: "exact", head: true })
-    .eq("user_id", user.id)
+    .eq("owner_id", user.id)
     .is("deleted_at", null);
 
   if ((portfolioCount ?? 0) >= 10) {
     return response.error("UNPROCESSABLE_ENTITY", "포트폴리오는 최대 10개까지 등록 가능합니다.", 422);
   }
 
-  const slug = generateSlug(parsed.data.title);
+  const normalizedTitle = parsed.data.title?.trim() || "제목 없음";
+  const normalizedSummary = parsed.data.summary?.trim() || "작업 소개를 입력해 주세요.";
+  const slug = generateSlug(normalizedTitle);
 
   const insertData = {
-    user_id: user.id,
+    owner_id: user.id,
     slug,
-    title: parsed.data.title,
-    summary: parsed.data.summary,
+    title: normalizedTitle,
+    summary: normalizedSummary,
     description: parsed.data.description ?? null,
-    template_id: parsed.data.templateId,
+    template_id: parsed.data.templateId ?? null,
     starting_price_krw: parsed.data.startingPriceKrw ?? null,
     duration_days: parsed.data.durationDays ?? null,
     visibility: parsed.data.visibility ?? "public",

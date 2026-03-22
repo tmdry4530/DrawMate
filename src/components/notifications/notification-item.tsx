@@ -3,20 +3,15 @@ import { ko } from "date-fns/locale"
 import {
   MessageSquare,
   Heart,
-  UserPlus,
   Bell,
-  Briefcase,
-  Star,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 type NotificationType =
-  | "message"
-  | "like"
-  | "follow"
-  | "project_invite"
-  | "review"
-  | "general"
+  | "message_received"
+  | "message_replied"
+  | "bookmark_added"
+  | "system_notice"
 
 interface Notification {
   id: string
@@ -28,12 +23,10 @@ interface Notification {
 }
 
 const iconMap: Record<NotificationType, React.ReactNode> = {
-  message: <MessageSquare className="h-4 w-4 text-blue-500" />,
-  like: <Heart className="h-4 w-4 text-red-500" />,
-  follow: <UserPlus className="h-4 w-4 text-green-500" />,
-  project_invite: <Briefcase className="h-4 w-4 text-purple-500" />,
-  review: <Star className="h-4 w-4 text-yellow-500" />,
-  general: <Bell className="h-4 w-4 text-muted-foreground" />,
+  message_received: <MessageSquare className="h-4 w-4 text-blue-500" />,
+  message_replied: <MessageSquare className="h-4 w-4 text-indigo-500" />,
+  bookmark_added: <Heart className="h-4 w-4 text-red-500" />,
+  system_notice: <Bell className="h-4 w-4 text-muted-foreground" />,
 }
 
 interface NotificationItemProps {
@@ -41,7 +34,7 @@ interface NotificationItemProps {
 }
 
 export function NotificationItem({ notification }: NotificationItemProps) {
-  const icon = iconMap[notification.type] ?? iconMap.general
+  const icon = iconMap[notification.type] ?? iconMap.system_notice
 
   return (
     <div

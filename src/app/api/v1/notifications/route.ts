@@ -40,14 +40,13 @@ export async function GET(request: Request) {
 
   const { cursor, limit, unreadOnly } = parsed.data;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = supabase
     .from("notifications")
     .select("id, type, title, body, entity_type, entity_id, payload, read_at, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .order("id", { ascending: false })
-    .limit(limit + 1) as any;
+    .limit(limit + 1);
 
   if (unreadOnly) {
     query = query.is("read_at", null);

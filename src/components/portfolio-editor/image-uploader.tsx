@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useEditorStore } from "@/store/editor-store";
 import { Star, StarOff, X, Upload, ImageIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { unwrapApiData } from "@/lib/utils/client-api";
 
 const MAX_IMAGES = 20;
 const MAX_FILE_SIZE_MB = 10;
@@ -44,7 +44,8 @@ export function ImageUploader() {
           });
           if (xhr.status >= 200 && xhr.status < 300) {
             try {
-              const data = JSON.parse(xhr.responseText);
+              const json = JSON.parse(xhr.responseText);
+              const data = unwrapApiData<{ image?: { id?: string }; id?: string }>(json);
               resolve(data?.image?.id ?? data?.id);
             } catch {
               resolve(undefined);

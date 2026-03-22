@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { useEditorStore } from "@/store/editor-store";
 import { cn } from "@/lib/utils";
+import { unwrapApiData } from "@/lib/utils/client-api";
 
 interface Tag {
   id: string;
@@ -37,8 +38,9 @@ export function TagSelector() {
         if (!res.ok) throw new Error("태그 목록을 불러오지 못했습니다.");
         return res.json();
       })
-      .then((data) => {
-        setAllTags(data?.tags ?? data ?? []);
+      .then((json) => {
+        const data = unwrapApiData<Tag[]>(json);
+        setAllTags(Array.isArray(data) ? data : []);
       })
       .catch((err) => {
         setError(err.message);

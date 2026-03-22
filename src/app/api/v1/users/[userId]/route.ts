@@ -20,7 +20,7 @@ export async function GET(
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select(
-      "id, role, display_name, avatar_url, headline, bio, sns_links, availability_status, is_profile_public, created_at"
+      "id, role, display_name, avatar_path, headline, bio, sns_links, availability_status, is_profile_public, created_at"
     )
     .eq("id", userId)
     .single();
@@ -36,13 +36,18 @@ export async function GET(
   const { count: portfolioCount } = await supabase
     .from("portfolios")
     .select("id", { count: "exact", head: true })
-    .eq("user_id", userId)
+    .eq("owner_id", userId)
     .eq("status", "published");
 
   const camelProfile = toCamelCaseKeys(profile) as Record<string, unknown>;
+  const avatarPath = camelProfile.avatarPath as string | null;
+  const avatarUrl = avatarPath
+    ? supabase.storage.from("profile-avatars").getPublicUrl(avatarPath).data.publicUrl
+    : null;
 
   return response.success({
     ...camelProfile,
+    avatarUrl,
     counts: {
       portfolios: portfolioCount ?? 0,
     },

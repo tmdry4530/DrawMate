@@ -30,6 +30,11 @@ export async function POST(request: Request) {
     return response.validationError("conversationId가 필요합니다.");
   }
 
+  const messageId = formData.get("messageId");
+  if (!messageId || typeof messageId !== "string") {
+    return response.validationError("messageId가 필요합니다.");
+  }
+
   // Verify participant
   const { data: participant } = await supabase
     .from("conversation_participants")
@@ -40,6 +45,22 @@ export async function POST(request: Request) {
 
   if (!participant) {
     return response.forbidden("대화방 참여자가 아닙니다.");
+  }
+
+  // Verify message ownership for attachment insert
+  const { data: message } = await supabase
+    .from("messages")
+    .select("id, sender_id, conversation_id")
+    .eq("id", messageId)
+    .eq("conversation_id", conversationId)
+    .maybeSingle();
+
+  if (!message) {
+    return response.notFound("메시지를 찾을 수 없습니다.");
+  }
+
+  if (message.sender_id !== user.id) {
+    return response.forbidden("첨부 파일 추가 권한이 없습니다.");
   }
 
   const files = formData.getAll("files[]") as File[];
@@ -73,7 +94,7 @@ export async function POST(request: Request) {
     }
 
     const ext = file.name.split(".").pop() ?? "bin";
-    const storagePath = `${conversationId}/${user.id}/${Date.now()}_${i}.${ext}`;
+    const storagePath = `${conversationId}/${messageId}/${crypto.randomUUID()}_${i}.${ext}`;
 
     const arrayBuffer = await file.arrayBuffer();
     const { error: uploadError } = await supabase.storage
@@ -87,11 +108,11 @@ export async function POST(request: Request) {
       return response.error("INTERNAL_ERROR", "파일 업로드에 실패했습니다.", 500);
     }
 
-    // Create attachment record (message_id will be set when message is sent)
+    // Create attachment record for existing message
     const { data: attachment, error: dbError } = await supabase
       .from("message_attachments")
       .insert({
-        message_id: "00000000-0000-0000-0000-000000000000", // placeholder, updated on message send
+        message_id: messageId,
         storage_path: storagePath,
         mime_type: file.type,
         size_bytes: file.size,

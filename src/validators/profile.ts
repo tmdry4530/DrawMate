@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const profileUpdateSchema = z.object({
+  role: z.enum(["assistant", "recruiter"]).optional(),
   displayName: z
     .string()
     .min(2, "이름은 최소 2자 이상이어야 합니다.")

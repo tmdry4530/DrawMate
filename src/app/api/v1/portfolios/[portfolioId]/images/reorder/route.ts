@@ -24,7 +24,7 @@ export async function PATCH(
 
   const { data: portfolio, error: fetchError } = await supabase
     .from("portfolios")
-    .select("id, user_id")
+    .select("id, owner_id")
     .eq("id", portfolioId)
     .is("deleted_at", null)
     .single();
@@ -33,7 +33,7 @@ export async function PATCH(
     return response.notFound("포트폴리오를 찾을 수 없습니다.");
   }
 
-  if (portfolio.user_id !== user.id) {
+  if (portfolio.owner_id !== user.id) {
     return response.forbidden("이미지 순서 변경 권한이 없습니다.");
   }
 
@@ -56,8 +56,8 @@ export async function PATCH(
   }
 
   const { error: rpcError } = await supabase.rpc("reorder_portfolio_images", {
-    p_portfolio_id: portfolioId,
-    p_ordered_ids: parsed.data.orderedIds,
+    p_id: portfolioId,
+    ordered_ids: parsed.data.orderedIds,
   });
 
   if (rpcError) {

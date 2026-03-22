@@ -12,7 +12,7 @@ interface PortfolioRow {
   owner: {
     id: string
     display_name: string | null
-    avatar_url: string | null
+    avatar_path: string | null
   } | null
   cover_image: {
     thumb_path: string | null
@@ -32,7 +32,7 @@ async function getRecentPortfolios(): Promise<PortfolioRow[]> {
     .from("portfolios")
     .select(
       `id, slug, title, bookmark_count,
-       owner:profiles!owner_id(id, display_name, avatar_url),
+       owner:profiles!owner_id(id, display_name, avatar_path),
        cover_image:portfolio_images(thumb_path)`
     )
     .eq("status", "published")
@@ -42,7 +42,37 @@ async function getRecentPortfolios(): Promise<PortfolioRow[]> {
     .order("published_at", { ascending: false })
     .limit(8)
 
-  return (data ?? []) as unknown as PortfolioRow[]
+  const rows = (data ?? []) as unknown as PortfolioRow[]
+  return rows.map((row) => {
+    const owner = Array.isArray(row.owner) ? row.owner[0] : row.owner
+    const coverImage = Array.isArray(row.cover_image) ? row.cover_image[0] : row.cover_image
+
+    const avatarPath = owner?.avatar_path ?? null
+    const thumbPath = coverImage?.thumb_path ?? null
+
+    const avatarUrl = avatarPath
+      ? supabase.storage.from("profile-avatars").getPublicUrl(avatarPath).data.publicUrl
+      : null
+    const thumbUrl = thumbPath
+      ? supabase.storage.from("portfolio-public").getPublicUrl(thumbPath).data.publicUrl
+      : null
+
+    return {
+      ...row,
+      owner: owner
+        ? {
+            ...owner,
+            avatar_path: avatarUrl,
+          }
+        : null,
+      cover_image: coverImage
+        ? {
+            ...coverImage,
+            thumb_path: thumbUrl,
+          }
+        : null,
+    }
+  })
 }
 
 async function getPopularTags(): Promise<TagRow[]> {
@@ -115,7 +145,7 @@ export default async function HomePage() {
                     title={p.title}
                     thumbnailUrl={coverImage?.thumb_path ?? null}
                     ownerName={owner?.display_name ?? "익명"}
-                    ownerAvatarUrl={owner?.avatar_url ?? null}
+                    ownerAvatarUrl={owner?.avatar_path ?? null}
                     bookmarkCount={p.bookmark_count}
                   />
                 )

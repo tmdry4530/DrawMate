@@ -1,0 +1,2 @@
+-- Intentionally empty.
+-- Canonical seeds are managed via timestamped migration files.

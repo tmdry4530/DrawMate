@@ -4,5 +4,5 @@ export type PortfolioStatus = "draft" | "published" | "archived";
 export type PortfolioVisibility = "public" | "unlisted";
 export type TagCategory = "field" | "skill" | "tool" | "style";
 export type ConversationType = "direct";
-export type MessageType = "text" | "image" | "mixed" | "system";
+export type MessageType = "text" | "image" | "file" | "system";
 export type NotificationType = "message_received" | "message_replied" | "bookmark_added" | "system_notice";

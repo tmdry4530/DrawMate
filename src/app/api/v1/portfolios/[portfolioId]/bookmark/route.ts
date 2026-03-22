@@ -28,20 +28,32 @@ export async function POST(
     return response.notFound("포트폴리오를 찾을 수 없습니다.");
   }
 
-  // Upsert bookmark (idempotent)
-  const { error: upsertError } = await supabase
-    .from("portfolio_bookmarks")
-    .upsert(
-      { portfolio_id: portfolioId, user_id: user.id },
-      { onConflict: "portfolio_id,user_id", ignoreDuplicates: true }
-    );
+  const { data: existing } = await supabase
+    .from("bookmarks")
+    .select("id")
+    .eq("portfolio_id", portfolioId)
+    .eq("user_id", user.id)
+    .maybeSingle();
 
-  if (upsertError) {
+  if (existing) {
+    return response.success({ bookmarked: true });
+  }
+
+  const { error: insertError } = await supabase
+    .from("bookmarks")
+    .insert({ portfolio_id: portfolioId, user_id: user.id });
+
+  if (insertError) {
     return response.error("INTERNAL_ERROR", "북마크 추가에 실패했습니다.", 500);
   }
 
   // Increment bookmark_count
-  await supabase.rpc("increment_bookmark_count", { p_portfolio_id: portfolioId });
+  const { error: incrementError } = await supabase.rpc("increment_bookmark_count", {
+    p_portfolio_id: portfolioId,
+  });
+  if (incrementError) {
+    return response.error("INTERNAL_ERROR", "북마크 카운트 갱신에 실패했습니다.", 500);
+  }
 
   return response.success({ bookmarked: true }, undefined, 201);
 }
@@ -63,7 +75,7 @@ export async function DELETE(
   }
 
   const { data: bookmark, error: fetchError } = await supabase
-    .from("portfolio_bookmarks")
+    .from("bookmarks")
     .select("id")
     .eq("portfolio_id", portfolioId)
     .eq("user_id", user.id)
@@ -74,7 +86,7 @@ export async function DELETE(
   }
 
   const { error: deleteError } = await supabase
-    .from("portfolio_bookmarks")
+    .from("bookmarks")
     .delete()
     .eq("portfolio_id", portfolioId)
     .eq("user_id", user.id);
@@ -84,7 +96,12 @@ export async function DELETE(
   }
 
   // Decrement bookmark_count
-  await supabase.rpc("decrement_bookmark_count", { p_portfolio_id: portfolioId });
+  const { error: decrementError } = await supabase.rpc("decrement_bookmark_count", {
+    p_portfolio_id: portfolioId,
+  });
+  if (decrementError) {
+    return response.error("INTERNAL_ERROR", "북마크 카운트 갱신에 실패했습니다.", 500);
+  }
 
   return response.success({ bookmarked: false });
 }

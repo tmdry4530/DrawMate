@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { PortfolioCard } from "@/components/portfolio/portfolio-card"
+import { unwrapApiData } from "@/lib/utils/client-api"
 
 interface BookmarkedPortfolio {
   id: string
@@ -12,6 +13,21 @@ interface BookmarkedPortfolio {
   ownerName: string
   ownerAvatarUrl?: string | null
   bookmarkCount: number
+}
+
+interface BookmarkApiItem {
+  id: string
+  portfolio: {
+    id: string
+    slug: string
+    title: string
+    bookmarkCount: number
+    profiles?: {
+      displayName?: string | null
+      avatarUrl?: string | null
+      avatarPath?: string | null
+    } | null
+  } | null
 }
 
 function PortfolioCardSkeleton() {
@@ -36,8 +52,22 @@ export default function BookmarksPage() {
       try {
         const res = await fetch("/api/v1/bookmarks")
         if (res.ok) {
-          const data = await res.json()
-          setPortfolios(data ?? [])
+          const json = await res.json()
+          const data = unwrapApiData<{ items: BookmarkApiItem[] }>(json)
+          const mapped = (data?.items ?? [])
+            .filter((item) => !!item.portfolio)
+            .map((item) => ({
+              id: item.portfolio!.id,
+              slug: item.portfolio!.slug,
+              title: item.portfolio!.title,
+              ownerName: item.portfolio!.profiles?.displayName ?? "알 수 없음",
+              ownerAvatarUrl:
+                item.portfolio!.profiles?.avatarUrl ??
+                item.portfolio!.profiles?.avatarPath ??
+                null,
+              bookmarkCount: item.portfolio!.bookmarkCount ?? 0,
+            }))
+          setPortfolios(mapped)
         }
       } catch {
         // 에러 시 빈 목록 유지

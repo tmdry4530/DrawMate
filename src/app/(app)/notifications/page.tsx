@@ -5,10 +5,11 @@ import { Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { NotificationItem } from "@/components/notifications/notification-item"
+import { unwrapApiData } from "@/lib/utils/client-api"
 
 interface Notification {
   id: string
-  type: "message" | "like" | "follow" | "project_invite" | "review" | "general"
+  type: "message_received" | "message_replied" | "bookmark_added" | "system_notice"
   title: string
   body: string
   isRead: boolean
@@ -18,7 +19,26 @@ interface Notification {
 async function fetchNotifications(): Promise<Notification[]> {
   const res = await fetch("/api/v1/notifications")
   if (!res.ok) throw new Error("알림을 불러오는데 실패했습니다")
-  return res.json()
+  const json = await res.json()
+  const data = unwrapApiData<{
+    items: Array<{
+      id: string
+      type: Notification["type"]
+      title: string
+      body: string
+      readAt: string | null
+      createdAt: string
+    }>
+  }>(json)
+
+  return (data?.items ?? []).map((item) => ({
+    id: item.id,
+    type: item.type,
+    title: item.title,
+    body: item.body,
+    isRead: !!item.readAt,
+    createdAt: item.createdAt,
+  }))
 }
 
 async function markAllRead(): Promise<void> {

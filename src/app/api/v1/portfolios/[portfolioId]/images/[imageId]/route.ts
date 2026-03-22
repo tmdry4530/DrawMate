@@ -19,7 +19,7 @@ export async function DELETE(
 
   const { data: portfolio, error: fetchError } = await supabase
     .from("portfolios")
-    .select("id, user_id")
+    .select("id, owner_id")
     .eq("id", portfolioId)
     .is("deleted_at", null)
     .single();
@@ -28,13 +28,13 @@ export async function DELETE(
     return response.notFound("포트폴리오를 찾을 수 없습니다.");
   }
 
-  if (portfolio.user_id !== user.id) {
+  if (portfolio.owner_id !== user.id) {
     return response.forbidden("이미지 삭제 권한이 없습니다.");
   }
 
   const { data: image, error: imageFetchError } = await supabase
     .from("portfolio_images")
-    .select("id, storage_path")
+    .select("id, original_path, display_path, thumb_path")
     .eq("id", imageId)
     .eq("portfolio_id", portfolioId)
     .single();
@@ -43,9 +43,13 @@ export async function DELETE(
     return response.notFound("이미지를 찾을 수 없습니다.");
   }
 
-  // Delete from storage
-  if (image.storage_path) {
-    await supabase.storage.from("portfolio-images").remove([image.storage_path as string]);
+  // Delete from storage (best effort)
+  const publicPaths = [image.display_path, image.thumb_path, image.original_path]
+    .filter((path): path is string => !!path);
+
+  if (publicPaths.length > 0) {
+    await supabase.storage.from("portfolio-public").remove([...new Set(publicPaths)]);
+    await supabase.storage.from("portfolio-originals").remove([...new Set(publicPaths)]);
   }
 
   // Delete DB row

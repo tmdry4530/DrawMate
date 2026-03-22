@@ -1,7 +1,28 @@
 import { createClient } from "@/lib/supabase/server-client";
 import * as response from "@/lib/utils/api-response";
-import { toCamelCaseKeys } from "@/server/mappers/case-converter";
 import { conversationListSchema } from "@/validators/messaging";
+
+interface ConversationParticipantRow {
+  user_id: string;
+  last_read_message_id: string | null;
+  last_read_at: string | null;
+}
+
+interface ConversationMessageRow {
+  id: string;
+  body: string | null;
+  message_type: string;
+  sender_id: string;
+  created_at: string;
+}
+
+interface ConversationRow {
+  id: string;
+  last_message_at: string | null;
+  last_message_id: string | null;
+  conversation_participants?: ConversationParticipantRow[];
+  messages?: ConversationMessageRow[];
+}
 
 function encodeCursor(lastMessageAt: string | null, id: string): string {
   return Buffer.from(JSON.stringify({ lastMessageAt, id })).toString("base64");
@@ -39,8 +60,6 @@ export async function GET(request: Request) {
 
   const { cursor, limit } = parsed.data;
 
-  // Get conversation IDs the user participates in
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = supabase
     .from("conversations")
     .select(
@@ -51,7 +70,7 @@ export async function GET(request: Request) {
     .eq("conversation_participants.user_id", user.id)
     .order("last_message_at", { ascending: false, nullsFirst: false })
     .order("id", { ascending: false })
-    .limit(limit + 1) as any;
+    .limit(limit + 1);
 
   if (cursor) {
     const decoded = decodeCursor(cursor);
@@ -73,13 +92,13 @@ export async function GET(request: Request) {
     return response.error("INTERNAL_ERROR", "대화방 목록을 불러오는데 실패했습니다.", 500);
   }
 
-  const items = conversations ?? [];
+  const items = (conversations ?? []) as ConversationRow[];
   const hasMore = items.length > limit;
   const pageItems = hasMore ? items.slice(0, limit) : items;
 
   // For each conversation, fetch the peer profile and compute unread count
   const enriched = await Promise.all(
-    pageItems.map(async (conv: any) => {
+    pageItems.map(async (conv) => {
       // Get peer user_id (not current user)
       const { data: participants } = await supabase
         .from("conversation_participants")
@@ -97,12 +116,22 @@ export async function GET(request: Request) {
           .select("id, display_name, avatar_path")
           .eq("id", peerUserId)
           .maybeSingle();
-        peer = peerProfile ? (toCamelCaseKeys(peerProfile) as Record<string, unknown>) : null;
+        peer = peerProfile
+          ? {
+              id: peerProfile.id,
+              displayName: peerProfile.display_name,
+              avatarUrl: peerProfile.avatar_path
+                ? supabase.storage
+                    .from("profile-avatars")
+                    .getPublicUrl(peerProfile.avatar_path).data.publicUrl
+                : null,
+            }
+          : null;
       }
 
       // Count unread messages
       const myParticipant = conv.conversation_participants?.find(
-        (p: any) => p.user_id === user.id
+        (participant) => participant.user_id === user.id
       );
       const lastReadAt = myParticipant?.last_read_at ?? null;
 
@@ -116,7 +145,7 @@ export async function GET(request: Request) {
 
       // Last message snippet
       const lastMsg = conv.last_message_id
-        ? conv.messages?.find((m: any) => m.id === conv.last_message_id)
+        ? conv.messages?.find((message) => message.id === conv.last_message_id)
         : null;
       const lastMessageSnippet = lastMsg?.body
         ? lastMsg.body.substring(0, 100)

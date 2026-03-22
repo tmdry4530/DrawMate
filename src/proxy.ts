@@ -1,16 +1,27 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request);
 
   const { pathname } = request.nextUrl;
+  const protectedPrefixes = [
+    "/studio",
+    "/messages",
+    "/notifications",
+    "/bookmarks",
+    "/settings",
+    "/onboarding",
+  ];
+  const isProtectedPage = protectedPrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
 
-  // Protect routes under /(app)/
-  if (pathname.startsWith("/app") || pathname.match(/^\/(app)\//)) {
+  if (isProtectedPage) {
     if (!user) {
       const url = request.nextUrl.clone();
       url.pathname = "/sign-in";
+      url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);
     }
   }

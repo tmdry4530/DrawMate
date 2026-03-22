@@ -30,11 +30,11 @@ export async function GET(request: Request) {
   const { cursor, limit } = parsed.data;
 
   let query = supabase
-    .from("portfolio_bookmarks")
+    .from("bookmarks")
     .select(
       `id, created_at,
        portfolios(id, slug, title, summary, status, visibility, bookmark_count, view_count, published_at,
-         profiles!portfolios_user_id_fkey(id, display_name, avatar_url))`
+         profiles!portfolios_owner_id_fkey(id, display_name, avatar_path))`
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
@@ -45,7 +45,7 @@ export async function GET(request: Request) {
       return response.validationError("유효하지 않은 커서 형식입니다.");
     }
     const { data: cursorItem } = await supabase
-      .from("portfolio_bookmarks")
+      .from("bookmarks")
       .select("created_at")
       .eq("id", cursor)
       .single();
@@ -67,10 +67,29 @@ export async function GET(request: Request) {
 
   const mapped = pageItems.map((bm) => {
     const portfolio = (Array.isArray(bm.portfolios) ? bm.portfolios[0] : bm.portfolios) as Record<string, unknown> | null;
+    const camelPortfolio = portfolio ? (toCamelCaseKeys(portfolio) as Record<string, unknown>) : null;
+    const profile = camelPortfolio?.profiles as
+      | { avatarPath?: string | null; displayName?: string | null }
+      | undefined;
+    const avatarPath = profile?.avatarPath ?? null;
+    const avatarUrl = avatarPath
+      ? supabase.storage.from("profile-avatars").getPublicUrl(avatarPath).data.publicUrl
+      : null;
+
     return {
       id: bm.id,
       bookmarkedAt: bm.created_at,
-      portfolio: portfolio ? toCamelCaseKeys(portfolio) : null,
+      portfolio: camelPortfolio
+        ? {
+            ...camelPortfolio,
+            profiles: profile
+              ? {
+                  ...profile,
+                  avatarUrl,
+                }
+              : null,
+          }
+        : null,
     };
   });
 

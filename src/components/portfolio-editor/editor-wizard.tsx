@@ -23,16 +23,18 @@ interface EditorWizardProps {
 }
 
 function buildPatchBody(state: ReturnType<typeof useEditorStore.getState>) {
+  const tagIds = [
+    ...state.tags.field,
+    ...state.tags.skill,
+    ...state.tags.tool,
+    ...state.tags.style,
+  ];
+
   return {
-    templateId: state.selectedTemplateId,
+    templateId: state.selectedTemplateId ?? undefined,
     templateCustomization: state.templateCustomization,
     ...state.formData,
-    tags: [
-      ...state.tags.field,
-      ...state.tags.skill,
-      ...state.tags.tool,
-      ...state.tags.style,
-    ],
+    tagIds,
   };
 }
 

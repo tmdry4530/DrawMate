@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useEditorStore } from "@/store/editor-store";
 import { EditorWizard } from "@/components/portfolio-editor/editor-wizard";
+import { unwrapApiData } from "@/lib/utils/client-api";
 
 export default function EditPortfolioPage() {
   const params = useParams();
@@ -23,37 +24,46 @@ export default function EditPortfolioPage() {
         if (!res.ok) throw new Error("포트폴리오를 불러오지 못했습니다.");
         return res.json();
       })
-      .then((data) => {
-        const p = data?.portfolio ?? data;
-        if (p.templateId) setTemplate(p.templateId);
+      .then((json) => {
+        const p = unwrapApiData<Record<string, unknown>>(json);
+        if (typeof p.templateId === "string") setTemplate(p.templateId);
         setFormData({
-          title: p.title ?? "",
-          summary: p.summary ?? "",
-          description: p.description ?? "",
-          startingPriceKrw: p.startingPriceKrw ?? null,
-          durationDays: p.durationDays ?? null,
+          title: (p.title as string) ?? "",
+          summary: (p.summary as string) ?? "",
+          description: (p.description as string) ?? "",
+          startingPriceKrw: (p.startingPriceKrw as number | null) ?? null,
+          durationDays: (p.durationDays as number | null) ?? null,
         });
         if (p.tags) {
+          const tags = p.tags as Array<{ id: string; category: string }>;
           setTags({
-            field: p.tags.filter((t: { category: string }) => t.category === "field").map((t: { id: string }) => t.id),
-            skill: p.tags.filter((t: { category: string }) => t.category === "skill").map((t: { id: string }) => t.id),
-            tool: p.tags.filter((t: { category: string }) => t.category === "tool").map((t: { id: string }) => t.id),
-            style: p.tags.filter((t: { category: string }) => t.category === "style").map((t: { id: string }) => t.id),
+            field: tags.filter((t) => t.category === "field").map((t) => t.id),
+            skill: tags.filter((t) => t.category === "skill").map((t) => t.id),
+            tool: tags.filter((t) => t.category === "tool").map((t) => t.id),
+            style: tags.filter((t) => t.category === "style").map((t) => t.id),
           });
         }
         if (p.images) {
+          const images = p.images as Array<{
+            id: string;
+            url?: string | null;
+            displayPath?: string | null;
+            thumbPath?: string | null;
+            caption?: string | null;
+            isCover?: boolean;
+            sortOrder?: number;
+          }>;
           setImages(
-            p.images.map(
-              (img: { id: string; url: string; caption: string; isCover: boolean; sortOrder: number }, idx: number) => ({
-                id: img.id,
-                previewUrl: img.url,
-                caption: img.caption ?? "",
-                isCover: img.isCover ?? idx === 0,
-                sortOrder: img.sortOrder ?? idx,
-              })
-            )
+            images.map((img, idx) => ({
+              id: img.id,
+              previewUrl: img.url ?? img.thumbPath ?? img.displayPath ?? "",
+              caption: img.caption ?? "",
+              isCover: img.isCover ?? idx === 0,
+              sortOrder: img.sortOrder ?? idx,
+            }))
           );
         }
+        useEditorStore.setState({ isDirty: false });
         setLoading(false);
       })
       .catch((err) => {

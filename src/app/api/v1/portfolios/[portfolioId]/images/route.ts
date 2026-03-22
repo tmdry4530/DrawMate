@@ -24,7 +24,7 @@ export async function POST(
 
   const { data: portfolio, error: fetchError } = await supabase
     .from("portfolios")
-    .select("id, user_id")
+    .select("id, owner_id")
     .eq("id", portfolioId)
     .is("deleted_at", null)
     .single();
@@ -33,7 +33,7 @@ export async function POST(
     return response.notFound("포트폴리오를 찾을 수 없습니다.");
   }
 
-  if (portfolio.user_id !== user.id) {
+  if (portfolio.owner_id !== user.id) {
     return response.forbidden("이미지 업로드 권한이 없습니다.");
   }
 
@@ -76,11 +76,11 @@ export async function POST(
   }
 
   const ext = file.type.split("/")[1].replace("jpeg", "jpg");
-  const filename = `${portfolioId}/${crypto.randomUUID()}.${ext}`;
+  const filename = `${user.id}/${portfolioId}/${crypto.randomUUID()}.${ext}`;
 
   const arrayBuffer = await file.arrayBuffer();
   const { error: uploadError } = await supabase.storage
-    .from("portfolio-images")
+    .from("portfolio-public")
     .upload(filename, arrayBuffer, {
       contentType: file.type,
       upsert: false,
@@ -90,7 +90,7 @@ export async function POST(
     return response.error("INTERNAL_ERROR", "이미지 업로드에 실패했습니다.", 500);
   }
 
-  const { data: urlData } = supabase.storage.from("portfolio-images").getPublicUrl(filename);
+  const { data: urlData } = supabase.storage.from("portfolio-public").getPublicUrl(filename);
 
   // Get the next sort_order
   const { data: lastImage } = await supabase
@@ -107,16 +107,16 @@ export async function POST(
     .from("portfolio_images")
     .insert({
       portfolio_id: portfolioId,
-      storage_path: filename,
-      mime_type: file.type,
+      original_path: filename,
+      display_path: filename,
       sort_order: sortOrder,
     })
-    .select("id, storage_path, mime_type, sort_order, created_at")
+    .select("id, original_path, display_path, thumb_path, sort_order, is_cover, created_at")
     .single();
 
   if (insertError || !imageRow) {
     // Cleanup uploaded file
-    await supabase.storage.from("portfolio-images").remove([filename]);
+    await supabase.storage.from("portfolio-public").remove([filename]);
     return response.error("INTERNAL_ERROR", "이미지 정보 저장에 실패했습니다.", 500);
   }
 

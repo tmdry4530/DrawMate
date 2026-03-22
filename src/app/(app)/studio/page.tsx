@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, ImageIcon, Edit2, Eye } from "lucide-react";
+import { unwrapApiData } from "@/lib/utils/client-api";
 
 interface Portfolio {
   id: string;
+  slug: string;
   title: string;
   status: "draft" | "published" | "archived";
   coverImageUrl?: string;
@@ -35,7 +37,10 @@ export default function StudioPage() {
   useEffect(() => {
     fetch("/api/v1/portfolios/mine")
       .then((res) => res.json())
-      .then((data) => setPortfolios(data?.portfolios ?? data ?? []))
+      .then((json) => {
+        const data = unwrapApiData<{ items: Portfolio[] }>(json);
+        setPortfolios(data?.items ?? []);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
@@ -136,7 +141,7 @@ export default function StudioPage() {
                     </Button>
                     {portfolio.status === "published" && (
                       <Button size="sm" variant="secondary" asChild>
-                        <Link href={`/portfolios/${portfolio.id}`}>
+                        <Link href={`/portfolio/${portfolio.slug}`}>
                           <Eye className="w-3.5 h-3.5 mr-1" />
                           보기
                         </Link>

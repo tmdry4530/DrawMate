@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEditorStore } from "@/store/editor-store";
 import { EditorWizard } from "@/components/portfolio-editor/editor-wizard";
+import { unwrapApiData } from "@/lib/utils/client-api";
 
 export default function NewPortfolioPage() {
   const router = useRouter();
@@ -17,13 +18,14 @@ export default function NewPortfolioPage() {
     fetch("/api/v1/portfolios", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "draft" }),
+      body: JSON.stringify({}),
     })
       .then((res) => {
         if (!res.ok) throw new Error("포트폴리오 생성에 실패했습니다.");
         return res.json();
       })
-      .then((data) => {
+      .then((json) => {
+        const data = unwrapApiData<{ portfolio?: { id?: string }; id?: string }>(json);
         const id = data?.portfolio?.id ?? data?.id;
         if (!id) throw new Error("포트폴리오 ID를 받지 못했습니다.");
         setPortfolioId(id);
@@ -37,7 +39,7 @@ export default function NewPortfolioPage() {
   }, []);
 
   const handleComplete = (portfolioId: string) => {
-    router.push(`/studio/portfolios/${portfolioId}`);
+    router.push(`/studio/portfolios/${portfolioId}/edit`);
   };
 
   if (creating) {

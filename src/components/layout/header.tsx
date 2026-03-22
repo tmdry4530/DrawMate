@@ -37,15 +37,18 @@ export function Header() {
           .select("display_name, avatar_path")
           .eq("id", authUser.id)
           .single()
-          .then(({ data: profile }) => {
-            setUser({
-              id: authUser.id,
-              email: authUser.email,
-              profile: {
-                displayName: profile?.display_name ?? null,
-                avatarUrl: profile?.avatar_path ?? null,
-              },
-            });
+              .then(({ data: profile }) => {
+                const avatarUrl = profile?.avatar_path
+                  ? supabase.storage.from("profile-avatars").getPublicUrl(profile.avatar_path).data.publicUrl
+                  : null;
+                setUser({
+                  id: authUser.id,
+                  email: authUser.email,
+                  profile: {
+                    displayName: profile?.display_name ?? null,
+                    avatarUrl,
+                  },
+                });
             setLoading(false);
           });
       } else {
