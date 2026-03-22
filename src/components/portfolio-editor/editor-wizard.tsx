@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/store/editor-store";
 import { TemplateSelector } from "./template-selector";
@@ -123,10 +124,15 @@ export function EditorWizard({ onComplete }: EditorWizardProps) {
       const res = await fetch(`/api/v1/portfolios/${portfolioId}/publish`, {
         method: "POST",
       });
-      if (!res.ok) throw new Error("게시에 실패했습니다.");
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        const msg = body?.error?.message ?? "게시에 실패했습니다.";
+        throw new Error(msg);
+      }
+      toast.success("포트폴리오가 게시되었습니다!");
       if (onComplete) onComplete(portfolioId);
     } catch (err) {
-      alert((err as Error).message);
+      toast.error((err as Error).message);
     } finally {
       setPublishing(false);
     }
