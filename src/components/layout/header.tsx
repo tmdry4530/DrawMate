@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Bell, MessageSquare, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,10 +15,61 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { createClient } from "@/lib/supabase/browser-client";
 
-const user = null;
+interface UserProfile {
+  displayName: string | null;
+  avatarUrl: string | null;
+}
 
 export function Header() {
+  const [user, setUser] = useState<{ id: string; email?: string; profile?: UserProfile } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    supabase.auth.getUser().then(({ data: { user: authUser } }) => {
+      if (authUser) {
+        supabase
+          .from("profiles")
+          .select("display_name, avatar_path")
+          .eq("id", authUser.id)
+          .single()
+          .then(({ data: profile }) => {
+            setUser({
+              id: authUser.id,
+              email: authUser.email,
+              profile: {
+                displayName: profile?.display_name ?? null,
+                avatarUrl: profile?.avatar_path ?? null,
+              },
+            });
+            setLoading(false);
+          });
+      } else {
+        setUser(null);
+        setLoading(false);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session?.user) {
+        setUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setUser(null);
+    router.push("/sign-in");
+  };
+
   return (
     <header className="sticky top-0 z-50 border-b bg-white">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
@@ -39,7 +92,9 @@ export function Header() {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
-          {user ? (
+          {loading ? (
+            <div className="w-20" />
+          ) : user ? (
             <>
               {/* Bell icon with badge */}
               <Button variant="ghost" size="icon" className="relative">
@@ -61,8 +116,8 @@ export function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={undefined} alt="프로필" />
-                      <AvatarFallback>U</AvatarFallback>
+                      <AvatarImage src={user.profile?.avatarUrl ?? undefined} alt="프로필" />
+                      <AvatarFallback>{user.profile?.displayName?.[0] ?? "U"}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
@@ -77,7 +132,7 @@ export function Header() {
                     <Link href="/settings">설정</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-600">
+                  <DropdownMenuItem className="text-red-600" onClick={handleLogout}>
                     로그아웃
                   </DropdownMenuItem>
                 </DropdownMenuContent>
