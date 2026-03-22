@@ -206,7 +206,7 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return response.unauthorized();
+    return response.error("AUTH_REQUIRED", `인증 실패: ${authError?.message ?? "no user"}`, 401);
   }
 
   let body: unknown;
@@ -263,8 +263,7 @@ export async function POST(request: Request) {
     .single();
 
   if (insertError || !portfolio) {
-    console.error("Portfolio insert error:", insertError);
-    return response.error("INTERNAL_ERROR", `포트폴리오 생성에 실패했습니다: ${insertError?.message ?? "unknown"}`, 500);
+    return response.error("INTERNAL_ERROR", `DB insert 실패: ${insertError?.message ?? "no data"} | code: ${insertError?.code ?? "none"} | hint: ${insertError?.hint ?? "none"}`, 500);
   }
 
   return response.success({ portfolio: toCamelCaseKeys(portfolio) }, undefined, 201);
