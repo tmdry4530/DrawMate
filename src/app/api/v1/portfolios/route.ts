@@ -252,7 +252,7 @@ export async function POST(request: Request) {
     starting_price_krw: parsed.data.startingPriceKrw ?? null,
     duration_days: parsed.data.durationDays ?? null,
     visibility: parsed.data.visibility ?? "public",
-    template_customization: parsed.data.templateCustomization ?? null,
+    template_customization: parsed.data.templateCustomization ?? {},
     status: "draft",
   };
 
