@@ -31,17 +31,6 @@ const PROVIDERS = [
       </svg>
     ),
   },
-  {
-    id: "naver" as const,
-    label: "네이버로 시작하기",
-    bg: "bg-[#03C75A] hover:bg-[#02b351]",
-    text: "text-white",
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
-        <path d="M16.273 12.845 7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727v12.845z" />
-      </svg>
-    ),
-  },
 ] as const;
 
 type ProviderId = (typeof PROVIDERS)[number]["id"];
@@ -55,21 +44,11 @@ export function SocialLoginButtons() {
       const supabase = createClient();
       const redirectTo = `${window.location.origin}/auth/callback`;
 
-      if (providerId === "naver") {
-        // Naver는 Supabase 커스텀 OIDC provider로 등록 필요
-        // Supabase 대시보드에서 "naver" provider 설정 후 동작
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider: "kakao", // fallback — Naver OIDC 설정 전까지
-          options: { redirectTo },
-        });
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider: providerId,
-          options: { redirectTo },
-        });
-        if (error) throw error;
-      }
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: providerId,
+        options: { redirectTo },
+      });
+      if (error) throw error;
     } catch {
       toast.error("소셜 로그인에 실패했습니다. 잠시 후 다시 시도해주세요.");
       setLoadingProvider(null);
