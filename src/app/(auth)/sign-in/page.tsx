@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/browser-client";
+import { SocialLoginButtons } from "@/components/auth/social-login-buttons";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -59,7 +60,18 @@ export default function SignInPage() {
           <CardTitle className="text-2xl">로그인</CardTitle>
           <CardDescription>DrawMate에 오신 것을 환영합니다.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col gap-6">
+          <SocialLoginButtons />
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-2 text-muted-foreground">또는 이메일로 로그인</span>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <label htmlFor="email" className="text-sm font-medium">

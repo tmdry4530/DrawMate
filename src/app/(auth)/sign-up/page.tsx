@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { SocialLoginButtons } from "@/components/auth/social-login-buttons";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -58,7 +59,18 @@ export default function SignUpPage() {
           <CardTitle className="text-2xl">회원가입</CardTitle>
           <CardDescription>DrawMate 계정을 만들어 시작하세요.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col gap-6">
+          <SocialLoginButtons />
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-2 text-muted-foreground">또는 이메일로 가입</span>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <label htmlFor="email" className="text-sm font-medium">
