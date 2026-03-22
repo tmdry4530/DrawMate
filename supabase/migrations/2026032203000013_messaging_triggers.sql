@@ -46,7 +46,7 @@ BEGIN
   END IF;
 
   -- Get sender display name
-  SELECT COALESCE(display_name, username, 'Someone')
+  SELECT COALESCE(display_name, 'Someone')
     INTO v_sender_name
     FROM public.profiles
    WHERE id = NEW.sender_id;
