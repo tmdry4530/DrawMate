@@ -37,7 +37,7 @@ export async function POST(
   });
 
   if (rpcError) {
-    return response.error("INTERNAL_ERROR", "포트폴리오 발행에 실패했습니다.", 500);
+    return response.error("INTERNAL_ERROR", `발행 실패: ${rpcError.message} | code: ${rpcError.code} | hint: ${rpcError.hint ?? "none"}`, 500);
   }
 
   const { data: updated } = await supabase
