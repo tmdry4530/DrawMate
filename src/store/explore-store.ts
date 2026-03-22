@@ -15,6 +15,7 @@ interface ExploreState {
   filters: TagFilters;
   setQ: (q: string) => void;
   setSort: (sort: SortOption) => void;
+  setFilters: (filters: Partial<TagFilters>) => void;
   toggleTag: (category: keyof TagFilters, slug: string) => void;
   clearFilters: () => void;
   reset: () => void;
@@ -35,6 +36,11 @@ export const useExploreStore = create<ExploreState>((set) => ({
   setQ: (q) => set({ q }),
 
   setSort: (sort) => set({ sort }),
+
+  setFilters: (partial) =>
+    set((state) => ({
+      filters: { ...state.filters, ...partial },
+    })),
 
   toggleTag: (category, slug) =>
     set((state) => {

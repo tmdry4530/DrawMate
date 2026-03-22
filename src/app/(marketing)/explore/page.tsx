@@ -1,6 +1,9 @@
 "use client"
 
+import { useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { SlidersHorizontal } from "lucide-react"
+import { useExploreStore } from "@/store/explore-store"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -15,6 +18,23 @@ import { SortDropdown } from "@/components/search/sort-dropdown"
 import { PortfolioGrid } from "@/components/search/portfolio-grid"
 
 export default function ExplorePage() {
+  const searchParams = useSearchParams()
+  const setFilters = useExploreStore((s) => s.setFilters)
+  const setQ = useExploreStore((s) => s.setQ)
+
+  useEffect(() => {
+    const fieldTags = searchParams.getAll("fieldTags[]")
+    const skillTags = searchParams.getAll("skillTags[]")
+    const toolTags = searchParams.getAll("toolTags[]")
+    const styleTags = searchParams.getAll("styleTags[]")
+    const q = searchParams.get("q")
+
+    if (fieldTags.length || skillTags.length || toolTags.length || styleTags.length) {
+      setFilters({ fieldTags, skillTags, toolTags, styleTags })
+    }
+    if (q) setQ(q)
+  }, [searchParams, setFilters, setQ])
+
   return (
     <div className="max-w-7xl mx-auto py-6 space-y-6">
       {/* 검색바 */}

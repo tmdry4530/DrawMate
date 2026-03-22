@@ -27,13 +27,24 @@ async function getProfile(userId: string) {
     ? supabase.storage.from("profile-avatars").getPublicUrl(profile.avatar_path).data.publicUrl
     : null;
 
-  const { count: portfolioCount } = await supabase
+  const { data: portfolios } = await supabase
     .from("portfolios")
-    .select("id", { count: "exact", head: true })
+    .select("id, slug, title, bookmark_count, portfolio_images(thumb_path, is_cover)")
     .eq("owner_id", userId)
-    .eq("status", "published");
+    .eq("status", "published")
+    .is("deleted_at", null)
+    .order("published_at", { ascending: false });
 
-  return { ...profile, avatar_path: avatarUrl, portfolioCount: portfolioCount ?? 0 };
+  const portfolioItems = (portfolios ?? []).map((p: Record<string, unknown>) => {
+    const images = p.portfolio_images as Array<{ thumb_path: string | null; is_cover: boolean }> | null;
+    const cover = images?.find((i) => i.is_cover) ?? images?.[0];
+    const thumbUrl = cover?.thumb_path
+      ? supabase.storage.from("portfolio-public").getPublicUrl(cover.thumb_path).data.publicUrl
+      : null;
+    return { id: p.id as string, slug: p.slug as string, title: p.title as string, thumbUrl, bookmarkCount: (p.bookmark_count as number) ?? 0 };
+  });
+
+  return { ...profile, avatar_path: avatarUrl, portfolioCount: portfolioItems.length, portfolios: portfolioItems };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -126,7 +137,18 @@ export default async function UserProfilePage({ params }: Props) {
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-4 md:grid-cols-3 py-4">
-                {/* Portfolio grid placeholder */}
+                {profile.portfolios.map((p) => (
+                  <a key={p.id} href={`/portfolio/${p.slug}`} className="group block">
+                    <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                      {p.thumbUrl ? (
+                        <img src={p.thumbUrl} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">이미지 없음</div>
+                      )}
+                    </div>
+                    <p className="mt-2 text-sm font-medium line-clamp-1">{p.title}</p>
+                  </a>
+                ))}
               </div>
             )}
           </TabsContent>
