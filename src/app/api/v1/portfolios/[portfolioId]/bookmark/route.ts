@@ -17,26 +17,28 @@ export async function POST(
     return response.unauthorized();
   }
 
-  const { data: portfolio, error: fetchError } = await supabase
-    .from("portfolios")
-    .select("id, status, visibility")
-    .eq("id", portfolioId)
-    .is("deleted_at", null)
-    .single();
+  // 이미 북마크 되어있는지 확인 (멱등)
+  const { data: existing } = await supabase
+    .from("bookmarks")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("portfolio_id", portfolioId)
+    .maybeSingle();
 
-  if (fetchError || !portfolio) {
-    return response.notFound("포트폴리오를 찾을 수 없습니다.");
+  if (existing) {
+    return response.success({ bookmarked: true }, undefined, 200);
   }
 
-  const { data: bookmarked, error: toggleError } = await supabase.rpc("toggle_portfolio_bookmark", {
-    p_portfolio_id: portfolioId,
-    p_should_bookmark: true,
-  });
-  if (toggleError) {
-    return response.error("INTERNAL_ERROR", "북마크 추가에 실패했습니다.", 500);
+  // 북마크 추가
+  const { error: insertError } = await supabase
+    .from("bookmarks")
+    .insert({ user_id: user.id, portfolio_id: portfolioId });
+
+  if (insertError) {
+    return response.error("INTERNAL_ERROR", `북마크 추가 실패: ${insertError.message}`, 500);
   }
 
-  return response.success({ bookmarked: bookmarked ?? true }, undefined, 201);
+  return response.success({ bookmarked: true }, undefined, 201);
 }
 
 export async function DELETE(
@@ -55,12 +57,14 @@ export async function DELETE(
     return response.unauthorized();
   }
 
-  const { error: toggleError } = await supabase.rpc("toggle_portfolio_bookmark", {
-    p_portfolio_id: portfolioId,
-    p_should_bookmark: false,
-  });
-  if (toggleError) {
-    return response.error("INTERNAL_ERROR", "북마크 카운트 갱신에 실패했습니다.", 500);
+  const { error: deleteError } = await supabase
+    .from("bookmarks")
+    .delete()
+    .eq("user_id", user.id)
+    .eq("portfolio_id", portfolioId);
+
+  if (deleteError) {
+    return response.error("INTERNAL_ERROR", `북마크 해제 실패: ${deleteError.message}`, 500);
   }
 
   return response.success({ bookmarked: false });

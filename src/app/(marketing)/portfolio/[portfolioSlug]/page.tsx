@@ -172,9 +172,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
+  const desc = portfolio.description.slice(0, 160);
   return {
     title: `${portfolio.title} | DrawMate`,
-    description: portfolio.description.slice(0, 160),
+    description: desc,
+    openGraph: {
+      title: portfolio.title,
+      description: desc,
+      images: portfolio.coverImage ? [{ url: portfolio.coverImage }] : [],
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: portfolio.title,
+      description: desc,
+      images: portfolio.coverImage ? [portfolio.coverImage] : [],
+    },
   };
 }
 

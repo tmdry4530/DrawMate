@@ -303,7 +303,7 @@ export async function POST(
     .single();
 
   if (insertError || !message) {
-    return response.error("INTERNAL_ERROR", "메시지 전송에 실패했습니다.", 500);
+    return response.error("INTERNAL_ERROR", `메시지 전송 실패: ${insertError?.message ?? "no data"} | code: ${insertError?.code ?? "none"}`, 500);
   }
 
   const attachments: MessageAttachmentRow[] = [];
