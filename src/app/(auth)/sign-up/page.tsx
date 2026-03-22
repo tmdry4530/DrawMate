@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SocialLoginButtons } from "@/components/auth/social-login-buttons";
+import { unwrapApiData } from "@/lib/utils/client-api";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -37,13 +38,20 @@ export default function SignUpPage() {
       });
 
       const json = await response.json();
+      const data = unwrapApiData<{ emailVerificationRequired?: boolean }>(json);
 
       if (!response.ok) {
         toast.error(json.error?.message ?? "회원가입에 실패했습니다.");
         return;
       }
 
-      toast.success("회원가입이 완료되었습니다. 이메일을 확인해주세요.");
+      if (data?.emailVerificationRequired) {
+        toast.success("회원가입이 완료되었습니다. 이메일 인증 후 로그인해주세요.");
+        router.push("/sign-in?verify_email=1");
+        return;
+      }
+
+      toast.success("회원가입이 완료되었습니다.");
       router.push("/onboarding");
     } catch {
       toast.error("네트워크 오류가 발생했습니다.");
@@ -67,7 +75,7 @@ export default function SignUpPage() {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-muted-foreground">또는 이메일로 가입</span>
+              <span className="bg-background px-2 text-muted-foreground">또는 이메일로 가입</span>
             </div>
           </div>
 

@@ -189,17 +189,12 @@ export async function PATCH(
 
   // Sync tags if provided
   if (tagIds !== undefined) {
-    await supabase.from("portfolio_tags").delete().eq("portfolio_id", portfolioId);
-
-    if (tagIds.length > 0) {
-      const tagInserts = tagIds.map((tagId) => ({
-        portfolio_id: portfolioId,
-        tag_id: tagId,
-      }));
-      const { error: tagError } = await supabase.from("portfolio_tags").insert(tagInserts);
-      if (tagError) {
-        return response.error("INTERNAL_ERROR", "태그 동기화에 실패했습니다.", 500);
-      }
+    const { error: tagSyncError } = await supabase.rpc("replace_portfolio_tags", {
+      p_portfolio_id: portfolioId,
+      p_tag_ids: tagIds,
+    });
+    if (tagSyncError) {
+      return response.error("INTERNAL_ERROR", "태그 동기화에 실패했습니다.", 500);
     }
   }
 

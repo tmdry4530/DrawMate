@@ -3,6 +3,9 @@ import * as response from "@/lib/utils/api-response";
 import { toCamelCaseKeys } from "@/server/mappers/case-converter";
 import { notificationListSchema } from "@/validators/messaging";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const ISO_CURSOR_REGEX = /^[0-9T:.+\-Z]+$/;
+
 function encodeCursor(createdAt: string, id: string): string {
   return Buffer.from(JSON.stringify({ createdAt, id })).toString("base64");
 }
@@ -13,6 +16,11 @@ function decodeCursor(cursor: string): { createdAt: string; id: string } | null 
   } catch {
     return null;
   }
+}
+
+function isSafeIsoCursor(value: string): boolean {
+  if (!ISO_CURSOR_REGEX.test(value)) return false;
+  return Number.isFinite(Date.parse(value));
 }
 
 export async function GET(request: Request) {
@@ -54,7 +62,13 @@ export async function GET(request: Request) {
 
   if (cursor) {
     const decoded = decodeCursor(cursor);
-    if (!decoded) {
+    if (
+      !decoded ||
+      typeof decoded.createdAt !== "string" ||
+      typeof decoded.id !== "string" ||
+      !UUID_REGEX.test(decoded.id) ||
+      !isSafeIsoCursor(decoded.createdAt)
+    ) {
       return response.validationError("유효하지 않은 커서 형식입니다.");
     }
     query = query.or(

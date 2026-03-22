@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -39,14 +41,33 @@ export default function PortfoliosPage() {
   const [activeTab, setActiveTab] = useState<"all" | "draft" | "published" | "archived">("all");
 
   useEffect(() => {
-    fetch("/api/v1/portfolios/mine")
-      .then((res) => res.json())
-      .then((json) => {
+    let mounted = true;
+    const loadPortfolios = async () => {
+      try {
+        const res = await fetch("/api/v1/portfolios/mine");
+        if (!res.ok) {
+          throw new Error("포트폴리오 목록을 불러오지 못했습니다.");
+        }
+        const json = await res.json();
         const data = unwrapApiData<{ items: Portfolio[] }>(json);
-        setPortfolios(data?.items ?? []);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+        if (mounted) {
+          setPortfolios(data?.items ?? []);
+        }
+      } catch (err) {
+        if (mounted) {
+          toast.error((err as Error).message);
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadPortfolios();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const filtered =
@@ -60,8 +81,9 @@ export default function PortfoliosPage() {
       const res = await fetch(`/api/v1/portfolios/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("삭제에 실패했습니다.");
       setPortfolios((prev) => prev.filter((p) => p.id !== id));
+      toast.success("포트폴리오가 삭제되었습니다.");
     } catch (err) {
-      alert((err as Error).message);
+      toast.error((err as Error).message);
     }
   };
 
@@ -141,10 +163,12 @@ export default function PortfoliosPage() {
                 {/* 썸네일 */}
                 <div className="w-20 h-14 rounded-md bg-muted overflow-hidden shrink-0">
                   {portfolio.coverImageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={portfolio.coverImageUrl}
                       alt={portfolio.title}
+                      width={80}
+                      height={56}
+                      sizes="80px"
                       className="w-full h-full object-cover"
                     />
                   ) : (

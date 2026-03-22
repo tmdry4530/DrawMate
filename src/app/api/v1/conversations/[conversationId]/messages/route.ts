@@ -5,6 +5,9 @@ import { messageListSchema, sendMessageSchema } from "@/validators/messaging";
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_FILES = 5;
+const SIGNED_URL_EXPIRES_IN_SECONDS = 60 * 60;
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const ISO_CURSOR_REGEX = /^[0-9T:.+\-Z]+$/;
 
 interface MessageAttachmentRow {
   id: string;
@@ -29,7 +32,30 @@ interface MessageRow {
   message_attachments?: MessageAttachmentRow[];
 }
 
-function mapMessageRow(message: MessageRow) {
+async function mapMessageRow(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  message: MessageRow
+) {
+  const attachments = await Promise.all(
+    (message.message_attachments ?? []).map(async (attachment) => {
+      const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+        .from("chat-attachments")
+        .createSignedUrl(attachment.storage_path, SIGNED_URL_EXPIRES_IN_SECONDS);
+
+      return {
+        id: attachment.id,
+        storagePath: attachment.storage_path,
+        previewPath: attachment.preview_path,
+        mimeType: attachment.mime_type,
+        sizeBytes: attachment.size_bytes,
+        width: attachment.width,
+        height: attachment.height,
+        sortOrder: attachment.sort_order,
+        imageUrl: signedUrlError ? null : (signedUrlData?.signedUrl ?? null),
+      };
+    })
+  );
+
   return {
     id: message.id,
     conversationId: message.conversation_id,
@@ -39,16 +65,7 @@ function mapMessageRow(message: MessageRow) {
     metadata: message.metadata,
     createdAt: message.created_at,
     editedAt: message.edited_at,
-    attachments: (message.message_attachments ?? []).map((attachment) => ({
-      id: attachment.id,
-      storagePath: attachment.storage_path,
-      previewPath: attachment.preview_path,
-      mimeType: attachment.mime_type,
-      sizeBytes: attachment.size_bytes,
-      width: attachment.width,
-      height: attachment.height,
-      sortOrder: attachment.sort_order,
-    })),
+    attachments,
   };
 }
 
@@ -62,6 +79,11 @@ function decodeCursor(cursor: string): { createdAt: string; id: string } | null 
   } catch {
     return null;
   }
+}
+
+function isSafeIsoCursor(value: string): boolean {
+  if (!ISO_CURSOR_REGEX.test(value)) return false;
+  return Number.isFinite(Date.parse(value));
 }
 
 async function assertParticipant(
@@ -125,7 +147,13 @@ export async function GET(
 
   if (cursor) {
     const decoded = decodeCursor(cursor);
-    if (!decoded) {
+    if (
+      !decoded ||
+      typeof decoded.createdAt !== "string" ||
+      typeof decoded.id !== "string" ||
+      !UUID_REGEX.test(decoded.id) ||
+      !isSafeIsoCursor(decoded.createdAt)
+    ) {
       return response.validationError("유효하지 않은 커서 형식입니다.");
     }
     query = query.or(
@@ -162,8 +190,10 @@ export async function GET(
     nextCursor = encodeCursor(last.created_at, last.id);
   }
 
+  const mappedItems = await Promise.all(pageItems.map((item) => mapMessageRow(supabase, item)));
+
   return response.success({
-    items: pageItems.map(mapMessageRow),
+    items: mappedItems,
     nextCursor,
     hasMore,
     currentUserId: user.id,
@@ -318,9 +348,6 @@ export async function POST(
     message_attachments: attachments,
   };
 
-  return response.success(
-    { message: mapMessageRow(messageWithAttachments) },
-    undefined,
-    201
-  );
+  const mappedMessage = await mapMessageRow(supabase, messageWithAttachments);
+  return response.success({ message: mappedMessage }, undefined, 201);
 }

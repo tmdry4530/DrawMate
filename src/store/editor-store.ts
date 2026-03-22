@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 interface ImageItem {
+  clientId: string;
   id?: string;
   file?: File;
   previewUrl: string;

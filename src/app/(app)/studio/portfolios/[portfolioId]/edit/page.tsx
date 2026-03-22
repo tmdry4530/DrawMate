@@ -55,6 +55,7 @@ export default function EditPortfolioPage() {
           }>;
           setImages(
             images.map((img, idx) => ({
+              clientId: crypto.randomUUID(),
               id: img.id,
               previewUrl: img.url ?? img.thumbPath ?? img.displayPath ?? "",
               caption: img.caption ?? "",

@@ -105,9 +105,11 @@ export function ConversationList({ activeId }: { activeId?: string }) {
         ) : (
           <ul>
             {filtered.map((conv) => (
-              <li
-                key={conv.id}
-                className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-accent transition-colors ${
+              <li key={conv.id}>
+                <button
+                type="button"
+                aria-label={`${conv.otherUser.name} 대화 열기`}
+                className={`flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-accent transition-colors ${
                   activeId === conv.id ? "bg-accent" : ""
                 }`}
                 onClick={() => router.push(`/messages/${conv.id}`)}
@@ -144,6 +146,7 @@ export function ConversationList({ activeId }: { activeId?: string }) {
                     )}
                   </div>
                 </div>
+                </button>
               </li>
             ))}
           </ul>

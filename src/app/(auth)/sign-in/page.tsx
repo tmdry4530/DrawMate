@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -10,10 +10,22 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/browser-client";
 import { SocialLoginButtons } from "@/components/auth/social-login-buttons";
 
+function sanitizeNextPath(next: string | null): string | null {
+  if (!next) return null;
+  if (!next.startsWith("/") || next.startsWith("//")) return null;
+  return next;
+}
+
 export default function SignInPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
+  const [nextPath, setNextPath] = useState<string | null>(null);
+
+  useEffect(() => {
+    const next = new URLSearchParams(window.location.search).get("next");
+    setNextPath(sanitizeNextPath(next));
+  }, []);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -42,9 +54,12 @@ export default function SignInPage() {
         .single();
 
       if (!profile?.role) {
-        router.push("/onboarding");
+        const onboardingHref = nextPath
+          ? `/onboarding?next=${encodeURIComponent(nextPath)}`
+          : "/onboarding";
+        router.push(onboardingHref);
       } else {
-        router.push("/");
+        router.push(nextPath ?? "/");
       }
     } catch {
       toast.error("네트워크 오류가 발생했습니다.");
@@ -61,14 +76,14 @@ export default function SignInPage() {
           <CardDescription>DrawMate에 오신 것을 환영합니다.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
-          <SocialLoginButtons />
+          <SocialLoginButtons nextPath={nextPath} />
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-muted-foreground">또는 이메일로 로그인</span>
+              <span className="bg-background px-2 text-muted-foreground">또는 이메일로 로그인</span>
             </div>
           </div>
 

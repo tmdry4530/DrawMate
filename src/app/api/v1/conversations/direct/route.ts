@@ -53,7 +53,7 @@ export async function POST(request: Request) {
   if (existing) {
     // Conversation exists — optionally send initial message
     if (initialMessage?.body) {
-      await supabase.from("messages").insert({
+      const { error: insertError } = await supabase.from("messages").insert({
         conversation_id: existing.id,
         sender_id: user.id,
         message_type: "text",
@@ -62,6 +62,9 @@ export async function POST(request: Request) {
           ? { source_portfolio_id: sourcePortfolioId }
           : {},
       });
+      if (insertError) {
+        return response.error("INTERNAL_ERROR", "초기 메시지 전송에 실패했습니다.", 500);
+      }
     }
     return response.success({ conversationId: existing.id, reused: true });
   }

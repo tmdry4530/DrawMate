@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Bell } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { NotificationItem } from "@/components/notifications/notification-item"
@@ -46,6 +47,13 @@ async function markAllRead(): Promise<void> {
   if (!res.ok) throw new Error("알림 읽음 처리 실패")
 }
 
+async function markOneRead(notificationId: string): Promise<void> {
+  const res = await fetch(`/api/v1/notifications/${notificationId}/read`, {
+    method: "PATCH",
+  })
+  if (!res.ok) throw new Error("알림 읽음 처리 실패")
+}
+
 export default function NotificationsPage() {
   const queryClient = useQueryClient()
 
@@ -58,6 +66,19 @@ export default function NotificationsPage() {
     mutationFn: markAllRead,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] })
+    },
+    onError: (err) => {
+      toast.error((err as Error).message)
+    },
+  })
+
+  const markOneMutation = useMutation({
+    mutationFn: markOneRead,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] })
+    },
+    onError: (err) => {
+      toast.error((err as Error).message)
     },
   })
 
@@ -91,7 +112,11 @@ export default function NotificationsPage() {
       ) : (
         <ScrollArea className="rounded-lg border">
           {notifications.map((n) => (
-            <NotificationItem key={n.id} notification={n} />
+            <NotificationItem
+              key={n.id}
+              notification={n}
+              onMarkAsRead={(notificationId) => markOneMutation.mutate(notificationId)}
+            />
           ))}
         </ScrollArea>
       )}

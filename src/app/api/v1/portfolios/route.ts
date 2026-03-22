@@ -16,6 +16,8 @@ function generateSlug(title: string): string {
 }
 
 type SortOption = "latest" | "popular" | "price_asc" | "price_desc";
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const ISO_CURSOR_REGEX = /^[0-9T:.+\-Z]+$/;
 
 interface CursorPayload {
   published_at: string;
@@ -30,6 +32,30 @@ interface PortfolioQueryRow {
   [key: string]: unknown;
 }
 
+interface PortfolioImageRow {
+  portfolio_id: string;
+  display_path: string | null;
+  thumb_path: string | null;
+  original_path: string;
+  is_cover: boolean;
+  sort_order: number;
+}
+
+interface TagRow {
+  id: string;
+  slug: string;
+  category: "field" | "skill" | "tool" | "style";
+}
+
+interface PortfolioTagRow {
+  portfolio_id: string;
+}
+
+interface TagCategoryFilter {
+  category: TagRow["category"];
+  slugs: string[];
+}
+
 function encodeCursor(payload: CursorPayload): string {
   return Buffer.from(JSON.stringify(payload)).toString("base64");
 }
@@ -40,6 +66,79 @@ function decodeCursor(cursor: string): CursorPayload | null {
   } catch {
     return null;
   }
+}
+
+function isSafeIsoCursor(value: string): boolean {
+  if (!ISO_CURSOR_REGEX.test(value)) return false;
+  return Number.isFinite(Date.parse(value));
+}
+
+function intersectIds(base: Set<string> | null, next: Set<string>): Set<string> {
+  if (!base) return next;
+  const intersection = new Set<string>();
+  for (const id of base) {
+    if (next.has(id)) {
+      intersection.add(id);
+    }
+  }
+  return intersection;
+}
+
+async function resolvePortfolioIdsByTagFilters(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  filters: TagCategoryFilter[]
+): Promise<{ ids: string[]; error: boolean }> {
+  const allSlugs = Array.from(new Set(filters.flatMap((filter) => filter.slugs)));
+  if (allSlugs.length === 0) {
+    return { ids: [], error: false };
+  }
+
+  const { data: rawTagRows, error: tagError } = await supabase
+    .from("tags")
+    .select("id, slug, category")
+    .in("slug", allSlugs)
+    .eq("is_active", true);
+
+  if (tagError) {
+    return { ids: [], error: true };
+  }
+
+  const tagRows = (rawTagRows ?? []) as TagRow[];
+  let candidateIds: Set<string> | null = null;
+
+  for (const filter of filters) {
+    const matchedTagIds = tagRows
+      .filter((tag) => tag.category === filter.category && filter.slugs.includes(tag.slug))
+      .map((tag) => tag.id);
+
+    if (matchedTagIds.length === 0) {
+      return { ids: [], error: false };
+    }
+
+    const { data: rawPortfolioTagRows, error: portfolioTagError } = await supabase
+      .from("portfolio_tags")
+      .select("portfolio_id")
+      .in("tag_id", matchedTagIds);
+
+    if (portfolioTagError) {
+      return { ids: [], error: true };
+    }
+
+    const categoryIds = new Set(
+      ((rawPortfolioTagRows ?? []) as PortfolioTagRow[]).map((row) => row.portfolio_id)
+    );
+
+    if (categoryIds.size === 0) {
+      return { ids: [], error: false };
+    }
+
+    candidateIds = intersectIds(candidateIds, categoryIds);
+    if (candidateIds.size === 0) {
+      return { ids: [], error: false };
+    }
+  }
+
+  return { ids: Array.from(candidateIds ?? []), error: false };
 }
 
 export async function GET(request: Request) {
@@ -65,22 +164,38 @@ export async function GET(request: Request) {
   const toolTags = searchParams.getAll("toolTags[]");
   const styleTags = searchParams.getAll("styleTags[]");
 
-  const hasTagFilters =
-    fieldTags.length > 0 || skillTags.length > 0 || toolTags.length > 0 || styleTags.length > 0;
-
   const supabase = await createClient();
+  const tagCategoryFilters: TagCategoryFilter[] = [
+    { category: "field" as const, slugs: fieldTags },
+    { category: "skill" as const, slugs: skillTags },
+    { category: "tool" as const, slugs: toolTags },
+    { category: "style" as const, slugs: styleTags },
+  ].filter((filter): filter is TagCategoryFilter => filter.slugs.length > 0);
 
-  // Build select with owner profile join
-  const selectColumns = hasTagFilters
-    ? `id, slug, title, summary, status, visibility, bookmark_count, view_count, published_at, starting_price_krw, owner_id, template_id,
-       profiles:owner_id(display_name, avatar_path),
-       portfolio_tags!inner(tags!inner(slug, category))`
-    : `id, slug, title, summary, status, visibility, bookmark_count, view_count, published_at, starting_price_krw, owner_id, template_id,
-       profiles:owner_id(display_name, avatar_path)`;
+  let filteredPortfolioIds: string[] | null = null;
+  if (tagCategoryFilters.length > 0) {
+    const { ids, error: tagFilterError } = await resolvePortfolioIdsByTagFilters(
+      supabase,
+      tagCategoryFilters
+    );
+
+    if (tagFilterError) {
+      return response.error("INTERNAL_ERROR", "태그 필터를 적용하는데 실패했습니다.", 500);
+    }
+
+    if (ids.length === 0) {
+      return response.success({ items: [], nextCursor: null, hasMore: false }, { total: 0 });
+    }
+
+    filteredPortfolioIds = ids;
+  }
 
   let query = supabase
     .from("portfolios")
-    .select(selectColumns)
+    .select(
+      `id, slug, title, summary, status, visibility, bookmark_count, view_count, published_at, starting_price_krw, owner_id, template_id,
+       profiles:owner_id(display_name, avatar_path)`
+    )
     .eq("status", "published")
     .eq("visibility", "public")
     .is("deleted_at", null)
@@ -91,28 +206,21 @@ export async function GET(request: Request) {
     query = query.ilike("search_text", `%${q}%`);
   }
 
-  // Tag filters: AND between categories, OR within category
-  if (fieldTags.length > 0) {
-    query = query.in("portfolio_tags.tags.slug", fieldTags);
-  }
-  if (skillTags.length > 0) {
-    query = query.in("portfolio_tags.tags.slug", skillTags);
-  }
-  if (toolTags.length > 0) {
-    query = query.in("portfolio_tags.tags.slug", toolTags);
-  }
-  if (styleTags.length > 0) {
-    query = query.in("portfolio_tags.tags.slug", styleTags);
+  if (filteredPortfolioIds) {
+    query = query.in("id", filteredPortfolioIds);
   }
 
   // Cursor-based pagination
   if (cursorParam) {
     const decoded = decodeCursor(cursorParam);
-    if (!decoded) {
+    if (!decoded || typeof decoded.id !== "string" || typeof decoded.published_at !== "string") {
       return response.validationError("유효하지 않은 커서 형식입니다.");
     }
 
     if (sort === "latest") {
+      if (!UUID_REGEX.test(decoded.id) || !isSafeIsoCursor(decoded.published_at)) {
+        return response.validationError("유효하지 않은 커서 형식입니다.");
+      }
       query = query.or(
         `published_at.lt.${decoded.published_at},and(published_at.eq.${decoded.published_at},id.lt.${decoded.id})`
       );
@@ -168,6 +276,40 @@ export async function GET(request: Request) {
     nextCursor = encodeCursor({ published_at: cursorValue, id: last.id });
   }
 
+  const portfolioIds = pageItems.map((item) => item.id);
+  const thumbnailByPortfolioId = new Map<string, string | null>();
+
+  if (portfolioIds.length > 0) {
+    const { data: rawImageRows, error: imageError } = await supabase
+      .from("portfolio_images")
+      .select("portfolio_id, display_path, thumb_path, original_path, is_cover, sort_order")
+      .in("portfolio_id", portfolioIds)
+      .order("sort_order", { ascending: true });
+
+    if (imageError) {
+      return response.error("INTERNAL_ERROR", "썸네일 정보를 불러오는데 실패했습니다.", 500);
+    }
+
+    const imageRows = (rawImageRows ?? []) as PortfolioImageRow[];
+    const grouped = new Map<string, PortfolioImageRow[]>();
+
+    for (const image of imageRows) {
+      const images = grouped.get(image.portfolio_id) ?? [];
+      images.push(image);
+      grouped.set(image.portfolio_id, images);
+    }
+
+    for (const portfolioId of portfolioIds) {
+      const images = grouped.get(portfolioId) ?? [];
+      const cover = images.find((image) => image.is_cover) ?? images[0] ?? null;
+      const publicPath = cover?.thumb_path ?? cover?.display_path ?? cover?.original_path ?? null;
+      const thumbnailUrl = publicPath
+        ? supabase.storage.from("portfolio-public").getPublicUrl(publicPath).data.publicUrl
+        : null;
+      thumbnailByPortfolioId.set(portfolioId, thumbnailUrl);
+    }
+  }
+
   const mappedItems = (toCamelCaseKeys(pageItems) as Array<Record<string, unknown>>).map(
     (item) => {
       const rawProfile = item.profiles as
@@ -183,7 +325,7 @@ export async function GET(request: Request) {
 
       return {
         ...item,
-        thumbnailUrl: null,
+        thumbnailUrl: thumbnailByPortfolioId.get(item.id as string) ?? null,
         profiles: profile
           ? {
               displayName: profile.displayName ?? null,
@@ -206,7 +348,7 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return response.error("AUTH_REQUIRED", `인증 실패: ${authError?.message ?? "no user"}`, 401);
+    return response.unauthorized();
   }
 
   let body: unknown;
@@ -263,7 +405,12 @@ export async function POST(request: Request) {
     .single();
 
   if (insertError || !portfolio) {
-    return response.error("INTERNAL_ERROR", `DB insert 실패: ${insertError?.message ?? "no data"} | code: ${insertError?.code ?? "none"} | hint: ${insertError?.hint ?? "none"}`, 500);
+    console.error("[POST /api/v1/portfolios] insert failed", {
+      message: insertError?.message,
+      code: insertError?.code,
+      hint: insertError?.hint,
+    });
+    return response.error("INTERNAL_ERROR", "포트폴리오 생성에 실패했습니다.", 500);
   }
 
   return response.success({ portfolio: toCamelCaseKeys(portfolio) }, undefined, 201);

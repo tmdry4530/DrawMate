@@ -35,14 +35,20 @@ const PROVIDERS = [
 
 type ProviderId = (typeof PROVIDERS)[number]["id"];
 
-export function SocialLoginButtons() {
+interface SocialLoginButtonsProps {
+  nextPath?: string | null;
+}
+
+export function SocialLoginButtons({ nextPath }: SocialLoginButtonsProps) {
   const [loadingProvider, setLoadingProvider] = useState<ProviderId | null>(null);
 
   async function handleSocialLogin(providerId: ProviderId) {
     setLoadingProvider(providerId);
     try {
       const supabase = createClient();
-      const redirectTo = `${window.location.origin}/auth/callback`;
+      const redirectTo = nextPath
+        ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`
+        : `${window.location.origin}/auth/callback`;
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: providerId,

@@ -69,20 +69,28 @@ export function EditorWizard({ onComplete }: EditorWizardProps) {
   };
 
   // 임시 저장
-  const saveDraft = useCallback(async () => {
-    if (!portfolioId || saving) return;
+  const saveDraft = useCallback(async (options?: { silent?: boolean }) => {
+    if (!portfolioId || saving) return false;
     setSaving(true);
     try {
       const body = buildPatchBody(useEditorStore.getState());
-      await fetch(`/api/v1/portfolios/${portfolioId}`, {
+      const res = await fetch(`/api/v1/portfolios/${portfolioId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null);
+        throw new Error(payload?.error?.message ?? "임시 저장에 실패했습니다.");
+      }
       setLastSaved(new Date());
       useEditorStore.setState({ isDirty: false });
-    } catch {
-      // silent fail — user can retry via button
+      return true;
+    } catch (err) {
+      if (!options?.silent) {
+        toast.error((err as Error).message);
+      }
+      return false;
     } finally {
       setSaving(false);
     }
@@ -93,7 +101,7 @@ export function EditorWizard({ onComplete }: EditorWizardProps) {
     if (!isDirty || !portfolioId) return;
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     autoSaveTimer.current = setTimeout(() => {
-      saveDraft();
+      saveDraft({ silent: true });
     }, AUTO_SAVE_DELAY_MS);
     return () => {
       if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
@@ -102,7 +110,10 @@ export function EditorWizard({ onComplete }: EditorWizardProps) {
 
   const handleNext = async () => {
     // 스텝 변경 시 자동 저장
-    if (isDirty && portfolioId) await saveDraft();
+    if (isDirty && portfolioId) {
+      const saved = await saveDraft();
+      if (!saved) return;
+    }
     if (isLastStep) {
       if (portfolioId && onComplete) onComplete(portfolioId);
       return;
@@ -111,7 +122,10 @@ export function EditorWizard({ onComplete }: EditorWizardProps) {
   };
 
   const handlePrev = async () => {
-    if (isDirty && portfolioId) await saveDraft();
+    if (isDirty && portfolioId) {
+      const saved = await saveDraft();
+      if (!saved) return;
+    }
     if (!isFirstStep) setStep(currentStep - 1);
   };
 
@@ -120,7 +134,10 @@ export function EditorWizard({ onComplete }: EditorWizardProps) {
     if (!portfolioId) return;
     setPublishing(true);
     try {
-      await saveDraft();
+      if (isDirty) {
+        const saved = await saveDraft();
+        if (!saved) return;
+      }
       const res = await fetch(`/api/v1/portfolios/${portfolioId}/publish`, {
         method: "POST",
       });
@@ -140,14 +157,17 @@ export function EditorWizard({ onComplete }: EditorWizardProps) {
 
   // 저장 및 종료
   const handleSaveAndExit = async () => {
-    await saveDraft();
+    if (isDirty && portfolioId) {
+      const saved = await saveDraft();
+      if (!saved) return;
+    }
     if (onComplete && portfolioId) onComplete(portfolioId);
   };
 
   return (
     <div className="flex flex-col min-h-screen">
       {/* 진행 표시 헤더 */}
-      <div className="border-b bg-white sticky top-0 z-10">
+      <div className="border-b bg-background sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-lg font-semibold">포트폴리오 편집</h1>
@@ -198,7 +218,7 @@ export function EditorWizard({ onComplete }: EditorWizardProps) {
       </div>
 
       {/* 푸터 액션 */}
-      <div className="border-t bg-white sticky bottom-0">
+      <div className="border-t bg-background sticky bottom-0">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between gap-2">
           <Button variant="outline" onClick={handlePrev} disabled={isFirstStep || saving}>
             이전
@@ -209,7 +229,9 @@ export function EditorWizard({ onComplete }: EditorWizardProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={saveDraft}
+              onClick={() => {
+                void saveDraft();
+              }}
               disabled={saving || !portfolioId || !isDirty}
               className="hidden sm:flex items-center gap-1"
             >

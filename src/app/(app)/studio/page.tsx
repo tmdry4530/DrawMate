@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,14 +37,33 @@ export default function StudioPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/v1/portfolios/mine")
-      .then((res) => res.json())
-      .then((json) => {
+    let mounted = true;
+    const loadPortfolios = async () => {
+      try {
+        const res = await fetch("/api/v1/portfolios/mine");
+        if (!res.ok) {
+          throw new Error("포트폴리오 목록을 불러오지 못했습니다.");
+        }
+        const json = await res.json();
         const data = unwrapApiData<{ items: Portfolio[] }>(json);
-        setPortfolios(data?.items ?? []);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+        if (mounted) {
+          setPortfolios(data?.items ?? []);
+        }
+      } catch (err) {
+        if (mounted) {
+          toast.error((err as Error).message);
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadPortfolios();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const recentPortfolios = portfolios.slice(0, 6);
@@ -120,11 +141,12 @@ export default function StudioPage() {
               <Card key={portfolio.id} className="overflow-hidden group">
                 <div className="aspect-video bg-muted relative">
                   {portfolio.coverImageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={portfolio.coverImageUrl}
                       alt={portfolio.title}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="(max-width: 768px) 50vw, 33vw"
+                      className="object-cover"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">

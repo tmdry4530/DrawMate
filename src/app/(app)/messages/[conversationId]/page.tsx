@@ -23,7 +23,7 @@ interface MessageApiItem {
   body: string | null
   createdAt: string
   senderId: string
-  attachments?: { storagePath: string }[]
+  attachments?: { imageUrl?: string | null }[]
 }
 
 interface MessagesPage {
@@ -53,7 +53,7 @@ async function fetchMessages(
     messages: (data?.items ?? []).map((item) => ({
       id: item.id,
       content: item.body ?? "",
-      imageUrl: null,
+      imageUrl: item.attachments?.[0]?.imageUrl ?? null,
       createdAt: item.createdAt,
       senderId: item.senderId,
     })),
@@ -113,6 +113,7 @@ export default function ConversationPage() {
             variant="ghost"
             size="icon"
             className="md:hidden"
+            aria-label="메시지 목록으로 돌아가기"
             onClick={() => router.push("/messages")}
           >
             <ArrowLeft className="h-4 w-4" />

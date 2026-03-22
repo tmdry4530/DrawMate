@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import Image from "next/image";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { useEditorStore } from "@/store/editor-store";
 import { Star, StarOff, X, Upload, ImageIcon, Loader2 } from "lucide-react";
@@ -12,7 +14,7 @@ const MAX_FILE_SIZE_MB = 10;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 interface UploadProgress {
-  [key: number]: number; // index -> 0~100
+  [key: string]: number; // clientId -> 0~100
 }
 
 export function ImageUploader() {
@@ -22,7 +24,7 @@ export function ImageUploader() {
   const [uploadProgress, setUploadProgress] = useState<UploadProgress>({});
 
   const uploadFile = useCallback(
-    async (file: File, imageIndex: number): Promise<string | undefined> => {
+    async (file: File, clientImageId: string): Promise<string | undefined> => {
       if (!portfolioId) return undefined;
 
       const formData = new FormData();
@@ -33,13 +35,13 @@ export function ImageUploader() {
         xhr.upload.onprogress = (e) => {
           if (e.lengthComputable) {
             const pct = Math.round((e.loaded / e.total) * 100);
-            setUploadProgress((prev) => ({ ...prev, [imageIndex]: pct }));
+            setUploadProgress((prev) => ({ ...prev, [clientImageId]: pct }));
           }
         };
         xhr.onload = () => {
           setUploadProgress((prev) => {
             const next = { ...prev };
-            delete next[imageIndex];
+            delete next[clientImageId];
             return next;
           });
           if (xhr.status >= 200 && xhr.status < 300) {
@@ -57,7 +59,7 @@ export function ImageUploader() {
         xhr.onerror = () => {
           setUploadProgress((prev) => {
             const next = { ...prev };
-            delete next[imageIndex];
+            delete next[clientImageId];
             return next;
           });
           resolve(undefined);
@@ -92,7 +94,9 @@ export function ImageUploader() {
         const file = valid[i];
         const previewUrl = URL.createObjectURL(file);
         const imageIndex = images.length + i;
+        const clientImageId = crypto.randomUUID();
         addImage({
+          clientId: clientImageId,
           file,
           previewUrl,
           caption: "",
@@ -101,9 +105,15 @@ export function ImageUploader() {
         });
         // 백그라운드 업로드 (portfolioId 있을 때만)
         if (portfolioId) {
-          uploadFile(file, imageIndex).then((uploadedId) => {
+          uploadFile(file, clientImageId).then((uploadedId) => {
             if (uploadedId) {
-              updateImage(imageIndex, { id: uploadedId });
+              const currentImages = useEditorStore.getState().images;
+              const currentIndex = currentImages.findIndex(
+                (image) => image.clientId === clientImageId
+              );
+              if (currentIndex >= 0) {
+                updateImage(currentIndex, { id: uploadedId });
+              }
             }
           });
         }
@@ -129,6 +139,29 @@ export function ImageUploader() {
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
   };
+
+  const handleRemoveImage = useCallback(
+    async (index: number, imageId?: string) => {
+      if (!imageId || !portfolioId) {
+        removeImage(index);
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/v1/portfolios/${portfolioId}/images/${imageId}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) {
+          const payload = await res.json().catch(() => null);
+          throw new Error(payload?.error?.message ?? "이미지 삭제에 실패했습니다.");
+        }
+        removeImage(index);
+      } catch (err) {
+        toast.error((err as Error).message);
+      }
+    },
+    [portfolioId, removeImage]
+  );
 
   return (
     <div>
@@ -175,12 +208,12 @@ export function ImageUploader() {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {images.map((img, index) => {
-              const progress = uploadProgress[index];
+              const progress = uploadProgress[img.clientId];
               const isUploading = progress !== undefined;
 
               return (
                 <div
-                  key={index}
+                  key={img.clientId}
                   className={cn(
                     "relative rounded-lg overflow-hidden border-2 group",
                     img.isCover ? "border-yellow-400" : "border-transparent"
@@ -189,11 +222,13 @@ export function ImageUploader() {
                   {/* 이미지 미리보기 */}
                   <div className="aspect-square bg-muted relative">
                     {img.previewUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={img.previewUrl}
                         alt={img.caption || `이미지 ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        fill
+                        unoptimized
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        className="object-cover"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -237,7 +272,7 @@ export function ImageUploader() {
                           )}
                         </button>
                         <button
-                          onClick={() => removeImage(index)}
+                          onClick={() => handleRemoveImage(index, img.id)}
                           className="p-1.5 bg-white/90 rounded-full text-red-500 hover:bg-white"
                           title="삭제"
                         >

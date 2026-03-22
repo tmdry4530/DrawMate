@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/browser-client";
+import { unwrapApiData } from "@/lib/utils/client-api";
 
 interface UserProfile {
   displayName: string | null;
@@ -24,67 +25,90 @@ interface UserProfile {
 
 export function Header() {
   const [user, setUser] = useState<{ id: string; email?: string; profile?: UserProfile } | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
+    let mounted = true;
     const supabase = createClient();
 
-    supabase.auth.getUser().then(({ data: { user: authUser } }) => {
+    const loadUnreadCount = async () => {
+      try {
+        const res = await fetch("/api/v1/notifications?limit=1&unreadOnly=true");
+        if (!res.ok || !mounted) return;
+        const json = await res.json();
+        const data = unwrapApiData<{ unreadCount?: number }>(json);
+        setUnreadCount(data?.unreadCount ?? 0);
+      } catch {
+        // keep header usable even when unread fetch fails
+      }
+    };
+
+    supabase.auth.getUser().then(async ({ data: { user: authUser } }) => {
       if (authUser) {
-        supabase
+        const { data: profile } = await supabase
           .from("profiles")
           .select("display_name, avatar_path")
           .eq("id", authUser.id)
-          .single()
-              .then(({ data: profile }) => {
-                const avatarUrl = profile?.avatar_path
-                  ? supabase.storage.from("profile-avatars").getPublicUrl(profile.avatar_path).data.publicUrl
-                  : null;
-                setUser({
-                  id: authUser.id,
-                  email: authUser.email,
-                  profile: {
-                    displayName: profile?.display_name ?? null,
-                    avatarUrl,
-                  },
-                });
-            setLoading(false);
+          .single();
+        const avatarUrl = profile?.avatar_path
+          ? supabase.storage.from("profile-avatars").getPublicUrl(profile.avatar_path).data.publicUrl
+          : null;
+        if (mounted) {
+          setUser({
+            id: authUser.id,
+            email: authUser.email,
+            profile: {
+              displayName: profile?.display_name ?? null,
+              avatarUrl,
+            },
           });
+          setLoading(false);
+        }
+        await loadUnreadCount();
       } else {
-        setUser(null);
-        setLoading(false);
+        if (mounted) {
+          setUser(null);
+          setUnreadCount(0);
+          setLoading(false);
+        }
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session?.user) {
+      if (!session?.user && mounted) {
         setUser(null);
+        setUnreadCount(0);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
     setUser(null);
+    setUnreadCount(0);
     router.push("/sign-in");
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-white">
+    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl text-gray-900">
+        <Link href="/" className="flex items-center gap-2 text-xl font-bold text-foreground">
           DrawMate
         </Link>
 
         {/* Search - desktop only */}
         <div className="hidden md:flex flex-1 max-w-md mx-8">
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="search"
               placeholder="장르, 화풍, 아티스트를 검색하세요..."
@@ -100,16 +124,20 @@ export function Header() {
           ) : user ? (
             <>
               {/* Bell icon with badge */}
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                <Badge className="absolute -right-1 -top-1 h-4 w-4 rounded-full p-0 text-xs flex items-center justify-center">
-                  3
-                </Badge>
+              <Button variant="ghost" size="icon" className="relative" asChild>
+                <Link href="/notifications" aria-label="알림 페이지로 이동">
+                  <Bell className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <Badge className="absolute -right-1 -top-1 h-4 min-w-4 rounded-full px-1 text-xs flex items-center justify-center">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </Badge>
+                  )}
+                </Link>
               </Button>
 
               {/* Messages icon */}
               <Button variant="ghost" size="icon" asChild>
-                <Link href="/messages">
+                <Link href="/messages" aria-label="메시지 페이지로 이동">
                   <MessageSquare className="h-5 w-5" />
                 </Link>
               </Button>
@@ -117,7 +145,11 @@ export function Header() {
               {/* Avatar + Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full p-0"
+                    aria-label="프로필 메뉴 열기"
+                  >
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={user.profile?.avatarUrl ?? undefined} alt="프로필" />
                       <AvatarFallback>{user.profile?.displayName?.[0] ?? "U"}</AvatarFallback>

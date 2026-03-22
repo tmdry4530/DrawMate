@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Palette, Briefcase } from "lucide-react";
@@ -10,12 +10,24 @@ import { Button } from "@/components/ui/button";
 
 type Role = "assistant" | "recruiter";
 
+function sanitizeNextPath(next: string | null): string | null {
+  if (!next) return null;
+  if (!next.startsWith("/") || next.startsWith("//")) return null;
+  return next;
+}
+
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
   const [role, setRole] = useState<Role | null>(null);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ displayName: "", headline: "" });
+  const [nextPath, setNextPath] = useState<string | null>(null);
+
+  useEffect(() => {
+    const next = new URLSearchParams(window.location.search).get("next");
+    setNextPath(sanitizeNextPath(next));
+  }, []);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -49,7 +61,7 @@ export default function OnboardingPage() {
       }
 
       toast.success("프로필이 저장되었습니다.");
-      router.push("/");
+      router.push(nextPath ?? "/");
     } catch {
       toast.error("네트워크 오류가 발생했습니다.");
     } finally {

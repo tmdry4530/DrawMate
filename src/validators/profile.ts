@@ -27,6 +27,8 @@ export const profileUpdateSchema = z.object({
     .passthrough()
     .optional(),
   isProfilePublic: z.boolean().optional(),
+  notifyNewMessage: z.boolean().optional(),
+  notifyBookmark: z.boolean().optional(),
 });
 
 export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;

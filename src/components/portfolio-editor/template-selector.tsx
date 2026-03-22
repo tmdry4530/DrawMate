@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEditorStore } from "@/store/editor-store";
 import { Check } from "lucide-react";
@@ -78,11 +79,12 @@ export function TemplateSelector() {
                   )}
                 >
                   {template.previewImageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={template.previewImageUrl}
                       alt={template.name}
-                      className="w-full h-full object-cover rounded-t-lg"
+                      fill
+                      sizes="(max-width: 640px) 100vw, 33vw"
+                      className="object-cover rounded-t-lg"
                     />
                   ) : (
                     <div className="w-3/4 space-y-2 opacity-60">

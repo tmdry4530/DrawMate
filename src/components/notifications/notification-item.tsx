@@ -31,42 +31,57 @@ const iconMap: Record<NotificationType, React.ReactNode> = {
 
 interface NotificationItemProps {
   notification: Notification
+  onMarkAsRead?: (notificationId: string) => void
 }
 
-export function NotificationItem({ notification }: NotificationItemProps) {
+export function NotificationItem({ notification, onMarkAsRead }: NotificationItemProps) {
   const icon = iconMap[notification.type] ?? iconMap.system_notice
 
   return (
     <div
       className={cn(
-        "flex items-start gap-3 px-4 py-3 border-b last:border-b-0 transition-colors",
+        "border-b last:border-b-0 transition-colors",
         !notification.isRead && "bg-blue-50 dark:bg-blue-950/20"
       )}
     >
-      <div className="mt-0.5 shrink-0 rounded-full bg-muted p-2">{icon}</div>
+      <div className="flex items-start gap-3 px-4 py-3">
+        <div className="mt-0.5 shrink-0 rounded-full bg-muted p-2">{icon}</div>
 
-      <div className="flex-1 min-w-0">
-        <p
-          className={cn(
-            "text-sm",
-            !notification.isRead ? "font-semibold" : "font-normal"
-          )}
-        >
-          {notification.title}
-        </p>
-        <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">
-          {notification.body}
-        </p>
-        <p className="text-xs text-muted-foreground mt-1">
-          {formatDistanceToNow(new Date(notification.createdAt), {
-            addSuffix: true,
-            locale: ko,
-          })}
-        </p>
+        <div className="flex-1 min-w-0">
+          <p
+            className={cn(
+              "text-sm",
+              !notification.isRead ? "font-semibold" : "font-normal"
+            )}
+          >
+            {notification.title}
+          </p>
+          <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">
+            {notification.body}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {formatDistanceToNow(new Date(notification.createdAt), {
+              addSuffix: true,
+              locale: ko,
+            })}
+          </p>
+        </div>
+
+        {!notification.isRead && (
+          <div className="mt-1.5 shrink-0 h-2 w-2 rounded-full bg-blue-500" />
+        )}
       </div>
 
-      {!notification.isRead && (
-        <div className="mt-1.5 shrink-0 h-2 w-2 rounded-full bg-blue-500" />
+      {!notification.isRead && onMarkAsRead && (
+        <div className="px-4 pb-3">
+          <button
+            type="button"
+            onClick={() => onMarkAsRead(notification.id)}
+            className="text-xs text-primary underline underline-offset-2"
+          >
+            읽음 처리
+          </button>
+        </div>
       )}
     </div>
   )

@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useRef, type ChangeEvent, type FormEvent } from "react"
+import Image from "next/image"
 import { Paperclip, Send, X } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 
@@ -47,13 +49,16 @@ export function MessageInput({ conversationId, onMessageSent }: MessageInputProp
         body: formData,
       })
 
-      if (!res.ok) throw new Error("메시지 전송 실패")
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null)
+        throw new Error(payload?.error?.message ?? "메시지 전송 실패")
+      }
 
       setContent("")
       removeFile()
       onMessageSent?.()
     } catch (err) {
-      console.error(err)
+      toast.error((err as Error).message)
     } finally {
       setSending(false)
     }
@@ -70,15 +75,18 @@ export function MessageInput({ conversationId, onMessageSent }: MessageInputProp
     <form onSubmit={handleSubmit} className="border-t p-3 space-y-2 bg-background">
       {filePreview && (
         <div className="relative inline-block">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={filePreview}
             alt="첨부 미리보기"
+            width={120}
+            height={80}
+            unoptimized
             className="h-20 w-auto rounded-lg object-cover border"
           />
           <button
             type="button"
             onClick={removeFile}
+            aria-label="첨부 이미지 제거"
             className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-0.5"
           >
             <X className="h-3 w-3" />
@@ -98,6 +106,7 @@ export function MessageInput({ conversationId, onMessageSent }: MessageInputProp
           type="button"
           variant="ghost"
           size="icon"
+          aria-label="이미지 첨부"
           className="shrink-0"
           onClick={() => fileRef.current?.click()}
         >
@@ -116,6 +125,7 @@ export function MessageInput({ conversationId, onMessageSent }: MessageInputProp
         <Button
           type="submit"
           size="icon"
+          aria-label="메시지 전송"
           className="shrink-0"
           disabled={sending || (!content.trim() && !file)}
         >

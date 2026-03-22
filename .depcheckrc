@@ -1,0 +1,7 @@
+{
+  "ignoreMatches": [
+    "@tailwindcss/postcss",
+    "tailwindcss",
+    "tw-animate-css"
+  ]
+}

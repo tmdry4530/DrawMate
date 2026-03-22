@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { MessageSquare } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { unwrapApiData } from "@/lib/utils/client-api"
 
@@ -22,12 +23,15 @@ export function ContactCta({ targetUserId }: ContactCtaProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ targetUserId }),
       })
-      if (!res.ok) throw new Error("대화 생성 실패")
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null)
+        throw new Error(payload?.error?.message ?? "대화 생성 실패")
+      }
       const json = await res.json()
       const data = unwrapApiData<{ conversationId: string }>(json)
       router.push(`/messages/${data.conversationId}`)
     } catch (err) {
-      console.error(err)
+      toast.error((err as Error).message)
     } finally {
       setLoading(false)
     }

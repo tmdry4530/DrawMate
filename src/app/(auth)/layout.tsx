@@ -7,7 +7,7 @@ export default function AuthLayout({
 }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4">
-      <Link href="/" className="mb-8 font-bold text-2xl text-gray-900">
+      <Link href="/" className="mb-8 text-2xl font-bold text-foreground">
         DrawMate
       </Link>
       {children}

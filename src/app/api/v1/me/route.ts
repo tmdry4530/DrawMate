@@ -16,7 +16,7 @@ export async function GET() {
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("role, display_name, avatar_path, availability_status")
+    .select("role, display_name, avatar_path, availability_status, is_profile_public, notify_new_message, notify_bookmark")
     .eq("id", user.id)
     .single();
 
@@ -29,6 +29,9 @@ export async function GET() {
     displayName: string;
     avatarPath: string | null;
     availabilityStatus: string;
+    isProfilePublic: boolean;
+    notifyNewMessage: boolean;
+    notifyBookmark: boolean;
   };
   const avatarUrl = camelProfile.avatarPath
     ? supabase.storage.from("profile-avatars").getPublicUrl(camelProfile.avatarPath).data.publicUrl
@@ -41,6 +44,9 @@ export async function GET() {
       displayName: camelProfile.displayName,
       avatarUrl,
       availabilityStatus: camelProfile.availabilityStatus,
+      isProfilePublic: camelProfile.isProfilePublic,
+      notifyNewMessage: camelProfile.notifyNewMessage,
+      notifyBookmark: camelProfile.notifyBookmark,
     },
     counts: {
       portfolios: 0,

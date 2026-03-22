@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/browser-client";
 import { useRouter } from "next/navigation";
@@ -8,11 +8,47 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { unwrapApiData } from "@/lib/utils/client-api";
 
 export default function SettingsPage() {
   const [isProfilePublic, setIsProfilePublic] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    let mounted = true;
+    const loadSettings = async () => {
+      try {
+        const res = await fetch("/api/v1/me");
+        if (!res.ok) {
+          throw new Error("설정 정보를 불러오지 못했습니다.");
+        }
+        const json = await res.json();
+        const data = unwrapApiData<{
+          profile?: {
+            isProfilePublic?: boolean;
+          };
+        }>(json);
+        if (mounted) {
+          setIsProfilePublic(data?.profile?.isProfilePublic ?? true);
+        }
+      } catch {
+        if (mounted) {
+          toast.error("설정 정보를 불러오지 못했습니다.");
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadSettings();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const handlePublicToggle = async (checked: boolean) => {
     setIsProfilePublic(checked);
@@ -60,7 +96,7 @@ export default function SettingsPage() {
             <Switch
               checked={isProfilePublic}
               onCheckedChange={handlePublicToggle}
-              disabled={isSaving}
+              disabled={isSaving || loading}
             />
           </div>
         </CardContent>

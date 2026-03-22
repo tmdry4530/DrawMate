@@ -2,6 +2,9 @@ import { createClient } from "@/lib/supabase/server-client";
 import * as response from "@/lib/utils/api-response";
 import { conversationListSchema } from "@/validators/messaging";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const ISO_CURSOR_REGEX = /^[0-9T:.+\-Z]+$/;
+
 interface ConversationParticipantRow {
   user_id: string;
   last_read_message_id: string | null;
@@ -20,8 +23,24 @@ interface ConversationRow {
   id: string;
   last_message_at: string | null;
   last_message_id: string | null;
-  conversation_participants?: ConversationParticipantRow[];
-  messages?: ConversationMessageRow[];
+  my_participant?: ConversationParticipantRow | ConversationParticipantRow[] | null;
+  last_message?: ConversationMessageRow | ConversationMessageRow[] | null;
+}
+
+interface PeerParticipantRow {
+  conversation_id: string;
+  user_id: string;
+}
+
+interface PeerProfileRow {
+  id: string;
+  display_name: string | null;
+  avatar_path: string | null;
+}
+
+interface UnreadMessageRow {
+  conversation_id: string;
+  created_at: string;
 }
 
 function encodeCursor(lastMessageAt: string | null, id: string): string {
@@ -34,6 +53,17 @@ function decodeCursor(cursor: string): { lastMessageAt: string | null; id: strin
   } catch {
     return null;
   }
+}
+
+function isSafeIsoCursor(value: string): boolean {
+  if (!ISO_CURSOR_REGEX.test(value)) return false;
+  return Number.isFinite(Date.parse(value));
+}
+
+function firstOrNull<T>(value: T | T[] | null | undefined): T | null {
+  if (!value) return null;
+  if (Array.isArray(value)) return value[0] ?? null;
+  return value;
 }
 
 export async function GET(request: Request) {
@@ -64,8 +94,8 @@ export async function GET(request: Request) {
     .from("conversations")
     .select(
       `id, last_message_at, last_message_id,
-       conversation_participants!inner(user_id, last_read_message_id, last_read_at),
-       messages(id, body, message_type, sender_id, created_at)`
+       my_participant:conversation_participants!inner(user_id, last_read_message_id, last_read_at),
+       last_message:messages!fk_conversations_last_message(id, body, message_type, sender_id, created_at)`
     )
     .eq("conversation_participants.user_id", user.id)
     .order("last_message_at", { ascending: false, nullsFirst: false })
@@ -74,10 +104,13 @@ export async function GET(request: Request) {
 
   if (cursor) {
     const decoded = decodeCursor(cursor);
-    if (!decoded) {
+    if (!decoded || typeof decoded.id !== "string" || !UUID_REGEX.test(decoded.id)) {
       return response.validationError("유효하지 않은 커서 형식입니다.");
     }
     if (decoded.lastMessageAt) {
+      if (!isSafeIsoCursor(decoded.lastMessageAt)) {
+        return response.validationError("유효하지 않은 커서 형식입니다.");
+      }
       query = query.or(
         `last_message_at.lt.${decoded.lastMessageAt},and(last_message_at.eq.${decoded.lastMessageAt},id.lt.${decoded.id})`
       );
@@ -86,82 +119,111 @@ export async function GET(request: Request) {
     }
   }
 
-  const { data: conversations, error: fetchError } = await query;
+  const { data: rawConversations, error: fetchError } = await query;
 
   if (fetchError) {
-    return response.error("INTERNAL_ERROR", "대화방 목록을 불러오는데 실패했습니다.", 500);
+    return response.error("INTERNAL_ERROR", "대화 목록을 불러오는데 실패했습니다.", 500);
   }
 
-  const items = (conversations ?? []) as ConversationRow[];
+  const items = (rawConversations ?? []) as ConversationRow[];
   const hasMore = items.length > limit;
   const pageItems = hasMore ? items.slice(0, limit) : items;
+  const conversationIds = pageItems.map((conv) => conv.id);
 
-  // For each conversation, fetch the peer profile and compute unread count
-  const enriched = await Promise.all(
-    pageItems.map(async (conv) => {
-      // Get peer user_id (not current user)
-      const { data: participants } = await supabase
-        .from("conversation_participants")
-        .select("user_id")
-        .eq("conversation_id", conv.id)
-        .neq("user_id", user.id)
-        .limit(1);
+  const peerIdByConversationId = new Map<string, string>();
+  const profileByUserId = new Map<string, PeerProfileRow>();
+  const unreadCountByConversationId = new Map<string, number>();
 
-      const peerUserId = participants?.[0]?.user_id ?? null;
+  if (conversationIds.length > 0) {
+    const { data: rawPeerParticipants, error: peerError } = await supabase
+      .from("conversation_participants")
+      .select("conversation_id, user_id")
+      .in("conversation_id", conversationIds)
+      .neq("user_id", user.id);
 
-      let peer: Record<string, unknown> | null = null;
-      if (peerUserId) {
-        const { data: peerProfile } = await supabase
-          .from("profiles")
-          .select("id, display_name, avatar_path")
-          .eq("id", peerUserId)
-          .maybeSingle();
-        peer = peerProfile
-          ? {
-              id: peerProfile.id,
-              displayName: peerProfile.display_name,
-              avatarUrl: peerProfile.avatar_path
-                ? supabase.storage
-                    .from("profile-avatars")
-                    .getPublicUrl(peerProfile.avatar_path).data.publicUrl
-                : null,
-            }
-          : null;
+    if (peerError) {
+      return response.error("INTERNAL_ERROR", "상대 사용자 정보를 불러오는데 실패했습니다.", 500);
+    }
+
+    const peerParticipants = (rawPeerParticipants ?? []) as PeerParticipantRow[];
+    for (const peerParticipant of peerParticipants) {
+      peerIdByConversationId.set(peerParticipant.conversation_id, peerParticipant.user_id);
+    }
+
+    const peerIds = Array.from(new Set(peerParticipants.map((peerParticipant) => peerParticipant.user_id)));
+    if (peerIds.length > 0) {
+      const { data: rawPeerProfiles, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, display_name, avatar_path")
+        .in("id", peerIds);
+
+      if (profileError) {
+        return response.error("INTERNAL_ERROR", "프로필 정보를 불러오는데 실패했습니다.", 500);
       }
 
-      // Count unread messages
-      const myParticipant = conv.conversation_participants?.find(
-        (participant) => participant.user_id === user.id
-      );
-      const lastReadAt = myParticipant?.last_read_at ?? null;
+      const peerProfiles = (rawPeerProfiles ?? []) as PeerProfileRow[];
+      for (const peerProfile of peerProfiles) {
+        profileByUserId.set(peerProfile.id, peerProfile);
+      }
+    }
 
-      const { count: unreadCount } = await supabase
-        .from("messages")
-        .select("id", { count: "exact", head: true })
-        .eq("conversation_id", conv.id)
-        .neq("sender_id", user.id)
-        .is("deleted_at", null)
-        .gt("created_at", lastReadAt ?? "1970-01-01T00:00:00Z");
+    const { data: rawUnreadMessages, error: unreadError } = await supabase
+      .from("messages")
+      .select("conversation_id, created_at")
+      .in("conversation_id", conversationIds)
+      .neq("sender_id", user.id)
+      .is("deleted_at", null);
 
-      // Last message snippet
-      const lastMsg = conv.last_message_id
-        ? conv.messages?.find((message) => message.id === conv.last_message_id)
-        : null;
-      const lastMessageSnippet = lastMsg?.body
-        ? lastMsg.body.substring(0, 100)
-        : lastMsg
-        ? "[attachment]"
-        : null;
+    if (unreadError) {
+      return response.error("INTERNAL_ERROR", "읽지 않은 메시지 정보를 불러오는데 실패했습니다.", 500);
+    }
 
-      return {
-        conversationId: conv.id,
-        lastMessageSnippet,
-        lastMessageAt: conv.last_message_at,
-        unreadCount: unreadCount ?? 0,
-        peer,
-      };
-    })
-  );
+    const unreadMessages = (rawUnreadMessages ?? []) as UnreadMessageRow[];
+    const myReadAtByConversationId = new Map<string, string | null>();
+    for (const conversation of pageItems) {
+      const myParticipant = firstOrNull(conversation.my_participant);
+      myReadAtByConversationId.set(conversation.id, myParticipant?.last_read_at ?? null);
+      unreadCountByConversationId.set(conversation.id, 0);
+    }
+
+    for (const unreadMessage of unreadMessages) {
+      const readAt = myReadAtByConversationId.get(unreadMessage.conversation_id);
+      if (!readAt || unreadMessage.created_at > readAt) {
+        unreadCountByConversationId.set(
+          unreadMessage.conversation_id,
+          (unreadCountByConversationId.get(unreadMessage.conversation_id) ?? 0) + 1
+        );
+      }
+    }
+  }
+
+  const enriched = pageItems.map((conversation) => {
+    const lastMessage = firstOrNull(conversation.last_message);
+    const peerId = peerIdByConversationId.get(conversation.id) ?? null;
+    const peerProfile = peerId ? profileByUserId.get(peerId) ?? null : null;
+
+    return {
+      conversationId: conversation.id,
+      lastMessageSnippet: lastMessage?.body
+        ? lastMessage.body.substring(0, 100)
+        : lastMessage
+          ? "[attachment]"
+          : null,
+      lastMessageAt: conversation.last_message_at,
+      unreadCount: unreadCountByConversationId.get(conversation.id) ?? 0,
+      peer: peerProfile
+        ? {
+            id: peerProfile.id,
+            displayName: peerProfile.display_name,
+            avatarUrl: peerProfile.avatar_path
+              ? supabase.storage
+                  .from("profile-avatars")
+                  .getPublicUrl(peerProfile.avatar_path).data.publicUrl
+              : null,
+          }
+        : null,
+    };
+  });
 
   let nextCursor: string | null = null;
   if (hasMore && pageItems.length > 0) {
