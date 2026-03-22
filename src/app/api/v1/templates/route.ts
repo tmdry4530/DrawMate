@@ -7,7 +7,7 @@ export async function GET() {
 
   const { data: templates, error } = await supabase
     .from("portfolio_templates")
-    .select("id, name, description, preview_image_path, default_customization, sort_order, is_active")
+    .select("id, code, name, description, preview_image_path, layout_schema, sort_order, is_active")
     .eq("is_active", true)
     .order("sort_order", { ascending: true });
 
@@ -19,7 +19,7 @@ export async function GET() {
     const camel = toCamelCaseKeys(template) as Record<string, unknown>;
     if (template.preview_image_path) {
       const { data: urlData } = supabase.storage
-        .from("portfolio-assets")
+        .from("system-template-assets")
         .getPublicUrl(template.preview_image_path as string);
       camel.previewImageUrl = urlData.publicUrl;
     } else {
