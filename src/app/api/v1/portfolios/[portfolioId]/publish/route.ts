@@ -37,7 +37,16 @@ export async function POST(
   });
 
   if (rpcError) {
-    return response.error("INTERNAL_ERROR", `발행 실패: ${rpcError.message} | code: ${rpcError.code} | hint: ${rpcError.hint ?? "none"}`, 500);
+    // RPC 비즈니스 검증 에러를 사용자 친화적 메시지로 변환
+    const validationMessages: Record<string, string> = {
+      requires_at_least_one_image: "최소 1장의 이미지가 필요합니다.",
+      requires_at_least_one_field_tag: "최소 1개의 분야 태그를 선택해주세요.",
+      requires_profile_display_name: "프로필에 이름을 먼저 입력해주세요.",
+      requires_profile_role: "프로필에서 역할을 먼저 설정해주세요.",
+    };
+    const userMessage = validationMessages[rpcError.message] ?? `발행에 실패했습니다: ${rpcError.message}`;
+    const statusCode = rpcError.code === "P0001" ? 422 : 500;
+    return response.error("UNPROCESSABLE_ENTITY", userMessage, statusCode);
   }
 
   const { data: updated } = await supabase
