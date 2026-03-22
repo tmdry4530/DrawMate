@@ -1,0 +1,276 @@
+"use client";
+
+import { useCallback, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useEditorStore } from "@/store/editor-store";
+import { Star, StarOff, X, Upload, ImageIcon, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const MAX_IMAGES = 20;
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
+interface UploadProgress {
+  [key: number]: number; // index -> 0~100
+}
+
+export function ImageUploader() {
+  const { images, addImage, removeImage, updateImage, setCoverImage, portfolioId } =
+    useEditorStore();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress>({});
+
+  const uploadFile = useCallback(
+    async (file: File, imageIndex: number): Promise<string | undefined> => {
+      if (!portfolioId) return undefined;
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      return new Promise((resolve) => {
+        const xhr = new XMLHttpRequest();
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const pct = Math.round((e.loaded / e.total) * 100);
+            setUploadProgress((prev) => ({ ...prev, [imageIndex]: pct }));
+          }
+        };
+        xhr.onload = () => {
+          setUploadProgress((prev) => {
+            const next = { ...prev };
+            delete next[imageIndex];
+            return next;
+          });
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const data = JSON.parse(xhr.responseText);
+              resolve(data?.image?.id ?? data?.id);
+            } catch {
+              resolve(undefined);
+            }
+          } else {
+            resolve(undefined);
+          }
+        };
+        xhr.onerror = () => {
+          setUploadProgress((prev) => {
+            const next = { ...prev };
+            delete next[imageIndex];
+            return next;
+          });
+          resolve(undefined);
+        };
+        xhr.open("POST", `/api/v1/portfolios/${portfolioId}/images`);
+        xhr.send(formData);
+      });
+    },
+    [portfolioId]
+  );
+
+  const processFiles = useCallback(
+    async (files: FileList | File[]) => {
+      const fileArray = Array.from(files);
+      const remaining = MAX_IMAGES - images.length;
+      if (remaining <= 0) {
+        alert(`이미지는 최대 ${MAX_IMAGES}장까지 업로드할 수 있습니다.`);
+        return;
+      }
+      const toProcess = fileArray.slice(0, remaining);
+      const oversized = toProcess.filter((f) => f.size > MAX_FILE_SIZE_BYTES);
+      if (oversized.length > 0) {
+        alert(
+          `파일 크기는 ${MAX_FILE_SIZE_MB}MB 이하여야 합니다. (${oversized
+            .map((f) => f.name)
+            .join(", ")} 제외됨)`
+        );
+      }
+      const valid = toProcess.filter((f) => f.size <= MAX_FILE_SIZE_BYTES);
+
+      for (let i = 0; i < valid.length; i++) {
+        const file = valid[i];
+        const previewUrl = URL.createObjectURL(file);
+        const imageIndex = images.length + i;
+        addImage({
+          file,
+          previewUrl,
+          caption: "",
+          isCover: images.length === 0 && i === 0,
+          sortOrder: imageIndex,
+        });
+        // 백그라운드 업로드 (portfolioId 있을 때만)
+        if (portfolioId) {
+          uploadFile(file, imageIndex).then((uploadedId) => {
+            if (uploadedId) {
+              updateImage(imageIndex, { id: uploadedId });
+            }
+          });
+        }
+      }
+    },
+    [images, addImage, portfolioId, uploadFile, updateImage]
+  );
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      processFiles(e.target.files);
+      e.target.value = "";
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (e.dataTransfer.files) {
+      processFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold mb-2">이미지 업로드</h2>
+        <p className="text-muted-foreground">
+          작품 이미지를 업로드하세요. 최대 {MAX_IMAGES}장, 각 파일{" "}
+          {MAX_FILE_SIZE_MB}MB 이하 (JPEG, PNG, WEBP)
+        </p>
+      </div>
+
+      {/* 드래그 앤 드롭 영역 */}
+      {images.length < MAX_IMAGES && (
+        <div
+          className="border-2 border-dashed rounded-xl p-10 text-center mb-6 cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Upload className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
+          <p className="font-medium mb-1">이미지를 드래그하거나 클릭하여 업로드</p>
+          <p className="text-sm text-muted-foreground">
+            JPEG, PNG, WEBP 지원 · 최대 {MAX_FILE_SIZE_MB}MB
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            className="hidden"
+            onChange={handleFileInput}
+          />
+        </div>
+      )}
+
+      {/* 이미지 목록 */}
+      {images.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-medium text-muted-foreground">
+              {images.length} / {MAX_IMAGES}장
+            </p>
+            <p className="text-xs text-muted-foreground">별 아이콘으로 대표 이미지 설정</p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {images.map((img, index) => {
+              const progress = uploadProgress[index];
+              const isUploading = progress !== undefined;
+
+              return (
+                <div
+                  key={index}
+                  className={cn(
+                    "relative rounded-lg overflow-hidden border-2 group",
+                    img.isCover ? "border-yellow-400" : "border-transparent"
+                  )}
+                >
+                  {/* 이미지 미리보기 */}
+                  <div className="aspect-square bg-muted relative">
+                    {img.previewUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={img.previewUrl}
+                        alt={img.caption || `이미지 ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                    )}
+
+                    {/* 업로드 진행 표시 */}
+                    {isUploading && (
+                      <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center gap-1">
+                        <Loader2 className="w-5 h-5 text-white animate-spin" />
+                        <span className="text-white text-xs">{progress}%</span>
+                        <div className="w-3/4 h-1 bg-white/30 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-white transition-all"
+                            style={{ width: `${progress}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 대표 이미지 배지 */}
+                    {img.isCover && !isUploading && (
+                      <div className="absolute top-1 left-1 bg-yellow-400 text-yellow-900 text-xs px-1.5 py-0.5 rounded font-medium">
+                        대표
+                      </div>
+                    )}
+
+                    {/* 호버 액션 */}
+                    {!isUploading && (
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => setCoverImage(index)}
+                          className="p-1.5 bg-white/90 rounded-full text-yellow-500 hover:bg-white"
+                          title="대표 이미지로 설정"
+                        >
+                          {img.isCover ? (
+                            <Star className="w-4 h-4 fill-yellow-500" />
+                          ) : (
+                            <StarOff className="w-4 h-4" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => removeImage(index)}
+                          className="p-1.5 bg-white/90 rounded-full text-red-500 hover:bg-white"
+                          title="삭제"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 캡션 입력 */}
+                  <div className="p-2">
+                    <Input
+                      placeholder="캡션 입력 (선택)"
+                      value={img.caption}
+                      onChange={(e) =>
+                        updateImage(index, { caption: e.target.value })
+                      }
+                      className="text-xs h-7"
+                      maxLength={100}
+                      disabled={isUploading}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {images.length === 0 && (
+        <p className="text-center text-muted-foreground text-sm mt-4">
+          이미지를 1장 이상 업로드해야 합니다.
+        </p>
+      )}
+    </div>
+  );
+}

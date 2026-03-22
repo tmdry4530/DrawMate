@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "inverse-surface": "#2f2e43",
+              "surface-container-lowest": "#ffffff",
+              "on-surface": "#1a1a2e",
+              "surface-container": "#efecff",
+              "on-tertiary-container": "#fefcff",
+              "tertiary": "#585c66",
+              "outline-variant": "#c4c5d7",
+              "on-primary-fixed": "#001355",
+              "on-primary-container": "#fffbff",
+              "background": "#fcf8ff",
+              "surface-container-high": "#e8e5ff",
+              "on-surface-variant": "#444655",
+              "tertiary-fixed": "#dfe2ef",
+              "tertiary-container": "#707480",
+              "surface-container-low": "#f5f2ff",
+              "on-background": "#1a1a2e",
+              "on-primary-fixed-variant": "#0035bd",
+              "tertiary-fixed-dim": "#c3c6d3",
+              "primary-fixed": "#dde1ff",
+              "on-secondary-fixed": "#1a1a2e",
+              "on-tertiary-fixed-variant": "#434751",
+              "secondary-container": "#e2e0fc",
+              "error-container": "#ffdad6",
+              "on-tertiary": "#ffffff",
+              "primary-container": "#4568f3",
+              "primary": "#264dd9",
+              "primary-fixed-dim": "#b8c3ff",
+              "on-error-container": "#93000a",
+              "surface-dim": "#dad7f3",
+              "on-tertiary-fixed": "#171c25",
+              "on-secondary": "#ffffff",
+              "outline": "#747686",
+              "secondary-fixed-dim": "#c6c4df",
+              "secondary": "#5d5c74",
+              "on-secondary-fixed-variant": "#45455b",
+              "error": "#ba1a1a",
+              "on-error": "#ffffff",
+              "surface-tint": "#294fdb",
+              "surface-container-highest": "#e2e0fc",
+              "surface-bright": "#fcf8ff",
+              "secondary-fixed": "#e2e0fc",
+              "on-secondary-container": "#63627a",
+              "surface-variant": "#e2e0fc",
+              "inverse-on-surface": "#f2efff",
+              "surface": "#fcf8ff",
+              "on-primary": "#ffffff",
+              "inverse-primary": "#b8c3ff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .glass-nav { backdrop-filter: blur(20px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf8ff]/80 dark:bg-[#1a1a2e]/80 backdrop-blur-xl no-border bg-[#f5f2ff] dark:bg-[#1a1a2e]">
+<div class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+<div class="text-2xl font-bold tracking-tighter text-[#1a1a2e] dark:text-[#fcf8ff] font-['Manrope'] antialiased tracking-tight">
+                DrawMate
+            </div>
+<div class="hidden md:flex items-center gap-8">
+<nav class="flex gap-6 text-sm font-medium">
+<a class="text-[#264dd9] dark:text-[#4568f3] font-semibold hover:text-[#264dd9] transition-colors duration-300" href="#">둘러보기</a>
+<a class="text-[#1a1a2e]/60 dark:text-[#fcf8ff]/60 hover:text-[#264dd9] transition-colors duration-300" href="#">메시지</a>
+<a class="text-[#1a1a2e]/60 dark:text-[#fcf8ff]/60 hover:text-[#264dd9] transition-colors duration-300" href="#">스튜디오</a>
+</nav>
+<div class="flex items-center gap-4 text-[#1a1a2e]/60 dark:text-[#fcf8ff]/60">
+<button class="scale-95 active:opacity-80 transition-all"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="scale-95 active:opacity-80 transition-all"><span class="material-symbols-outlined" data-icon="mail">mail</span></button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="사용자 프로필" class="w-full h-full object-cover" data-alt="Minimalist geometric user profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVorg6vGeBOpens9XTq2iYUKUhoFGqv0q2Xm1y2K_vH5mYyx3YOCv1SLX5eOUQCIXSFmHPPgqzhhrOl0OMBoy-vUeTP-FwPp9orrQeyRwowPFDrv9imf2Z_YQLUy6bIXHKfIpz08aZ2Amy0Bye08ouL9beooJEuy5Yo88op4oOqMfiSVvt6Ec-gzAzcLRaXG3ZfLhxDKWDPFcUf419lNd1wP-GObwI2svALRTuIqUfm9qZdCBU__UJ5j2PzNKwUTJ0cQ6EROvOtw"/>
+</div>
+</div>
+</div>
+<button class="md:hidden text-[#1a1a2e]"><span class="material-symbols-outlined">menu</span></button>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-7xl mx-auto">
+<!-- Search Hero Section -->
+<section class="mb-12">
+<div class="relative w-full max-w-3xl mx-auto">
+<span class="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-primary" data-icon="search">search</span>
+<input class="w-full pl-14 pr-6 py-5 bg-surface-container-lowest border-none rounded-xl shadow-[0_8px_32px_rgba(38,77,217,0.06)] focus:ring-2 focus:ring-primary/20 text-lg font-medium placeholder:text-on-surface/30" placeholder="웹툰 배경 어시스턴트 검색..." type="text"/>
+</div>
+</section>
+<div class="flex flex-col lg:flex-row gap-12">
+<!-- Desktop Sidebar Filters -->
+<aside class="hidden lg:block w-64 flex-shrink-0 space-y-10">
+<div>
+<h3 class="font-headline font-bold text-lg mb-6 tracking-tight">분야</h3>
+<div class="space-y-3">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-on-surface-variant group-hover:text-primary transition-colors">웹툰</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-on-surface-variant group-hover:text-primary transition-colors">일러스트</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-on-surface-variant group-hover:text-primary transition-colors">애니메이션</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-on-surface-variant group-hover:text-primary transition-colors">배경</span>
+</label>
+</div>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg mb-6 tracking-tight">기술</h3>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full bg-surface-container-highest text-primary font-medium text-sm">포토샵</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-low text-on-surface-variant text-sm hover:bg-surface-container-high transition-colors">클립 스튜디오</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-low text-on-surface-variant text-sm hover:bg-surface-container-high transition-colors">프로크리에이트</button>
+</div>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg mb-6 tracking-tight">가격 범위</h3>
+<div class="px-2">
+<input class="w-full h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" type="range"/>
+<div class="flex justify-between mt-3 text-xs text-on-secondary-container font-medium">
+<span>₩0</span>
+<span>₩5,000,000+</span>
+</div>
+</div>
+</div>
+<div class="pt-6 border-t border-outline-variant/20">
+<label class="flex items-center justify-between cursor-pointer">
+<span class="font-bold text-on-surface">현재 작업 가능</span>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</label>
+</div>
+</aside>
+<!-- Main Results Area -->
+<div class="flex-grow">
+<!-- Active Filters & Sort -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+<div class="flex flex-wrap gap-2 items-center">
+<span class="text-sm font-semibold text-on-secondary-container mr-2">적용 필터:</span>
+<div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium">
+                            웹툰 <span class="material-symbols-outlined text-[16px] cursor-pointer" data-icon="close">close</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium">
+                            배경 <span class="material-symbols-outlined text-[16px] cursor-pointer" data-icon="close">close</span>
+</div>
+<button class="text-xs text-on-surface-variant underline ml-2">전체 초기화</button>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-sm text-on-secondary-container">정렬:</span>
+<div class="relative inline-block text-left">
+<button class="flex items-center justify-between w-40 px-4 py-2 bg-surface-container-low text-sm font-medium text-on-surface rounded-lg">
+                                최신순
+                                <span class="material-symbols-outlined text-[18px]" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Masonry Grid -->
+<div class="columns-1 sm:columns-2 xl:columns-3 gap-6 space-y-6">
+<!-- Artist Card 1 -->
+<div class="break-inside-avoid group relative rounded-xl overflow-hidden bg-surface-container-lowest transition-all hover:-translate-y-1">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img alt="작가의 작품" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Intricate digital painting of a fantasy background environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEPLydOwxaRxA1f31Bxe30b8n5d1SHIAMvXf5maYyyP6sZ8gQFzaFp_GCnMBUJq6UNCiJQ65c991-_zHRi76ecF1yg99LOkX2bOYv0KKQCe1H40NfgyWr1gpzXIqT7VPNBAXDVYil-fy9-guzPOCzc7qFa_7gng5aGQxQgqpXcokL9ZinhPJ9_Hnsz1tb4Cg5zbLcjVvcq7j97qASaHnfc6qDPJvygiNG6iSqjv86sblEooJ7-Ve5xy2OUPxLWdlVPYi8NUCTf3g"/>
+<div class="absolute inset-0 bg-on-surface/0 group-hover:bg-on-surface/40 transition-colors duration-300 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100">
+<button class="px-6 py-2.5 bg-primary text-on-primary rounded-md font-medium text-sm">포트폴리오 보기</button>
+</div>
+<div class="absolute top-4 left-4 flex gap-2">
+<span class="px-2 py-1 bg-surface-container-lowest/90 backdrop-blur-md rounded text-[10px] font-bold text-on-surface uppercase tracking-wider">웹툰</span>
+</div>
+</div>
+<div class="p-5">
+<div class="flex items-center justify-between mb-2">
+<h4 class="font-headline font-bold text-on-surface truncate">네오 서울 스튜디오</h4>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.9</span>
+</div>
+</div>
+<p class="text-xs text-on-secondary-container line-clamp-1 mb-4">현대 스릴러를 위한 전문적인 도시 배경</p>
+<div class="flex items-center justify-between">
+<span class="text-sm font-bold text-primary">₩45,000~</span>
+<div class="w-2 h-2 rounded-full bg-primary" title="작업 가능"></div>
+</div>
+</div>
+</div>
+<!-- Artist Card 2 -->
+<div class="break-inside-avoid group relative rounded-xl overflow-hidden bg-surface-container-lowest transition-all hover:-translate-y-1">
+<div class="relative aspect-[1/1] overflow-hidden">
+<img alt="작가의 작품" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Minimalist abstract digital landscape with purple tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxGb0ys0A2bfvnhwOUPS8BsTsJL6o4IsrsRELDM1s0BSjpOIDRScSXn1c_1BCJLudX_ENmNoPYlLEnkC0NeCSm2lfZw4mIN4b5wlCjvpw8Qdch1rcK1CAhEg-QDDH922839UbQDcSVGi1AsLty-qZetKyThQ0ArWSsPcGgRP4hKVEuf_ZHei_2rcJJbbRHcm0WS3yXo3dp9M3pz3G18AWaStu4kGX_1QmcHuEqU8FeBYEaenhf423ZjeQUTC5qcgcccOBJRd8Nhg"/>
+<div class="absolute inset-0 bg-on-surface/0 group-hover:bg-on-surface/40 transition-colors duration-300 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100">
+<button class="px-6 py-2.5 bg-primary text-on-primary rounded-md font-medium text-sm">포트폴리오 보기</button>
+</div>
+<div class="absolute top-4 left-4 flex gap-2">
+<span class="px-2 py-1 bg-surface-container-lowest/90 backdrop-blur-md rounded text-[10px] font-bold text-on-surface uppercase tracking-wider">배경</span>
+</div>
+</div>
+<div class="p-5">
+<div class="flex items-center justify-between mb-2">
+<h4 class="font-headline font-bold text-on-surface truncate">에테르 브러시</h4>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold text-on-surface">5.0</span>
+</div>
+</div>
+<p class="text-xs text-on-secondary-container line-clamp-1 mb-4">몽환적인 수채화 스타일 환경 애셋</p>
+<div class="flex items-center justify-between">
+<span class="text-sm font-bold text-primary">₩120,000~</span>
+<div class="w-2 h-2 rounded-full bg-primary" title="작업 가능"></div>
+</div>
+</div>
+</div>
+<!-- Artist Card 3 -->
+<div class="break-inside-avoid group relative rounded-xl overflow-hidden bg-surface-container-lowest transition-all hover:-translate-y-1">
+<div class="relative aspect-[4/3] overflow-hidden">
+<img alt="작가의 작품" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="High-detail 3D render of a futuristic room background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXJmeC78YaaV-RoK7KNGvc2hjeXyys1SijEIDfWgNDidE4hgHHJvxpVguFipiA39SdbWUfBxjiQ--DtwMH7DDmOZO4_LCQVq1B29ytTi009_zeTZgu0K6xxLWLSdEXwHrkHlvmjn4aGy8AFfObl0zj-zWmwbyIoGbRGcBOXVwquUmksAXz7pdls6T7xrF2650WXi8gJLqnJ7dlnE6BJHo5wPXAhhfaJwHA7JgZ-1yYyB98LYJrW3p80oxfqrePRliqCvw3tbJSAg"/>
+<div class="absolute inset-0 bg-on-surface/0 group-hover:bg-on-surface/40 transition-colors duration-300 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100">
+<button class="px-6 py-2.5 bg-primary text-on-primary rounded-md font-medium text-sm">포트폴리오 보기</button>
+</div>
+<div class="absolute top-4 left-4 flex gap-2">
+<span class="px-2 py-1 bg-surface-container-lowest/90 backdrop-blur-md rounded text-[10px] font-bold text-on-surface uppercase tracking-wider">스케치</span>
+</div>
+</div>
+<div class="p-5">
+<div class="flex items-center justify-between mb-2">
+<h4 class="font-headline font-bold text-on-surface truncate">라인 마스터 민</h4>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.8</span>
+</div>
+</div>
+<p class="text-xs text-on-secondary-container line-clamp-1 mb-4">액션 장면을 위한 빠른 스케치 및 선화</p>
+<div class="flex items-center justify-between">
+<span class="text-sm font-bold text-primary">₩25,000~</span>
+<div class="w-2 h-2 rounded-full bg-secondary-fixed-dim" title="진행중"></div>
+</div>
+</div>
+</div>
+<!-- Artist Card 4 -->
+<div class="break-inside-avoid group relative rounded-xl overflow-hidden bg-surface-container-lowest transition-all hover:-translate-y-1">
+<div class="relative aspect-[3/4] overflow-hidden">
+<img alt="작가의 작품" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Cyberpunk character illustration with neon lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwmPYn-suZCG2WavQxC021WwQbN3WXW53wu1cFAOF2brMChBkhzDr8ntvWpmTzYWxijyZS3vgbj4UxyJWkPKeETOE48I8fnvbSz0t3fu33NdKee-jLPPz2aPxZaJuPnnBoCghSYGLAMG0yA14JQPY3sFpWW6sMaKDe3WMB1wFcGqHsY6nJ1ksglMd3JEoKCmXBAOMLZogKiLI6F2gkVWhwpRM-L6gfJIBYiVmohFqSzs13R31KTTEUXV-IlD68Oj3cs0Vap4QJ6w"/>
+<div class="absolute inset-0 bg-on-surface/0 group-hover:bg-on-surface/40 transition-colors duration-300 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100">
+<button class="px-6 py-2.5 bg-primary text-on-primary rounded-md font-medium text-sm">포트폴리오 보기</button>
+</div>
+<div class="absolute top-4 left-4 flex gap-2">
+<span class="px-2 py-1 bg-surface-container-lowest/90 backdrop-blur-md rounded text-[10px] font-bold text-on-surface uppercase tracking-wider">캐릭터</span>
+</div>
+</div>
+<div class="p-5">
+<div class="flex items-center justify-between mb-2">
+<h4 class="font-headline font-bold text-on-surface truncate">바이브런트 보이드</h4>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.9</span>
+</div>
+</div>
+<p class="text-xs text-on-secondary-container line-clamp-1 mb-4">독특한 캐릭터 디자인 및 표정 시트</p>
+<div class="flex items-center justify-between">
+<span class="text-sm font-bold text-primary">₩85,000~</span>
+<div class="w-2 h-2 rounded-full bg-primary" title="작업 가능"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Empty State (Hidden by default, shown here for visual reference) -->
+<div class="hidden flex flex-col items-center justify-center py-32 text-center">
+<div class="w-64 h-64 mb-8 bg-surface-container-low rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-[80px] text-primary/20" data-icon="search_off">search_off</span>
+</div>
+<h3 class="text-2xl font-headline font-bold text-on-surface mb-3">검색 결과가 없어요</h3>
+<p class="text-on-secondary-container max-w-sm mx-auto">선택하신 필터에 맞는 작가님이 없습니다. 필터를 조금 더 넓게 조정해보는 건 어떨까요?</p>
+<button class="mt-8 px-8 py-3 bg-primary text-on-primary rounded-md font-semibold text-sm">필터 초기화</button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-3xl bg-[#fcf8ff]/80 dark:bg-[#1a1a2e]/80 backdrop-blur-2xl no-border shadow-[0_-8px_32px_rgba(26,26,46,0.04)] fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3">
+<a class="flex flex-col items-center justify-center text-[#264dd9] dark:text-[#4568f3] bg-[#e2e0fc] dark:bg-[#264dd9]/20 rounded-xl px-4 py-1 tap-highlight-none active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="text-[10px] font-medium font-['Pretendard']">둘러보기</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#1a1a2e]/40 dark:text-[#fcf8ff]/40 tap-highlight-none active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+<span class="text-[10px] font-medium font-['Pretendard']">메시지</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#1a1a2e]/40 dark:text-[#fcf8ff]/40 tap-highlight-none active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="palette">palette</span>
+<span class="text-[10px] font-medium font-['Pretendard']">스튜디오</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#1a1a2e]/40 dark:text-[#fcf8ff]/40 tap-highlight-none active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[10px] font-medium font-['Pretendard']">프로필</span>
+</a>
+</nav>
+</body></html>

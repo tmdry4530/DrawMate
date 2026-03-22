@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "inverse-surface": "#2f2e43",
+              "surface-container-lowest": "#ffffff",
+              "on-surface": "#1a1a2e",
+              "surface-container": "#efecff",
+              "on-tertiary-container": "#fefcff",
+              "tertiary": "#585c66",
+              "outline-variant": "#c4c5d7",
+              "on-primary-fixed": "#001355",
+              "on-primary-container": "#fffbff",
+              "background": "#fcf8ff",
+              "surface-container-high": "#e8e5ff",
+              "on-surface-variant": "#444655",
+              "tertiary-fixed": "#dfe2ef",
+              "tertiary-container": "#707480",
+              "surface-container-low": "#f5f2ff",
+              "on-background": "#1a1a2e",
+              "on-primary-fixed-variant": "#0035bd",
+              "tertiary-fixed-dim": "#c3c6d3",
+              "primary-fixed": "#dde1ff",
+              "on-secondary-fixed": "#1a1a2e",
+              "on-tertiary-fixed-variant": "#434751",
+              "secondary-container": "#e2e0fc",
+              "error-container": "#ffdad6",
+              "on-tertiary": "#ffffff",
+              "primary-container": "#4568f3",
+              "primary": "#264dd9",
+              "primary-fixed-dim": "#b8c3ff",
+              "on-error-container": "#93000a",
+              "surface-dim": "#dad7f3",
+              "on-tertiary-fixed": "#171c25",
+              "on-secondary": "#ffffff",
+              "outline": "#747686",
+              "secondary-fixed-dim": "#c6c4df",
+              "secondary": "#5d5c74",
+              "on-secondary-fixed-variant": "#45455b",
+              "error": "#ba1a1a",
+              "on-error": "#ffffff",
+              "surface-tint": "#294fdb",
+              "surface-container-highest": "#e2e0fc",
+              "surface-bright": "#fcf8ff",
+              "secondary-fixed": "#e2e0fc",
+              "on-secondary-container": "#63627a",
+              "surface-variant": "#e2e0fc",
+              "inverse-on-surface": "#f2efff",
+              "surface": "#fcf8ff",
+              "on-primary": "#ffffff",
+              "inverse-primary": "#b8c3ff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', 'Pretendard', sans-serif; }
+        .font-headline { font-family: 'Manrope', 'Pretendard', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased mb-24 md:mb-0">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf8ff]/80 backdrop-blur-xl">
+<div class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+<div class="text-2xl font-bold tracking-tighter text-[#1a1a2e] font-headline">DrawMate</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-[#1a1a2e]/60 hover:text-[#264dd9] transition-colors duration-300 font-medium" href="#">탐색하기</a>
+<a class="text-[#1a1a2e]/60 hover:text-[#264dd9] transition-colors duration-300 font-medium" href="#">메시지</a>
+<a class="text-[#1a1a2e]/60 hover:text-[#264dd9] transition-colors duration-300 font-medium" href="#">스튜디오</a>
+<a class="text-[#264dd9] font-semibold" href="#">프로필</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="text-[#1a1a2e]/60 hover:text-[#264dd9] transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-[#1a1a2e]/60 hover:text-[#264dd9] transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant/20">
+<img alt="사용자 프로필 아바타" class="w-full h-full object-cover" data-alt="젊은 여성 크리에이티브 전문가의 인물 사진" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsL02n-L9Zk_UPlFoLM2901NV8zOEl_tD0_1q5Ya3HfirX6Ud0bsn2kIM7CHnVw2m5vdKY0aE_mcIyOXPfSLpgAoikWj5XrXgnUnUm75wbkLZOl_yz7eex8SZdkdTj3MK2egRm9opFdJzvbCa6RRgc0p2uhZl5DGhu0UmtQmWFh8tl-_EFBpyBGvuEN7Fz-oTJ4_Z_ul1xHenppEA3188WXugaWKZ8yJjrHZOMsMtoZQIYKrqG9UfTAPqHLzbpIgjvQuP1PJu6mQ"/>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-16 pb-20">
+<!-- Profile Hero Section -->
+<section class="relative">
+<!-- Banner -->
+<div class="h-64 md:h-80 w-full bg-gradient-to-br from-primary via-primary-container to-secondary overflow-hidden relative">
+<div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
+<img alt="배너 배경" class="w-full h-full object-cover opacity-60" data-alt="추상적이고 생동감 넘치는 남색과 보라색의 디지털 아트 풍경" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYXBfN7fZiZErDT5XCeBpPxVcp5n0J7wNVCEYTOYppHAb-NeHJhxeWgFTwbZA9AsBuEBno6hjA7ukg1UVEpWLv8g3Eyrk75V3vt2aG3N32tCv403PaSkX2n2Md4mb_9-cToBXJ175wwTz69WSuod31adlBPH2s1avdmd-CqS7_kb93fS19ruxr44eaY5cgysC1r5h0ZRtHQmmp6n5Pi3EdWd1E3CqTxH0mtj2GVMuJAdsxJXhvY492Eg37u410XOwbkDK5oEkhew"/>
+</div>
+<!-- Profile Info Container -->
+<div class="max-w-7xl mx-auto px-6 -mt-12 relative z-10">
+<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+<div class="flex flex-col md:flex-row items-start md:items-end gap-6">
+<!-- Avatar -->
+<div class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-surface-container-lowest bg-surface-container overflow-hidden shadow-lg">
+<img alt="아티스트 프로필 이미지" class="w-full h-full object-cover" data-alt="미소 짓는 여성 디지털 아티스트의 근접 인물 사진" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOpLESfZbdDopoFbwplP72ikxeb8UYju3eQ1XR87trsef7_zZMR-Y-4ZHtpaID1zSttKOoi4sJteO093hkWExhtwHinhG7F1A4rmYVtDTQna9iQglpOB51jdvwQDp7mqO7FHfr5cgrs-fC79wC5f_s5SRNmwcU4BwlrMgYQ_nYSELr9DQODcdON6g6ePuIgH9AT8XawwSqvbJPuMtA1Ewgyg0LAA3h6_Nz7O2kDjHRmZGEfW8yYFKlyfFzyuTNWgYUcyw7KLhgmA"/>
+</div>
+<div class="flex-1 pb-2">
+<div class="flex items-center gap-3 mb-1">
+<h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-on-surface font-headline">엘레나 손 (Elena Thorne)</h1>
+<span class="px-3 py-1 bg-primary-container text-on-primary-container text-xs font-bold rounded-full tracking-wide">아티스트</span>
+</div>
+<p class="text-on-secondary-container font-medium mb-3">서울에서 꿈결 같은 풍경과 디지털 내러티브를 그립니다.</p>
+<!-- SNS Links -->
+<div class="flex items-center gap-4 text-secondary/60">
+<a class="hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined" data-icon="x">close</span></a>
+<a class="hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined" data-icon="photo_camera">photo_camera</span></a>
+<a class="hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined" data-icon="brush">brush</span></a>
+<a class="hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined" data-icon="language">language</span></a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Section -->
+<section class="max-w-7xl mx-auto px-6 mt-12">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-surface-container-low p-6 rounded-xl flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-on-secondary-container uppercase tracking-widest mb-1">포트폴리오</p>
+<p class="text-2xl font-bold font-headline">24</p>
+</div>
+<span class="material-symbols-outlined text-primary/40 text-4xl" data-icon="folder_special">folder_special</span>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-on-secondary-container uppercase tracking-widest mb-1">프로젝트</p>
+<p class="text-2xl font-bold font-headline">152</p>
+</div>
+<span class="material-symbols-outlined text-primary/40 text-4xl" data-icon="task_alt">task_alt</span>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-on-secondary-container uppercase tracking-widest mb-1">평균 평점</p>
+<div class="flex items-center gap-2">
+<p class="text-2xl font-bold font-headline">4.9</p>
+<div class="flex text-amber-400">
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary/40 text-4xl" data-icon="grade">grade</span>
+</div>
+</div>
+</section>
+<!-- Tabs Navigation -->
+<section class="max-w-7xl mx-auto px-6 mt-16">
+<div class="flex gap-12 border-b border-outline-variant/20 mb-8">
+<button class="pb-4 text-primary font-bold border-b-2 border-primary relative">
+                    포트폴리오
+                </button>
+<button class="pb-4 text-on-surface/40 font-medium hover:text-on-surface transition-colors">
+                    리뷰
+                </button>
+<button class="pb-4 text-on-surface/40 font-medium hover:text-on-surface transition-colors">
+                    소개
+                </button>
+</div>
+<!-- Portfolio Grid (Active Tab) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Portfolio Card 1 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/3] rounded-xl overflow-hidden mb-4 bg-surface-container relative">
+<img alt="네온 나이츠 일러스트" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="보랏빛 조명이 있는 생동감 넘치는 네온 사이버펑크 도시 일러스트" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDqLVymAI1Wfprm6nctSR5VoIemQty2JRUWol91fRd0_lENgHZoY8q5BCVwrrpJylNJUMIXSnrnCAbmi4g0ND2iSDU7QxNrYK_gxU0v4Xjtkr90Bp1D4bFjGHLFB1l5MccJeFAtfjIazpRmZ3Y6wmiC7-GeL2fdApGsRM03klST8Myvx50Ej17Y9KzQWrp93Qox3YOy0f6q-MbMd41xAST5EE-95pbHIEubmusTNKyLdll7quYRrMYp-TUH6mzbqjvzLexmyS_Ww"/>
+<div class="absolute inset-0 bg-on-surface/0 group-hover:bg-on-surface/40 transition-all duration-300 flex items-center justify-center">
+<span class="text-on-primary font-bold opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">포트폴리오 보기</span>
+</div>
+</div>
+<h3 class="font-bold text-lg text-on-surface group-hover:text-primary transition-colors">네온 나이츠: 사이버펑크 2077</h3>
+<p class="text-sm text-on-secondary-container">환경 컨셉 아트 • 2024</p>
+</div>
+<!-- Portfolio Card 2 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/3] rounded-xl overflow-hidden mb-4 bg-surface-container relative">
+<img alt="미묘한 인물화" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="연보라색과 파란색 톤의 부드럽고 미묘한 인물 일러스트" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHto-9tARzgOXI4uJoDY6yS5uR_o2Io1j3LNqYliJpDO4GnFChZl1aDY2nke1WrAoQ-cvEQ4N91-XaaMBQF6fy2I8_L3PbLQK-bWtb4S1KaHlesZLob_2V48AbEKUbvyiPQquUrpdbY6WhIr9ViqM7AlGuFKfemiqeK68B_Xvi5cr-SlTiug2diqhjfzg5LnJfQ_j9OQxUZqNN1PPCq95LFsMGFimXCQ8fZIwBhPJBeeuba9BiDE_b5RLgdxfH5ARqfwrvOuC83w"/>
+<div class="absolute inset-0 bg-on-surface/0 group-hover:bg-on-surface/40 transition-all duration-300 flex items-center justify-center">
+<span class="text-on-primary font-bold opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">포트폴리오 보기</span>
+</div>
+</div>
+<h3 class="font-bold text-lg text-on-surface group-hover:text-primary transition-colors">에테르 블룸: 캐릭터 시리즈</h3>
+<p class="text-sm text-on-secondary-container">캐릭터 디자인 • 2023</p>
+</div>
+<!-- Portfolio Card 3 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/3] rounded-xl overflow-hidden mb-4 bg-surface-container relative">
+<img alt="추상적 흐름" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="역동적인 남색 소용돌이가 있는 유동적인 추상 디지털 페인팅" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRYz_KNF5AlVpf3eUH9_AIZ7IzIjoiBrw1zUnTtf3PL3V5O8cD88VNYszRRrWZx1aUr55U06SCg5Ts9HuTaabe63RrjRJqRECfz1hHTYpZQPoA2nAMdWwKqXJHjnu-SgErtOFdImd5fJ_T7YTFFjYBpss6EpjiPlDyVvoq9trZ72RMoeujPtJiL6pWUYzn-xZzxL7OOuCNGrs46FfO2NHua1oRtf2qyHRH36GKtJ7fO9fF7Lv-yczJWdom5JL7odUjQHqWCVc6uQ"/>
+<div class="absolute inset-0 bg-on-surface/0 group-hover:bg-on-surface/40 transition-all duration-300 flex items-center justify-center">
+<span class="text-on-primary font-bold opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">포트폴리오 보기</span>
+</div>
+</div>
+<h3 class="font-bold text-lg text-on-surface group-hover:text-primary transition-colors">유동성과 카오스</h3>
+<p class="text-sm text-on-secondary-container">실험적 디자인 • 2024</p>
+</div>
+<!-- Portfolio Card 4 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/3] rounded-xl overflow-hidden mb-4 bg-surface-container relative">
+<img alt="판타지 풍경" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="웅장한 떠 있는 섬 판타지 풍경 일러스트" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxp_HQGoI5HLxY7pE9HfAVYS5EhYe4LAwTfEXw7q5Ls9iP8SuuUy8_NceFt-LGZxbMxW17sCW4JIk-ZRfEwLtePtUMjjpH2I4m9dJXWAao2OEtepspLYA5huck8QDYcV99H_rzQZPQ-dSfMSZ7qUjOmldbYStnzY0SrpcJ72GgubKXMy8fPhoMEJuy6-yJgqXb83SH1V1_8CCss7sLAmMJk4CYFZ7Plq0T7uuJz-9srv_ph5E-PhNRu1nb2gE8nk0qtXTJJfX6-Q"/>
+<div class="absolute inset-0 bg-on-surface/0 group-hover:bg-on-surface/40 transition-all duration-300 flex items-center justify-center">
+<span class="text-on-primary font-bold opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">포트폴리오 보기</span>
+</div>
+</div>
+<h3 class="font-bold text-lg text-on-surface group-hover:text-primary transition-colors">하이 렐름 (High Realms)</h3>
+<p class="text-sm text-on-secondary-container">웹툰 에셋 • 2023</p>
+</div>
+<!-- Portfolio Card 5 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/3] rounded-xl overflow-hidden mb-4 bg-surface-container relative">
+<img alt="지브리 스타일 일러스트" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="따뜻한 조명이 있는 아늑한 애니메이션 스타일의 주방 일러스트" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXLnKTC1lgVJgPC1v5k1nfaswsk81ZFyNCP9tv9EfOv_AaJbBaBh_7e7xFcTqLocDyAcou-wH-78UgsP3GFXSwOaRHIFwDRNLJrfj7_I-8UluBDUK5opCcIRhy012fU4TDS7GM-QseWY0hmkpyriJZyIO6LQx4RIVHphThzcxCIulkQ1rrOH2SQleG_WQC9MVo4iWYPqorxCkeNk31YqApPE9PzVtrR2EKCIwUK3IKG7E9uYqK2eILePKdkeQhmN_UeYhkZzoBtA"/>
+<div class="absolute inset-0 bg-on-surface/0 group-hover:bg-on-surface/40 transition-all duration-300 flex items-center justify-center">
+<span class="text-on-primary font-bold opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">포트폴리오 보기</span>
+</div>
+</div>
+<h3 class="font-bold text-lg text-on-surface group-hover:text-primary transition-colors">아늑한 구석: 일상</h3>
+<p class="text-sm text-on-secondary-container">일러스트레이션 • 2024</p>
+</div>
+<!-- Portfolio Card 6 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/3] rounded-xl overflow-hidden mb-4 bg-surface-container relative">
+<img alt="테크 브랜딩" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="미니멀하고 현대적인 테크 기업 브랜딩 및 아이콘" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnWki3VJCD_K7W3lrCxqq_LgcTUDkq2ujPtZrxqmEOYVkAw0Oen4SKLJNMyoUcgW2g1psCz1lwDYTIjG0VrrBWrK4p1jk9hq2ViUSoM3wHzwgTdNo7vQ58wazmK9XI7IIaa9Cr6jEL_Q1-4tVEaDmSPvH2kYu1XR2psZnt27i66Qc2rJp4tp3cHe2guEFGhVzJX__mg-i7as73i-guk7S9xnQ1RzQYXWFGESPB9EJEgkN_7KFGR-dJseEaOygetWxwF9TgtNIudQ"/>
+<div class="absolute inset-0 bg-on-surface/0 group-hover:bg-on-surface/40 transition-all duration-300 flex items-center justify-center">
+<span class="text-on-primary font-bold opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">포트폴리오 보기</span>
+</div>
+</div>
+<h3 class="font-bold text-lg text-on-surface group-hover:text-primary transition-colors">뱅가드 UI 에셋</h3>
+<p class="text-sm text-on-secondary-container">아이콘 디자인 • 2022</p>
+</div>
+</div>
+</section>
+</main>
+<!-- FAB: Edit Profile -->
+<button class="fixed bottom-24 md:bottom-8 right-8 w-14 h-14 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl shadow-[0_8px_32px_rgba(38,77,217,0.3)] flex items-center justify-center transition-all hover:scale-110 active:scale-90 z-50">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-[#fcf8ff]/80 backdrop-blur-2xl z-50 rounded-t-3xl shadow-[0_-8px_32px_rgba(26,26,46,0.04)]">
+<a class="flex flex-col items-center justify-center text-[#1a1a2e]/40" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="search">search</span>
+<span class="text-[10px] font-medium font-['Pretendard']">탐색하기</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#1a1a2e]/40" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="chat_bubble">chat_bubble</span>
+<span class="text-[10px] font-medium font-['Pretendard']">메시지</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#1a1a2e]/40" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="palette">palette</span>
+<span class="text-[10px] font-medium font-['Pretendard']">스튜디오</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#264dd9] bg-[#e2e0fc] rounded-xl px-4 py-1" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="text-[10px] font-medium font-['Pretendard']">프로필</span>
+</a>
+</nav>
+</body></html>

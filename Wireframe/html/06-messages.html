@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>드로우메이트 | 메시지</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "inverse-surface": "#2f2e43",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1a1a2e",
+                        "surface-container": "#efecff",
+                        "on-tertiary-container": "#fefcff",
+                        "tertiary": "#585c66",
+                        "outline-variant": "#c4c5d7",
+                        "on-primary-fixed": "#001355",
+                        "on-primary-container": "#fffbff",
+                        "background": "#fcf8ff",
+                        "surface-container-high": "#e8e5ff",
+                        "on-surface-variant": "#444655",
+                        "tertiary-fixed": "#dfe2ef",
+                        "tertiary-container": "#707480",
+                        "surface-container-low": "#f5f2ff",
+                        "on-background": "#1a1a2e",
+                        "on-primary-fixed-variant": "#0035bd",
+                        "tertiary-fixed-dim": "#c3c6d3",
+                        "primary-fixed": "#dde1ff",
+                        "on-secondary-fixed": "#1a1a2e",
+                        "on-tertiary-fixed-variant": "#434751",
+                        "secondary-container": "#e2e0fc",
+                        "error-container": "#ffdad6",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#4568f3",
+                        "primary": "#264dd9",
+                        "primary-fixed-dim": "#b8c3ff",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#dad7f3",
+                        "on-tertiary-fixed": "#171c25",
+                        "on-secondary": "#ffffff",
+                        "outline": "#747686",
+                        "secondary-fixed-dim": "#c6c4df",
+                        "secondary": "#5d5c74",
+                        "on-secondary-fixed-variant": "#45455b",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#294fdb",
+                        "surface-container-highest": "#e2e0fc",
+                        "surface-bright": "#fcf8ff",
+                        "secondary-fixed": "#e2e0fc",
+                        "on-secondary-container": "#63627a",
+                        "surface-variant": "#e2e0fc",
+                        "inverse-on-surface": "#f2efff",
+                        "surface": "#fcf8ff",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#b8c3ff"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased overflow-hidden h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf8ff]/80 backdrop-blur-xl">
+<div class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-bold tracking-tighter text-[#1a1a2e] font-['Manrope']">DrawMate</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-[#1a1a2e]/60 hover:text-[#264dd9] transition-colors duration-300" href="#">둘러보기</a>
+<a class="text-[#264dd9] font-semibold" href="#">메시지</a>
+<a class="text-[#1a1a2e]/60 hover:text-[#264dd9] transition-colors duration-300" href="#">스튜디오</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex bg-surface-container-low px-4 py-2 rounded-full items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48" placeholder="작가 검색..." type="text"/>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" data-icon="notifications">notifications</button>
+<div class="w-8 h-8 rounded-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRVSH_MK4Gb6Q-dIPkWXxTVvyJife-CCYE0vB39KMNuiIaMpnYd57IC_fY_SOrs2mB763u-EcJl6F4xDd7SM1N3Qy-e0Jcd-n2NVWZyqQ7j_d_2QUAGvYYh-cFcXkumZ7E91oclEqauIlXESL1Zm65FRotPd4qu0CDHU-l8y1O9hwh900eRllqx1aNrSzwnzY-adhYfCUZXc8uIENpi4YF4Q9Ah9XUoZuvaosarVr-9t466dAZDZ20o8DLUTtOd-W99RgXTAMp_g"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Area (Messaging Interface) -->
+<main class="flex-1 flex pt-20 overflow-hidden max-w-7xl mx-auto w-full">
+<!-- Left Panel: Conversation List -->
+<aside class="w-[320px] flex-shrink-0 flex flex-col border-r border-outline-variant/20 bg-surface">
+<div class="p-6">
+<h2 class="text-xl font-bold font-headline mb-4">메시지</h2>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg" data-icon="search">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20" placeholder="채팅 검색" type="text"/>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto hide-scrollbar space-y-1 px-3">
+<!-- Active Chat Item -->
+<div class="flex items-center gap-3 p-3 bg-surface-container-highest rounded-2xl cursor-pointer group">
+<div class="relative">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of artist Elena" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfrwHiYSq2bomSVow5cmFKKsxHhP2uVmY0aLEIB14FtVJ8CEnRX6va6_sUp7pVgPHuKjaF8TFh4iX8lrP6_fSlspw6eWvzzLgCDCZxC-3VqfS-35OTt24lvJfbaHgOgYPqUIZvKBk8o69Sq1EnpRCF05sj5a3Y9PDGbQqwczsL8HdSgd5CuA21ehZoo6bxUYrmWzpdIlEXjKk_VP07pnWkmehByZS-oMrcT2_7t38N_ozcChi8-nm8KtDvglBrkFD-WnzSil1UkA"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-primary border-2 border-surface-container-highest rounded-full"></span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<h3 class="font-semibold text-on-surface truncate">엘레나 K.</h3>
+<span class="text-[10px] text-outline">오전 10:42</span>
+</div>
+<p class="text-xs text-primary font-medium truncate">지금 시안 보내드릴게요!</p>
+</div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+</div>
+<!-- Other Chat Items -->
+<div class="flex items-center gap-3 p-3 hover:bg-surface-container-low rounded-2xl cursor-pointer transition-colors group">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of artist Marc" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeHTX-IjEjvH2DFuPjbBGgezQTerc2KSiCVCxQksJH8uLRqA3_CRHlZw5LSjr1ckt3uK-K4ZOyUsu-K3Vf3a7aWQGiB6jNbATA4nc0qRDweFWimkDcwYXeLas5G1fa9w0flpzdb0eIbvmHLGRuRfsKnh0Aad3dhzrXpnNYlMWDS8cR6xKvCNn_ORKogCL1kcpmLpBMSCYYG73o6odAdlgDdT_I5sC5FybEb_k94GgOACUwF0wKStULwwTEIBzB5KoSCsw_9jFxkg"/>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<h3 class="font-semibold text-on-surface truncate">마크 스튜디오</h3>
+<span class="text-[10px] text-outline">어제</span>
+</div>
+<p class="text-xs text-on-secondary-container truncate">색상 구성이 정말 멋지네요.</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 hover:bg-surface-container-low rounded-2xl cursor-pointer transition-colors group">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of artist Ji-hun" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjHNrjecqqSAamzBKftaLiYFOUt43p6A6XRZ_QS9uNTohK2gBWKjrrkLl7nEip7UpbjXpIbQhfvL9T8fSvWoBACyb0MqZdObNT98-h-tCwQNDC3ysavz8CWHFfBIw5D2f3yRlpARD-rg5jeVjoDYK_p9uE3g2StagbpyifLA6GV7kt7LPpZ5chxvpf37ueIVovsbs_ZOhKdmAxAPRA60o7PYDzX4fhTL4J6Xu3qovte6PHbWhNo_4KlJwZsF-J8ia41FKqJSjxWA"/>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<h3 class="font-semibold text-on-surface truncate">지훈 아트</h3>
+<span class="text-[10px] text-outline">어제</span>
+</div>
+<p class="text-xs text-on-secondary-container truncate">피드백 감사합니다!</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 hover:bg-surface-container-low rounded-2xl cursor-pointer transition-colors group">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of artist Sarah" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZJ_wIwXTRPKYDTpWNR1gVmh7D0J4_-HEugLSibmHwFrsKpPShBkTnTuPIWbVpiuEbr8OIDKViynsRp0w-2WhS-tj0T9hRu20yP0uGhkaPxa99LIEVicXGd_CgEoUEdgGd4TV0mCXVTT7aUtJNpH0iDMKl8aQCq7d6E4dX6-vLSgwOXgArMIQX20Vupxtbc0iJF4mm3h1sAwGEk3dkfvLaa1QWb43EolcU7g3aIf6cGRa1RHTvHDWDgTX-_-H1Rlm5LaJ5O3rkRQ"/>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<h3 class="font-semibold text-on-surface truncate">사라 J.</h3>
+<span class="text-[10px] text-outline">8월 12일</span>
+</div>
+<p class="text-xs text-on-secondary-container truncate">참고 파일을 보내드렸습니다.</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Right Panel: Chat View -->
+<section class="flex-1 flex flex-col bg-surface-container-low">
+<!-- Chat Header -->
+<div class="px-6 py-4 bg-surface border-b border-outline-variant/10 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="relative">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait of Elena" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbKqievvnad3OSC01zN46PS4kmdjtoMR8-JQDRPgOYlVBEVsolyyKeC5IaMGoAPuNCm0RoK9W2f5Olw7LtuMwXg4sAUc-ryDS1DZRnuvZcPrYE6vSK-cCxJEVIhQM4NaF45LAMdWsjFw7e3P-dsc8RvHQGTCgD8_SGEmsOgKst5CQAQQBWwRsFc9K7eN89OY7nHz_gND0gu1C_w7PnPSRHzxbGXQFlNvnfrBzeX7fVskFm8J8luq_fa0azMv7CY90MuoBW-7Nlzg"/>
+<span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-primary border-2 border-surface rounded-full"></span>
+</div>
+<div>
+<h3 class="font-bold text-on-surface leading-tight">엘레나 K.</h3>
+<p class="text-[11px] text-primary font-medium uppercase tracking-wider">온라인</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-outline hover:text-primary transition-colors" data-icon="videocam">videocam</button>
+<button class="material-symbols-outlined text-outline hover:text-primary transition-colors" data-icon="info">info</button>
+</div>
+</div>
+<!-- Messages Stream -->
+<div class="flex-1 overflow-y-auto p-6 space-y-6 flex flex-col hide-scrollbar">
+<!-- Date Divider -->
+<div class="flex justify-center">
+<span class="px-3 py-1 bg-surface-container-high rounded-full text-[10px] font-semibold text-on-secondary-container tracking-widest uppercase">오늘</span>
+</div>
+<!-- Received Message -->
+<div class="flex items-end gap-3 max-w-[80%]">
+<img class="w-8 h-8 rounded-full object-cover flex-shrink-0" data-alt="Elena avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsXBv7q9TFzEbcon2AeGTBAdtAae0wk3K3WrtYDGI0axwKMsNHd_eccRqZeGmpR9_rNjLA7moT9Vo26PSk_Ah7lRrnT6BliwGvKtPM2BpK9X3UCm_58gIvnsPC5EpeKAzI3AUGSFA5WA0ucenSrql2OULeZYf2AUtxJEPfYuLhQ_EyP0_Fk7TwK6fYePS8jZfqa4wr4JCClU44qG0RREFrjc6DX8o6OY6Bw9bPm0u5POemxz8TVmd_BVUVDFQSEipWJsWdQxKVew"/>
+<div class="bg-surface-container-lowest text-on-surface p-4 rounded-2xl rounded-bl-none shadow-sm">
+<p class="text-sm leading-relaxed">안녕하세요! 배경 요소들에 대한 거친 스케치 작업을 방금 마쳤어요. 구도는 어떻게 생각하시나요?</p>
+<span class="text-[10px] text-outline mt-2 block text-right">오전 10:30</span>
+</div>
+</div>
+<!-- Sent Message -->
+<div class="flex flex-col items-end gap-1 self-end max-w-[80%]">
+<div class="bg-primary text-on-primary p-4 rounded-2xl rounded-br-none shadow-md shadow-primary/10">
+<p class="text-sm leading-relaxed">정말 대단해요! 왼쪽 상단의 조명이 시선을 확 사로잡네요. 그림자 부분에 인디고 색상을 좀 더 넣어볼 수 있을까요?</p>
+</div>
+<span class="text-[10px] text-outline mr-2">오전 10:35</span>
+</div>
+<!-- Received Message with Image Attachment -->
+<div class="flex items-end gap-3 max-w-[80%]">
+<img class="w-8 h-8 rounded-full object-cover flex-shrink-0" data-alt="Elena avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzyQre-771VCwR_pG9uewMzEzlmZxpq6XgkPEVLVYGjvqzACs0G3c3SOlhGA_VQiCw3i3px_SmEfuP6CCALXdUhKMm6EUZEtySKTEDHVSVvgYQCnNx-6dlzCmVBuS4Fish9zRGctAl2EdxjmRsxF__fT0Pet_zbpehJQAHN2PDksZlF0rOBTZixNvfq6LlA6g9TkcKl-dGTBi7Q6CtO08p3nmY9yYGxKaxBLs9IZCT9UAQqB027q7J22THyTt-BMYuQVP4CmUivA"/>
+<div class="space-y-2">
+<div class="bg-surface-container-lowest text-on-surface p-2 rounded-2xl rounded-bl-none shadow-sm overflow-hidden">
+<img class="rounded-xl w-full object-cover max-h-60 cursor-pointer hover:opacity-95 transition-opacity" data-alt="Abstract digital illustration sketch" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-zu9EqlPWwg17AHdm-5d5nyJOm-z74cx78TXR0psAOb5xqSiTHMwLUNrMzZPVBdDN9OxMIIv3t4vW_QQkXcboau05BNc5K_smlCBD6okku567MlwxdlYhqPb3ktQCCc7hJzl7WIqOAsF04Xl2Pm9eZECYQuTMKaNBYqwmoFzf6FHltnppdHPqMKSA7L8MbX3hNWaAf20_Nt-gto4Qmmed-H50ZItDArsaW4HS9QYlkXa64W-15nLQlTCmDrVlMi4BbIHJV2fejw"/>
+</div>
+<div class="bg-surface-container-lowest text-on-surface p-4 rounded-2xl rounded-bl-none shadow-sm">
+<p class="text-sm">지금 시안 보내드립니다! 그림자 깊이가 원하시던 느낌인지 확인 부탁드려요.</p>
+<span class="text-[10px] text-outline mt-2 block text-right">오전 10:42</span>
+</div>
+</div>
+</div>
+<!-- Typing Indicator -->
+<div class="flex items-center gap-3 text-outline">
+<img class="w-6 h-6 rounded-full object-cover grayscale opacity-50" data-alt="Elena avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzilLYhTKDkcOyip5KWgP6Ks8c-Z0yx3UyW6S0DFXWtQDID3sVHNok4W5sBXnt-imN8KMGsjtEuSjkX-I_IYkmL71Xq8HIspkYDe_nKY13GDT36JiKDABO0pYjEkrzbm-9GsymXjHtaPkIcF7HdHlu8m_quq8VlF-20ejZngYuHTtas0sBonNEpv00nTp6EKcUHUI2S-a1LJTFAZIbJBPUD497QgFyuz4EXZng0DCkDnTErwyQS5sUnQSh7s89BXAkNno_T6NUAw"/>
+<div class="flex gap-1 py-2 px-3 bg-surface-container-high rounded-full opacity-60">
+<span class="w-1.5 h-1.5 bg-outline rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+<span class="w-1.5 h-1.5 bg-outline rounded-full animate-bounce" style="animation-delay: 150ms"></span>
+<span class="w-1.5 h-1.5 bg-outline rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+</div>
+</div>
+</div>
+<!-- Message Input -->
+<div class="p-6 bg-surface">
+<div class="flex items-center gap-3 bg-surface-container-low p-2 rounded-2xl border border-outline-variant/20 focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/5 transition-all">
+<button class="w-10 h-10 flex items-center justify-center text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="image">image</span>
+</button>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2" placeholder="메시지를 입력하세요..." type="text"/>
+<button class="w-10 h-10 flex items-center justify-center bg-primary text-on-primary rounded-xl shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="send">send</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-[#fcf8ff]/80 backdrop-blur-2xl z-50 rounded-t-3xl shadow-[0_-8px_32px_rgba(26,26,46,0.04)]">
+<div class="flex flex-col items-center justify-center text-[#1a1a2e]/40">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="text-[10px] font-medium">둘러보기</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#264dd9] bg-[#e2e0fc] rounded-xl px-4 py-1">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+<span class="text-[10px] font-medium">메시지</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#1a1a2e]/40">
+<span class="material-symbols-outlined" data-icon="palette">palette</span>
+<span class="text-[10px] font-medium">스튜디오</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#1a1a2e]/40">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[10px] font-medium">프로필</span>
+</div>
+</nav>
+</body></html>

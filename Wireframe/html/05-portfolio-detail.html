@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>김새벽 포트폴리오 | DrawMate</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary": "#585c66",
+                        "tertiary-fixed": "#dfe2ef",
+                        "secondary-container": "#e2e0fc",
+                        "inverse-on-surface": "#f2efff",
+                        "surface-container-highest": "#e2e0fc",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#fffbff",
+                        "tertiary-fixed-dim": "#c3c6d3",
+                        "on-surface-variant": "#444655",
+                        "background": "#fcf8ff",
+                        "on-tertiary-fixed-variant": "#434751",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#001355",
+                        "tertiary-container": "#707480",
+                        "on-tertiary-container": "#fefcff",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#dad7f3",
+                        "on-error": "#ffffff",
+                        "surface": "#fcf8ff",
+                        "surface-tint": "#294fdb",
+                        "secondary": "#5d5c74",
+                        "inverse-surface": "#2f2e43",
+                        "on-background": "#1a1a2e",
+                        "surface-variant": "#e2e0fc",
+                        "on-surface": "#1a1a2e",
+                        "secondary-fixed": "#e2e0fc",
+                        "surface-container-low": "#f5f2ff",
+                        "primary-fixed-dim": "#b8c3ff",
+                        "surface-container-high": "#e8e5ff",
+                        "on-tertiary-fixed": "#171c25",
+                        "on-primary": "#ffffff",
+                        "surface-bright": "#fcf8ff",
+                        "inverse-primary": "#b8c3ff",
+                        "outline": "#747686",
+                        "on-secondary-container": "#63627a",
+                        "on-primary-fixed-variant": "#0035bd",
+                        "on-secondary-fixed": "#1a1a2e",
+                        "on-secondary-fixed-variant": "#45455b",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#efecff",
+                        "primary-container": "#4568f3",
+                        "outline-variant": "#c4c5d7",
+                        "primary": "#264dd9",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#c6c4df",
+                        "primary-fixed": "#dde1ff"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #fcf8ff; }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-nav { backdrop-filter: blur(20px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="text-on-surface selection:bg-primary-fixed selection:text-primary">
+<!-- Top Navigation Bar -->
+<header class="bg-[#fcf8ff]/80 dark:bg-[#1a1a2e]/80 backdrop-blur-xl shadow-sm dark:shadow-none docked full-width top-0 sticky z-50">
+<nav class="flex justify-between items-center w-full px-8 py-4 max-w-[1920px] mx-auto">
+<div class="flex items-center gap-12">
+<span class="text-2xl font-bold tracking-tighter text-[#1a1a2e] dark:text-[#fcf8ff] font-manrope">DrawMate</span>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-[#264dd9] font-bold border-b-2 border-[#264dd9] pb-1 font-manrope text-sm tracking-tight" href="#">작가</a>
+<a class="text-[#1a1a2e]/60 dark:text-[#fcf8ff]/60 hover:text-[#264dd9] transition-colors font-manrope text-sm tracking-tight" href="#">탐색</a>
+<a class="text-[#1a1a2e]/60 dark:text-[#fcf8ff]/60 hover:text-[#264dd9] transition-colors font-manrope text-sm tracking-tight" href="#">웹툰</a>
+<a class="text-[#1a1a2e]/60 dark:text-[#fcf8ff]/60 hover:text-[#264dd9] transition-colors font-manrope text-sm tracking-tight" href="#">애니메이션</a>
+<a class="text-[#1a1a2e]/60 dark:text-[#fcf8ff]/60 hover:text-[#264dd9] transition-colors font-manrope text-sm tracking-tight" href="#">커뮤니티</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant/20">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 font-body" placeholder="작가 검색..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-[#f5f2ff] p-2 rounded-lg transition-all" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-[#f5f2ff] p-2 rounded-lg transition-all" data-icon="favorite">favorite</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-outline-variant/30">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALTgICBGxxTBZvKSAysg4Gplag3AUispxIGKsD-mt7FKuMS_XDvmPokMHwVH0kKilucnVVthi3wSkvagrJbbOflnGj4NLh2eJPUFTqk8cnF-pD7HDNbHJUotOp_iqIBxxpaH6TiG2KzHzISl7YPZGWrAVTBTu-93iWdttTg6UJiFrfLUPadua3rlr-37S4hDKN0s1EODRrkHtQ1PH247_4XuCqYi0cJjdEitbF6GoLlBlH-RAZc9tDTZmHOqUhNaRn6P4heRHnyw"/>
+</div>
+</div>
+</div>
+</nav>
+</header>
+<main class="w-full">
+<!-- Hero Cover Section -->
+<section class="relative w-full h-[400px] overflow-hidden group">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Abstract colorful digital art cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBskCQ23ZuukpvdZrIUfHSl4XZflz6e-IsXhM982AoeFS3YSk8lAnJ3tK3TEv_XwKXrlNZoKEOhGekaoJne1xP8Xn6MMT12ReS7npyP5i3c3ZEr5JH64o0nLkdmhfus769a09FliUif1y6BC2_GSc8QjHjdcpZxd4AXf-7efrxy6JidwApxMgZ9ICo-kgQaxHLvepNq3c_HvuRiL8biOhHZ190HeNLYf183uVyyxtg4LrjVeliHzrItsA0HNRVJmwgnYUj6NXC_bw"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/90 via-on-surface/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 w-full p-8 md:p-16 max-w-[1920px] mx-auto flex flex-col gap-4">
+<div class="flex flex-wrap gap-2">
+<span class="bg-primary/20 backdrop-blur-md text-primary-fixed border border-primary-fixed/30 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase font-body">캐릭터 디자인</span>
+<span class="bg-surface-container-highest/20 backdrop-blur-md text-surface-container-lowest border border-surface-container-highest/30 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase font-body">웹툰</span>
+</div>
+<h1 class="text-white text-5xl md:text-7xl font-extrabold font-manrope tracking-tighter">김새벽 (Sae-byeok Kim)</h1>
+</div>
+</section>
+<!-- Content Grid -->
+<div class="max-w-[1920px] mx-auto px-8 md:px-16 py-16 grid grid-cols-1 lg:grid-cols-10 gap-16">
+<!-- Left Column: Gallery & Details -->
+<div class="lg:col-span-7 flex flex-col gap-20">
+<!-- Gallery Section -->
+<section class="flex flex-col gap-8">
+<div class="flex justify-between items-end">
+<h2 class="text-2xl font-bold font-manrope text-on-surface">대표 작품</h2>
+<div class="flex gap-2">
+<span class="h-2 w-8 rounded-full bg-primary"></span>
+<span class="h-2 w-2 rounded-full bg-outline-variant"></span>
+<span class="h-2 w-2 rounded-full bg-outline-variant"></span>
+</div>
+</div>
+<div class="flex flex-col gap-12">
+<figure class="group">
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm transition-all duration-500 hover:shadow-xl hover:-translate-y-1">
+<img class="w-full aspect-[4/3] object-cover" data-alt="Intricate digital character illustration" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_7FD8MbIQrZzVoVYw9GIaDvf1bOZwOwkLhD0HxzhOyaD0R6l1QRDRGY0XvS9rfJg6vt72U4uiVYLXO5rCdjfZ80VKQ7ALwCjt1RoEjA7bwa5eZeApECjE_0oV2cu-aqhhUXjz9E00djK9gzigfo6GVqUNOQwP8E551Mr9J_iNrMBm2MqtlWeLOhRKOfnkzCofLlX-WLbuC4tmnalopCz8IEI-PXu2F3sJE3LwgL5I4OlFufEHoVcdzcarr-6Kn2pPUz7x_Oh0Lg"/>
+</div>
+<figcaption class="mt-4 flex justify-between items-center px-2">
+<span class="text-on-surface-variant font-medium font-body">미드나잇 크로니클: 여정의 시작</span>
+<span class="text-xs text-outline font-label uppercase tracking-widest">2024 일러스트레이션</span>
+</figcaption>
+</figure>
+<figure class="group">
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm transition-all duration-500 hover:shadow-xl hover:-translate-y-1">
+<img class="w-full aspect-[16/9] object-cover" data-alt="Vibrant abstract environment concept art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4yS3lywH-bXDZlSyrnLq9cTWwBsCUYtL59NkpgVJzG4QMBNCW2qy8N_GGcFNNsc3LAkPKGlcvpaP0IJLA6k2CiR8LD2I4ayad2WiDW0gjaBfN2OqIWhtAvI9mPZe1Yifs--iBER4wzqrYU50DGH72fcYpVT5nyqNyGnqWaeTL03N50aZ6VJr5MayIYz3dsXBAxU6J_xmG62gevVgYx4ml6Q4aae5Op8-8fmhO0zG5yUF1ftSvsBnlkKpi-VKOyxhc8eSDq0bVMg"/>
+</div>
+<figcaption class="mt-4 flex justify-between items-center px-2">
+<span class="text-on-surface-variant font-medium font-body">네온 디스트릭트 배경 컨셉</span>
+<span class="text-xs text-outline font-label uppercase tracking-widest">환경 디자인</span>
+</figcaption>
+</figure>
+<figure class="group">
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm transition-all duration-500 hover:shadow-xl hover:-translate-y-1">
+<img class="w-full aspect-[4/5] object-cover" data-alt="Soft aesthetic webtoon character panel" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYPomwbgZAaEQgqFhYQzxCy5h6iDydiFtGcmEoRd0yXIBIGwoQVeXSRgNiFZ7FVXgiWbQ2WB18JVL6u8JjRGC5luBnRfUkXIPI6Vf_-LqfgepiEBTFS_rEzLNa7g6CYhue9F1FwWNyxxNGHHq2CwQKktI5u9pwaSCxy7CQoIsya9RvmAIehyQULeubxkpJIMyS-4U9p1fTYVdbYc3-uk7lr-ri6eim4VsB6Fz_QClYzeDgm5BN3EBXKFAaMTm6L8M5GDSPOR2ttg"/>
+</div>
+<figcaption class="mt-4 flex justify-between items-center px-2">
+<span class="text-on-surface-variant font-medium font-body">에테르의 개화: 캐릭터 연구</span>
+<span class="text-xs text-outline font-label uppercase tracking-widest">스케치북</span>
+</figcaption>
+</figure>
+</div>
+</section>
+<!-- Artist Info -->
+<section class="bg-surface-container-low p-12 rounded-2xl flex flex-col gap-12">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+<div class="flex flex-col gap-4">
+<h3 class="text-xs font-black uppercase tracking-widest text-primary font-manrope">작가 소개</h3>
+<p class="text-on-surface-variant leading-relaxed font-body">
+                            서울을 기반으로 활동하는 김새벽 작가는 전통 회화의 미학과 현대적인 디지털 웹툰 스타일을 결합한 감성적인 캐릭터 디자인을 전문으로 합니다. 업계에서 6년 이상의 경력을 쌓아온 그녀의 작품은 빛과 우울함의 미묘한 상호작용에 집중하며, 살아있는 듯한 깊이 있고 개인적인 세계관을 창조합니다.
+                        </p>
+</div>
+<div class="flex flex-col gap-4">
+<h3 class="text-xs font-black uppercase tracking-widest text-primary font-manrope">작업 조건</h3>
+<ul class="flex flex-col gap-3">
+<li class="flex items-center gap-3 text-on-surface-variant text-sm font-body">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="schedule">schedule</span>
+                                작업 기간: 영업일 기준 7-10일
+                            </li>
+<li class="flex items-center gap-3 text-on-surface-variant text-sm font-body">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="history_edu">history_edu</span>
+                                수정: 2회 무료 수정 포함
+                            </li>
+<li class="flex items-center gap-3 text-on-surface-variant text-sm font-body">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="description">description</span>
+                                상업적 이용권 협의 가능
+                            </li>
+</ul>
+</div>
+</div>
+</section>
+<!-- Recommendations Carousel -->
+<section class="flex flex-col gap-8">
+<h3 class="text-xl font-bold font-manrope">비슷한 포트폴리오</h3>
+<div class="flex gap-6 overflow-x-auto no-scrollbar pb-4">
+<div class="min-w-[280px] bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm group cursor-pointer">
+<div class="h-40 bg-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover transition-transform group-hover:scale-110" data-alt="Artist thumbnail 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbMUpya4Loccaqj3Wzo05CK36SNs-x6kJgMOkgZApIdYqxn5uu4Af-ea0AfEV76pcjsTseH5QOOVSGNbRsWfTpUtrHAv8rusljoXi6YpdiPivzzJI1Y1sts-31rqjN3DqezjJc1eQhdngXGsUYO5tCzQNTMMFTUXLEkupY5GWof22uPuUBOVyN8mOGC4pg_YsE8hNUi4yFO176Vd_uLKdX24fb7CrDIChowT3kKuw33cnLfx15xRSI7Xhpf_F0xcvbBjV9KdBwsg"/>
+</div>
+<div class="p-4 flex items-center gap-3">
+<div class="h-10 w-10 rounded-full bg-primary-fixed"></div>
+<div>
+<p class="text-sm font-bold font-manrope">박민수</p>
+<p class="text-xs text-outline">배경 아티스트</p>
+</div>
+</div>
+</div>
+<div class="min-w-[280px] bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm group cursor-pointer">
+<div class="h-40 bg-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover transition-transform group-hover:scale-110" data-alt="Artist thumbnail 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPIn-0eylytRMn3eJHAjuyBKO-71KMCQyzu3AzJcxwBRjyYSoCpnXHOu5m81hH4h6kU6jNPD7CwFNyLaKYW1z3ZyURjSQSkVSx15umM3UlbdYtsQH85PCrdEb-NiKhmjeX-moO5YdBoOj10b0JpR8Ei9mH1_-GOcNRSmb_CuGYK04veQCIiC1nSHQgZNzmYf-CK5FAU8yhGBH37NfRxKAa9Vjyi6WL5Dxso1-m9FeaZtPSnVs-LOoQnBa-kHCVd5X6sR_5zD827Q"/>
+</div>
+<div class="p-4 flex items-center gap-3">
+<div class="h-10 w-10 rounded-full bg-secondary-fixed"></div>
+<div>
+<p class="text-sm font-bold font-manrope">이지원</p>
+<p class="text-xs text-outline">컨셉 일러스트레이터</p>
+</div>
+</div>
+</div>
+<div class="min-w-[280px] bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm group cursor-pointer">
+<div class="h-40 bg-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover transition-transform group-hover:scale-110" data-alt="Artist thumbnail 3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPjD5NNslvs_C5CN5abipo5lxbDJARXF7a6M6fjf8CRmub2tUA4rFhe3K0-ZU36_lSFIKCLnCz4rFMzs8Az-bqM_OFDsbT48qCeud1IRpQY7v6mgh0McQRghqReeuGEviHTkEoTEX5jlxIkTpViM1v6rQa2af7XAjdEnp86_HQ7TvfSn7-8sCI_LFY7ehD_Svkqm3wV_TpcEijri3jPwjbGUGo5J3Y1cvLNwE0EpB3F9IYEnkhbEK6tOQIEVfOxItkiwExw6rM7w"/>
+</div>
+<div class="p-4 flex items-center gap-3">
+<div class="h-10 w-10 rounded-full bg-tertiary-fixed"></div>
+<div>
+<p class="text-sm font-bold font-manrope">최유나</p>
+<p class="text-xs text-outline">웹툰 컬러리스트</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Sticky Sidebar -->
+<aside class="lg:col-span-3">
+<div class="sticky top-28 flex flex-col gap-6">
+<!-- Profile Card -->
+<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/10 flex flex-col items-center gap-6">
+<div class="relative">
+<div class="h-32 w-32 rounded-full border-4 border-surface-container-low overflow-hidden">
+<img alt="Artist Portrait" class="w-full h-full object-cover" data-alt="Sae-byeok Kim portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDx_vQW5YEfRbxt8Ywl43TQIPf_94LgRaI2DHozgJhYO5Jb3tM-jDjc4WWxsUOxR01ECmSZes7MJ9VqlJropdW6tUctdakV-c8xA_kP0BKt2qybTZQyEwUU3_8W4LKZIwxeoN_suAkFqvh926AWRdvqA2RTRd1SaS10kXpsBRgHKbBMAQrFia-5HY-oiswKKnDtczPxf1EvkHzACdtrh5hu3RlRxTbHtozIrhzaB-Frp6zlM4V4XOiSFhu3OKcWs8wqqhw0yBL1-Q"/>
+</div>
+<div class="absolute bottom-1 right-1 h-6 w-6 bg-primary border-4 border-surface-container-lowest rounded-full"></div>
+</div>
+<div class="text-center">
+<h3 class="text-2xl font-bold font-manrope text-on-surface">김새벽</h3>
+<div class="flex items-center justify-center gap-1 mt-1">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-bold text-on-surface">4.9</span>
+<span class="text-xs text-outline ml-1">(리뷰 124개)</span>
+</div>
+</div>
+<div class="w-full h-px bg-outline-variant/20"></div>
+<div class="w-full flex justify-between items-center px-2">
+<span class="text-xs text-outline uppercase tracking-wider font-label font-bold">작업 단가</span>
+<span class="text-xl font-extrabold font-manrope text-on-surface">₩45,000<span class="text-sm font-normal text-outline">/시간</span></span>
+</div>
+<div class="w-full flex items-center gap-2 bg-primary/5 px-4 py-3 rounded-xl border border-primary/10">
+<div class="h-2 w-2 rounded-full bg-primary animate-pulse"></div>
+<span class="text-sm font-medium text-primary font-body">작업 가능</span>
+</div>
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-white py-4 rounded-xl font-bold font-manrope shadow-lg shadow-primary/20 active:scale-95 transition-all duration-200">
+                        메시지 보내기
+                    </button>
+<div class="w-full flex flex-col gap-4 mt-2">
+<h4 class="text-xs font-black uppercase tracking-widest text-outline-variant font-manrope">보유 기술</h4>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-container-highest px-3 py-1 rounded-md text-xs font-medium text-on-secondary-container">Procreate</span>
+<span class="bg-surface-container-highest px-3 py-1 rounded-md text-xs font-medium text-on-secondary-container">Clip Studio</span>
+<span class="bg-surface-container-highest px-3 py-1 rounded-md text-xs font-medium text-on-secondary-container">Photoshop</span>
+<span class="bg-surface-container-highest px-3 py-1 rounded-md text-xs font-medium text-on-secondary-container">서사 예술</span>
+</div>
+</div>
+<div class="w-full flex justify-center gap-6 mt-4">
+<a class="text-outline hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined text-2xl" data-icon="share">share</span></a>
+<a class="text-outline hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined text-2xl" data-icon="language">language</span></a>
+<a class="text-outline hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined text-2xl" data-icon="alternate_email">alternate_email</span></a>
+</div>
+</div>
+<!-- Secondary Small Card -->
+<div class="bg-surface-container-low p-6 rounded-2xl flex items-center gap-4">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="verified">verified</span>
+<div>
+<p class="text-sm font-bold text-on-surface font-manrope">검증된 작가</p>
+<p class="text-xs text-on-surface-variant font-body">신원 확인 및 포트폴리오 검토 완료.</p>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-[#f5f2ff] dark:bg-[#1a1a2e] full-width py-12 px-8 border-t border-[#e2e0fc]/20">
+<div class="max-w-[1920px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+<div class="flex flex-col gap-4">
+<span class="text-lg font-black text-[#1a1a2e] dark:text-[#fcf8ff] font-manrope">DrawMate</span>
+<p class="font-manrope text-xs uppercase tracking-widest text-[#1a1a2e]/40 dark:text-[#fcf8ff]/40">© 2024 DrawMate. 디지털 큐레이터.</p>
+</div>
+<div class="flex flex-wrap md:justify-end gap-x-12 gap-y-4">
+<a class="font-manrope text-xs uppercase tracking-widest text-[#1a1a2e]/40 dark:text-[#fcf8ff]/40 hover:text-[#264dd9] hover:underline decoration-2 underline-offset-4 transition-all duration-300" href="#">이용약관</a>
+<a class="font-manrope text-xs uppercase tracking-widest text-[#1a1a2e]/40 dark:text-[#fcf8ff]/40 hover:text-[#264dd9] hover:underline decoration-2 underline-offset-4 transition-all duration-300" href="#">개인정보처리방침</a>
+<a class="font-manrope text-xs uppercase tracking-widest text-[#1a1a2e]/40 dark:text-[#fcf8ff]/40 hover:text-[#264dd9] hover:underline decoration-2 underline-offset-4 transition-all duration-300" href="#">작가 가이드라인</a>
+<a class="font-manrope text-xs uppercase tracking-widest text-[#1a1a2e]/40 dark:text-[#fcf8ff]/40 hover:text-[#264dd9] hover:underline decoration-2 underline-offset-4 transition-all duration-300" href="#">고객지원</a>
+</div>
+</div>
+</footer>
+</body></html>
