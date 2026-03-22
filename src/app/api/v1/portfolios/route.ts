@@ -263,7 +263,8 @@ export async function POST(request: Request) {
     .single();
 
   if (insertError || !portfolio) {
-    return response.error("INTERNAL_ERROR", "포트폴리오 생성에 실패했습니다.", 500);
+    console.error("Portfolio insert error:", insertError);
+    return response.error("INTERNAL_ERROR", `포트폴리오 생성에 실패했습니다: ${insertError?.message ?? "unknown"}`, 500);
   }
 
   return response.success({ portfolio: toCamelCaseKeys(portfolio) }, undefined, 201);
