@@ -92,6 +92,7 @@ function toPublicUrl(
 
 async function getPortfolioBySlug(portfolioSlug: string): Promise<PortfolioDetailData | null> {
   const supabase = await createClient();
+  const decodedSlug = decodeURIComponent(portfolioSlug);
   const { data, error } = await supabase
     .from("portfolios")
     .select(
@@ -100,7 +101,7 @@ async function getPortfolioBySlug(portfolioSlug: string): Promise<PortfolioDetai
        portfolio_tags(tags(id, name, category)),
        owner_profile:profiles!owner_id(id, display_name, headline, avatar_path)`
     )
-    .eq("slug", portfolioSlug)
+    .eq("slug", decodedSlug)
     .eq("status", "published")
     .eq("visibility", "public")
     .is("deleted_at", null)

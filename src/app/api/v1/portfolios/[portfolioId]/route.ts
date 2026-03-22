@@ -184,7 +184,7 @@ export async function PATCH(
     .single();
 
   if (updateError || !updated) {
-    return response.error("INTERNAL_ERROR", "포트폴리오 수정에 실패했습니다.", 500);
+    return response.error("INTERNAL_ERROR", `수정 실패: ${updateError?.message ?? "no data"} | code: ${updateError?.code ?? "none"}`, 500);
   }
 
   // Sync tags if provided

@@ -38,8 +38,8 @@ export default function NewPortfolioPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleComplete = (portfolioId: string) => {
-    router.push(`/studio/portfolios/${portfolioId}/edit`);
+  const handleComplete = () => {
+    router.push("/studio");
   };
 
   if (creating) {
