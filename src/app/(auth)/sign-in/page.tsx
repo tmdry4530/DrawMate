@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/browser-client";
@@ -69,72 +68,90 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl">로그인</CardTitle>
-          <CardDescription>DrawMate에 오신 것을 환영합니다.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-6">
-          <SocialLoginButtons nextPath={nextPath} />
+    <>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">
+          다시 만나서 반가워요
+        </h1>
+        <p className="mt-2 text-muted-foreground">
+          계정에 로그인하고 작업을 이어가세요.
+        </p>
+      </div>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">또는 이메일로 로그인</span>
-            </div>
+      <div className="space-y-6">
+        <SocialLoginButtons nextPath={nextPath} />
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-border/60" />
           </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-3 text-muted-foreground tracking-wider">
+              또는
+            </span>
+          </div>
+        </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="email" className="text-sm font-medium">
-                이메일
-              </label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="you@example.com"
-                value={form.email}
-                onChange={handleChange}
-                required
-                autoComplete="email"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium">
+              이메일
+            </label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={handleChange}
+              required
+              autoComplete="email"
+              className="h-12 rounded-xl bg-secondary/50 border-border/50 focus:bg-background transition-colors"
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
               <label htmlFor="password" className="text-sm font-medium">
                 비밀번호
               </label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="비밀번호 입력"
-                value={form.password}
-                onChange={handleChange}
-                required
-                autoComplete="current-password"
-              />
-            </div>
-            <Button type="submit" className="mt-2 w-full" disabled={loading}>
-              {loading ? "로그인 중..." : "로그인"}
-            </Button>
-          </form>
-          <div className="mt-4 flex flex-col gap-2 text-center text-sm text-muted-foreground">
-            <p>
-              계정이 없으신가요?{" "}
-              <Link href="/sign-up" className="text-primary underline-offset-4 hover:underline">
-                회원가입
+              <Link
+                href="/reset-password"
+                className="text-xs text-muted-foreground hover:text-primary transition-colors"
+              >
+                비밀번호 찾기
               </Link>
-            </p>
-            <Link href="/reset-password" className="text-primary underline-offset-4 hover:underline">
-              비밀번호를 잊으셨나요?
-            </Link>
+            </div>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="비밀번호 입력"
+              value={form.password}
+              onChange={handleChange}
+              required
+              autoComplete="current-password"
+              className="h-12 rounded-xl bg-secondary/50 border-border/50 focus:bg-background transition-colors"
+            />
           </div>
-        </CardContent>
-      </Card>
-    </div>
+          <Button
+            type="submit"
+            className="w-full h-12 rounded-xl text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all mt-2"
+            disabled={loading}
+          >
+            {loading ? "로그인 중..." : "로그인"}
+          </Button>
+        </form>
+
+        <p className="text-center text-sm text-muted-foreground pt-2">
+          아직 계정이 없으신가요?{" "}
+          <Link
+            href="/sign-up"
+            className="font-medium text-primary hover:text-primary/80 transition-colors"
+          >
+            회원가입
+          </Link>
+        </p>
+      </div>
+    </>
   );
 }

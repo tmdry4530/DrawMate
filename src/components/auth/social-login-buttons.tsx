@@ -20,8 +20,8 @@ const PROVIDERS = [
   {
     id: "google" as const,
     label: "Google로 시작하기",
-    bg: "bg-white hover:bg-gray-50 border border-gray-300",
-    text: "text-gray-700",
+    bg: "bg-white hover:bg-gray-50 border border-gray-200 dark:bg-secondary dark:hover:bg-secondary/80 dark:border-border",
+    text: "text-gray-700 dark:text-secondary-foreground",
     icon: (
       <svg viewBox="0 0 24 24" className="h-5 w-5">
         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
@@ -62,13 +62,13 @@ export function SocialLoginButtons({ nextPath }: SocialLoginButtonsProps) {
   }
 
   return (
-    <div className="flex flex-col gap-2.5">
+    <div className="flex flex-col gap-3">
       {PROVIDERS.map((provider) => (
         <Button
           key={provider.id}
           type="button"
           variant="ghost"
-          className={`w-full h-11 gap-3 font-medium ${provider.bg} ${provider.text}`}
+          className={`w-full h-12 gap-3 font-medium rounded-xl transition-all duration-200 ${provider.bg} ${provider.text}`}
           disabled={loadingProvider !== null}
           onClick={() => handleSocialLogin(provider.id)}
         >

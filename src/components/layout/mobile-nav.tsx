@@ -17,8 +17,10 @@ export function MobileNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background md:hidden">
-      <div className="flex items-center justify-around h-16">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 glass md:hidden">
+      {/* Gradient top border */}
+      <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+      <div className="flex items-center justify-around h-16 px-2">
         {navItems.map(({ href, icon: Icon, label }) => {
           const isActive = pathname === href;
           return (
@@ -27,12 +29,24 @@ export function MobileNav() {
               href={href}
               aria-label={label}
               className={cn(
-                "flex max-w-20 flex-col items-center gap-1 px-3 py-2 text-center text-[11px] leading-tight transition-colors",
-                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                "relative flex flex-col items-center gap-1 px-3 py-2 text-center text-[11px] leading-tight transition-all duration-200 rounded-full",
+                isActive
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <Icon className={cn("h-5 w-5", isActive && "stroke-[2.5]")} />
-              <span>{label}</span>
+              {isActive && (
+                <span className="absolute inset-0 rounded-full bg-primary/10" />
+              )}
+              <Icon
+                className={cn(
+                  "relative z-10 transition-all duration-200",
+                  isActive ? "h-5.5 w-5.5 stroke-[2.5]" : "h-5 w-5"
+                )}
+              />
+              <span className={cn("relative z-10 transition-all duration-200", isActive ? "font-medium" : "")}>
+                {label}
+              </span>
             </Link>
           );
         })}

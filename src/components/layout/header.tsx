@@ -117,11 +117,11 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
+    <header className="animate-fade-down sticky top-0 z-50 glass">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 text-xl font-bold text-foreground">
-          DrawMate
+        <Link href="/" className="flex items-center gap-0 text-xl font-medium text-foreground shrink-0">
+          <span>Draw</span><span className="font-bold gradient-text">Mate</span>
         </Link>
 
         {/* Search - desktop only */}
@@ -131,7 +131,7 @@ export function Header() {
           role="search"
         >
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
             <Input
               key={`${pathname}-${searchParams.get("q") ?? ""}`}
               name="q"
@@ -139,23 +139,23 @@ export function Header() {
               defaultValue={pathname === "/explore" ? searchParams.get("q") ?? "" : ""}
               placeholder="포트폴리오, 분야, 스타일, 작가를 검색하세요"
               aria-label="포트폴리오, 분야, 스타일, 작가 검색"
-              className="w-full pl-9"
+              className="w-full rounded-full pl-10 pr-4 glass border-border/40 focus-visible:border-primary/40 focus-visible:ring-primary/20 transition-all duration-200"
             />
           </div>
         </form>
 
         {/* Right side */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           {loading ? (
             <div className="w-20" />
           ) : user ? (
             <>
-              <Button variant="ghost" className="hidden lg:inline-flex" asChild>
+              <Button variant="ghost" className="hidden lg:inline-flex rounded-full text-muted-foreground hover:text-foreground transition-colors duration-200" asChild>
                 <Link href="/studio">스튜디오</Link>
               </Button>
 
               {/* Bell icon with badge */}
-              <Button variant="ghost" size="icon" className="relative" asChild>
+              <Button variant="ghost" size="icon" className="relative rounded-full text-muted-foreground hover:text-foreground transition-colors duration-200" asChild>
                 <Link href="/notifications" aria-label="알림 페이지로 이동">
                   <Bell className="h-5 w-5" />
                   {unreadCount > 0 && (
@@ -167,7 +167,7 @@ export function Header() {
               </Button>
 
               {/* Messages icon */}
-              <Button variant="ghost" size="icon" asChild>
+              <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground transition-colors duration-200" asChild>
                 <Link href="/messages" aria-label="메시지 페이지로 이동">
                   <MessageSquare className="h-5 w-5" />
                 </Link>
@@ -178,7 +178,7 @@ export function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="relative h-8 w-8 rounded-full p-0"
+                    className="relative h-8 w-8 rounded-full p-0 ml-1 ring-0 hover:ring-2 hover:ring-primary/20 transition-all duration-200"
                     aria-label="프로필 메뉴 열기"
                   >
                     <Avatar className="h-8 w-8">
@@ -206,16 +206,18 @@ export function Header() {
             </>
           ) : (
             <>
-              <Button variant="ghost" asChild>
+              <Button variant="ghost" className="rounded-full text-muted-foreground hover:text-foreground transition-colors duration-200" asChild>
                 <Link href="/sign-in">로그인</Link>
               </Button>
-              <Button asChild>
+              <Button className="rounded-full" asChild>
                 <Link href="/sign-up">시작하기</Link>
               </Button>
             </>
           )}
         </div>
       </div>
+      {/* Gradient bottom border */}
+      <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
     </header>
   );
 }

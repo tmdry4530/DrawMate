@@ -86,26 +86,35 @@ export default function ExplorePage() {
   ])
 
   return (
-    <div className="max-w-7xl mx-auto py-6 space-y-6">
-      <section className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">포트폴리오 탐색</h1>
-        <p className="max-w-2xl text-sm text-muted-foreground md:text-base">
+    <div className="max-w-7xl mx-auto py-10 space-y-10">
+      {/* 페이지 헤더 */}
+      <section className="space-y-3 animate-fade-up">
+        <h1 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
+          포트폴리오{" "}
+          <span className="gradient-text">탐색</span>
+        </h1>
+        <p className="max-w-2xl text-sm text-muted-foreground md:text-base leading-relaxed">
           분야, 스타일, 스킬 태그로 작업자를 찾고 포트폴리오를 확인한 뒤 바로 메시지로 협업을 시작하세요.
         </p>
       </section>
 
-      <SearchBar />
+      {/* 검색 영역 */}
+      <div className="animate-fade-up" style={{ animationDelay: "80ms" }}>
+        <SearchBar />
+      </div>
 
-      <div className="flex gap-6">
+      <div className="flex gap-8">
         {/* 데스크탑 필터 사이드바 */}
-        <aside className="hidden md:block w-56 shrink-0">
+        <aside className="hidden md:block w-60 shrink-0">
           <div className="sticky top-20">
-            <FilterPanel />
+            <div className="glass rounded-2xl p-4">
+              <FilterPanel />
+            </div>
           </div>
         </aside>
 
         {/* 메인 콘텐츠 */}
-        <div className="flex-1 min-w-0 space-y-4">
+        <div className="flex-1 min-w-0 space-y-5">
           <div className="flex items-center justify-between">
             {/* 모바일 필터 버튼 */}
             <Sheet>
@@ -130,7 +139,9 @@ export default function ExplorePage() {
             </div>
           </div>
 
-          <PortfolioGrid />
+          <div className="stagger-children">
+            <PortfolioGrid />
+          </div>
         </div>
       </div>
     </div>
