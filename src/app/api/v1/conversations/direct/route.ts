@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server-client";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin-client";
 import * as response from "@/lib/utils/api-response";
 import { createDirectConversationSchema } from "@/validators/messaging";
 
@@ -39,14 +39,7 @@ export async function POST(request: Request) {
     return response.error("CONFLICT", "자기 자신과 대화할 수 없습니다.", 409);
   }
 
-  const adminUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const adminSupabase =
-    adminUrl && serviceRoleKey
-      ? createSupabaseClient(adminUrl, serviceRoleKey, {
-          auth: { autoRefreshToken: false, persistSession: false },
-        })
-      : null;
+  const adminSupabase = createAdminClient();
 
   // Canonical direct key: smaller UUID first
   const directKey =
@@ -78,7 +71,8 @@ export async function POST(request: Request) {
     return response.error("INTERNAL_ERROR", "대화방 생성에 실패했습니다.", 500);
   }
 
-  const { data: myParticipant } = await supabase
+  const participantClient = adminSupabase ?? supabase;
+  const { data: myParticipant } = await participantClient
     .from("conversation_participants")
     .select("user_id")
     .eq("conversation_id", conversationId as string)

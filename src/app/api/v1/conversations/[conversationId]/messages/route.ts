@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server-client";
+import { createAdminClient } from "@/lib/supabase/admin-client";
 import * as response from "@/lib/utils/api-response";
 import { messageListSchema, sendMessageSchema } from "@/validators/messaging";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -33,7 +35,7 @@ interface MessageRow {
 }
 
 async function mapMessageRow(
-  supabase: Awaited<ReturnType<typeof createClient>>,
+  supabase: SupabaseClient,
   message: MessageRow
 ) {
   const attachments = await Promise.all(
@@ -87,7 +89,7 @@ function isSafeIsoCursor(value: string): boolean {
 }
 
 async function assertParticipant(
-  supabase: Awaited<ReturnType<typeof createClient>>,
+  supabase: SupabaseClient,
   conversationId: string,
   userId: string
 ): Promise<boolean> {
@@ -106,6 +108,8 @@ export async function GET(
 ) {
   const { conversationId } = await params;
   const supabase = await createClient();
+  const adminSupabase = createAdminClient();
+  const dataClient = adminSupabase ?? supabase;
 
   const {
     data: { user },
@@ -116,7 +120,7 @@ export async function GET(
     return response.unauthorized();
   }
 
-  const isParticipant = await assertParticipant(supabase, conversationId, user.id);
+  const isParticipant = await assertParticipant(dataClient, conversationId, user.id);
   if (!isParticipant) {
     return response.forbidden("대화방 참여자가 아닙니다.");
   }
@@ -133,7 +137,7 @@ export async function GET(
 
   const { cursor, limit } = parsed.data;
 
-  let query = supabase
+  let query = dataClient
     .from("messages")
     .select(
       `id, conversation_id, sender_id, message_type, body, metadata, created_at, edited_at,
@@ -174,7 +178,7 @@ export async function GET(
   // Update last_read_at for current user
   if (pageItems.length > 0) {
     const latestMessage = pageItems[0];
-    await supabase
+    await dataClient
       .from("conversation_participants")
       .update({
         last_read_message_id: latestMessage.id,
@@ -190,7 +194,7 @@ export async function GET(
     nextCursor = encodeCursor(last.created_at, last.id);
   }
 
-  const mappedItems = await Promise.all(pageItems.map((item) => mapMessageRow(supabase, item)));
+  const mappedItems = await Promise.all(pageItems.map((item) => mapMessageRow(dataClient, item)));
 
   return response.success({
     items: mappedItems,
@@ -206,6 +210,8 @@ export async function POST(
 ) {
   const { conversationId } = await params;
   const supabase = await createClient();
+  const adminSupabase = createAdminClient();
+  const dataClient = adminSupabase ?? supabase;
 
   const {
     data: { user },
@@ -216,7 +222,7 @@ export async function POST(
     return response.unauthorized();
   }
 
-  const isParticipant = await assertParticipant(supabase, conversationId, user.id);
+  const isParticipant = await assertParticipant(dataClient, conversationId, user.id);
   if (!isParticipant) {
     return response.forbidden("대화방 참여자가 아닙니다.");
   }
@@ -290,7 +296,7 @@ export async function POST(
 
   const messageType = files.length > 0 ? "image" : "text";
 
-  const { data: message, error: insertError } = await supabase
+  const { data: message, error: insertError } = await dataClient
     .from("messages")
     .insert({
       conversation_id: conversationId,
@@ -313,7 +319,7 @@ export async function POST(
     const storagePath = `${conversationId}/${message.id}/${crypto.randomUUID()}_${index}.${ext}`;
 
     const arrayBuffer = await file.arrayBuffer();
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await dataClient.storage
       .from("chat-attachments")
       .upload(storagePath, arrayBuffer, {
         contentType: file.type,
@@ -324,7 +330,7 @@ export async function POST(
       return response.error("INTERNAL_ERROR", "첨부 파일 업로드에 실패했습니다.", 500);
     }
 
-    const { data: attachment, error: attachmentError } = await supabase
+    const { data: attachment, error: attachmentError } = await dataClient
       .from("message_attachments")
       .insert({
         message_id: message.id,
@@ -348,6 +354,6 @@ export async function POST(
     message_attachments: attachments,
   };
 
-  const mappedMessage = await mapMessageRow(supabase, messageWithAttachments);
+  const mappedMessage = await mapMessageRow(dataClient, messageWithAttachments);
   return response.success({ message: mappedMessage }, undefined, 201);
 }

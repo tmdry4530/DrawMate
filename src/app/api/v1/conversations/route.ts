@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server-client";
+import { createAdminClient } from "@/lib/supabase/admin-client";
 import * as response from "@/lib/utils/api-response";
 import { conversationListSchema } from "@/validators/messaging";
 
@@ -59,6 +60,8 @@ function isSafeIsoCursor(value: string): boolean {
 
 export async function GET(request: Request) {
   const supabase = await createClient();
+  const adminSupabase = createAdminClient();
+  const dataClient = adminSupabase ?? supabase;
 
   const {
     data: { user },
@@ -81,7 +84,7 @@ export async function GET(request: Request) {
 
   const { cursor, limit } = parsed.data;
 
-  const { data: rawMyParticipants, error: participantError } = await supabase
+  const { data: rawMyParticipants, error: participantError } = await dataClient
     .from("conversation_participants")
     .select("conversation_id, last_read_at")
     .eq("user_id", user.id);
@@ -102,7 +105,7 @@ export async function GET(request: Request) {
     readAtByConversationId.set(participant.conversation_id, participant.last_read_at ?? null);
   }
 
-  let query = supabase
+  let query = dataClient
     .from("conversations")
     .select("id, last_message_at, last_message_id")
     .in("id", myConversationIds)
@@ -148,7 +151,7 @@ export async function GET(request: Request) {
   }
 
   if (conversationIds.length > 0) {
-    const { data: rawPeerParticipants, error: peerError } = await supabase
+    const { data: rawPeerParticipants, error: peerError } = await dataClient
       .from("conversation_participants")
       .select("conversation_id, user_id")
       .in("conversation_id", conversationIds)
@@ -164,7 +167,7 @@ export async function GET(request: Request) {
 
       const peerIds = Array.from(new Set(peerParticipants.map((participant) => participant.user_id)));
       if (peerIds.length > 0) {
-        const { data: rawPeerProfiles, error: profileError } = await supabase
+        const { data: rawPeerProfiles, error: profileError } = await dataClient
           .from("profiles")
           .select("id, display_name, avatar_path")
           .in("id", peerIds);
@@ -185,7 +188,7 @@ export async function GET(request: Request) {
       .filter((value): value is string => !!value);
 
     if (lastMessageIds.length > 0) {
-      const { data: rawLastMessages, error: lastMessageError } = await supabase
+      const { data: rawLastMessages, error: lastMessageError } = await dataClient
         .from("messages")
         .select("id, body, message_type, sender_id, created_at")
         .in("id", lastMessageIds)
@@ -201,7 +204,7 @@ export async function GET(request: Request) {
       }
     }
 
-    const { data: rawUnreadMessages, error: unreadError } = await supabase
+    const { data: rawUnreadMessages, error: unreadError } = await dataClient
       .from("messages")
       .select("conversation_id, created_at")
       .in("conversation_id", conversationIds)
@@ -246,7 +249,7 @@ export async function GET(request: Request) {
             id: peerProfile.id,
             displayName: peerProfile.display_name,
             avatarUrl: peerProfile.avatar_path
-              ? supabase.storage
+              ? dataClient.storage
                   .from("profile-avatars")
                   .getPublicUrl(peerProfile.avatar_path).data.publicUrl
               : null,
