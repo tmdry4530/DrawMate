@@ -11,6 +11,13 @@ interface BookmarkButtonProps {
   initialCount?: number
 }
 
+interface BookmarkToggleResponse {
+  data?: {
+    bookmarked?: boolean
+    bookmarkCount?: number
+  }
+}
+
 export function BookmarkButton({
   portfolioId,
   initialBookmarked = false,
@@ -26,20 +33,30 @@ export function BookmarkButton({
     // 낙관적 업데이트
     const next = !bookmarked
     setBookmarked(next)
-    setCount((prev) => prev + (next ? 1 : -1))
+    setCount((prev) => Math.max(0, prev + (next ? 1 : -1)))
     setLoading(true)
 
     try {
       const method = next ? "POST" : "DELETE"
       const res = await fetch(`/api/v1/portfolios/${portfolioId}/bookmark`, { method })
+      const payload = (await res.json().catch(() => null)) as BookmarkToggleResponse | null
+
       if (!res.ok) {
         // 실패 시 롤백
         setBookmarked(!next)
-        setCount((prev) => prev + (next ? -1 : 1))
+        setCount((prev) => Math.max(0, prev + (next ? -1 : 1)))
+        return
+      }
+
+      if (typeof payload?.data?.bookmarked === "boolean") {
+        setBookmarked(payload.data.bookmarked)
+      }
+      if (typeof payload?.data?.bookmarkCount === "number") {
+        setCount(Math.max(0, payload.data.bookmarkCount))
       }
     } catch {
       setBookmarked(!next)
-      setCount((prev) => prev + (next ? -1 : 1))
+      setCount((prev) => Math.max(0, prev + (next ? -1 : 1)))
     } finally {
       setLoading(false)
     }

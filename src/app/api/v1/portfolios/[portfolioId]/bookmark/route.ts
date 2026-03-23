@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server-client";
+import { createAdminClient } from "@/lib/supabase/admin-client";
 import * as response from "@/lib/utils/api-response";
 
 async function syncBookmarkCount(
@@ -10,10 +11,24 @@ async function syncBookmarkCount(
     .select("id", { count: "exact", head: true })
     .eq("portfolio_id", portfolioId);
 
-  await supabase
+  const nextCount = count ?? 0;
+
+  const { error: updateError } = await supabase
     .from("portfolios")
-    .update({ bookmark_count: count ?? 0 })
+    .update({ bookmark_count: nextCount })
     .eq("id", portfolioId);
+
+  if (updateError) {
+    const admin = createAdminClient();
+    if (admin) {
+      await admin
+        .from("portfolios")
+        .update({ bookmark_count: nextCount })
+        .eq("id", portfolioId);
+    }
+  }
+
+  return nextCount;
 }
 
 export async function POST(
@@ -51,14 +66,15 @@ export async function POST(
         return response.error("INTERNAL_ERROR", "북마크 추가에 실패했습니다.", 500);
       }
 
-      await syncBookmarkCount(supabase, portfolioId);
-      return response.success({ bookmarked: true }, undefined, 201);
+      const bookmarkCount = await syncBookmarkCount(supabase, portfolioId);
+      return response.success({ bookmarked: true, bookmarkCount }, undefined, 201);
     }
 
     return response.error("INTERNAL_ERROR", "북마크 추가에 실패했습니다.", 500);
   }
 
-  return response.success({ bookmarked: true }, undefined, 201);
+  const bookmarkCount = await syncBookmarkCount(supabase, portfolioId);
+  return response.success({ bookmarked: true, bookmarkCount }, undefined, 201);
 }
 
 export async function DELETE(
@@ -94,12 +110,13 @@ export async function DELETE(
         return response.error("INTERNAL_ERROR", "북마크 해제에 실패했습니다.", 500);
       }
 
-      await syncBookmarkCount(supabase, portfolioId);
-      return response.success({ bookmarked: false });
+      const bookmarkCount = await syncBookmarkCount(supabase, portfolioId);
+      return response.success({ bookmarked: false, bookmarkCount });
     }
 
     return response.error("INTERNAL_ERROR", "북마크 해제에 실패했습니다.", 500);
   }
 
-  return response.success({ bookmarked: false });
+  const bookmarkCount = await syncBookmarkCount(supabase, portfolioId);
+  return response.success({ bookmarked: false, bookmarkCount });
 }

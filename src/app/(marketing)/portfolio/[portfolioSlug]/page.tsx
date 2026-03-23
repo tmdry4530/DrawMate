@@ -71,6 +71,7 @@ interface PortfolioDetailData {
   price: number | null;
   durationDays: number | null;
   bookmarkCount: number;
+  isBookmarkedByViewer: boolean;
   tags: Array<{ id: string; name: string; category: string }>;
   owner: {
     id: string;
@@ -138,6 +139,22 @@ async function getPortfolioBySlug(portfolioSlug: string): Promise<PortfolioDetai
     })
     .filter((tag): tag is { id: string; name: string; category: string } => !!tag);
 
+  let isBookmarkedByViewer = false;
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (!authError && user) {
+    const { data: bookmark } = await supabase
+      .from("bookmarks")
+      .select("id")
+      .eq("portfolio_id", row.id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    isBookmarkedByViewer = !!bookmark;
+  }
+
   return {
     id: row.id,
     title: row.title,
@@ -147,6 +164,7 @@ async function getPortfolioBySlug(portfolioSlug: string): Promise<PortfolioDetai
     price: row.starting_price_krw,
     durationDays: row.duration_days,
     bookmarkCount: row.bookmark_count ?? 0,
+    isBookmarkedByViewer,
     tags,
     owner: {
       id: owner.id,
@@ -246,7 +264,7 @@ export default async function PortfolioDetailPage({ params }: Props) {
       <div className="flex items-center gap-3 pt-2 border-t">
         <BookmarkButton
           portfolioId={portfolio.id}
-          initialBookmarked={false}
+          initialBookmarked={portfolio.isBookmarkedByViewer}
           initialCount={portfolio.bookmarkCount}
         />
         <ContactCta targetUserId={portfolio.owner.id} />

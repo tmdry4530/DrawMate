@@ -112,8 +112,15 @@ export default function ConversationPage() {
   } = useInfiniteQuery<MessagesPage, ApiRequestError>({
     queryKey: ["messages", conversationId],
     queryFn: ({ pageParam }) => fetchMessages(conversationId, pageParam as string | null),
+    enabled: Boolean(conversationId),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage): string | null => lastPage.nextCursor ?? null,
+    retry: (failureCount, queryError) => {
+      if (queryError.status >= 400 && queryError.status < 500) {
+        return false
+      }
+      return failureCount < 2
+    },
   })
   const { data: conversationMeta } = useQuery({
     queryKey: ["conversation-meta", conversationId],
@@ -128,6 +135,7 @@ export default function ConversationPage() {
 
   const allMessages = data?.pages.flatMap((p) => p.messages) ?? []
   const currentUserId = data?.pages[0]?.currentUserId ?? ""
+  const canSendMessage = !isLoading && !isError && Boolean(currentUserId)
 
   function handleMessageSent() {
     queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
@@ -227,7 +235,7 @@ export default function ConversationPage() {
         </div>
 
         {/* Input */}
-        {!isError && (
+        {canSendMessage && (
           <MessageInput
             conversationId={conversationId}
             onMessageSent={handleMessageSent}
