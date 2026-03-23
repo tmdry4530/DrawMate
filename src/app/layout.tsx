@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "DrawMate",
-  description: "웹툰/일러스트 창작 파트너를 연결하는 포트폴리오 플랫폼",
+  description: "작가와 어시스턴트를 연결해 포트폴리오 탐색, 메시지, 협업 문의를 돕는 플랫폼",
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="ko"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">

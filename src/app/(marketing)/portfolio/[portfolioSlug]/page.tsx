@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Clock, DollarSign } from "lucide-react";
+import { CheckCircle2, Clock, DollarSign } from "lucide-react";
 import { createClient } from "@/lib/supabase/server-client";
 import { PortfolioGallery } from "@/components/portfolio/portfolio-gallery";
 import { OwnerCard } from "@/components/portfolio/owner-card";
@@ -218,56 +218,98 @@ export default async function PortfolioDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="container max-w-3xl px-4 py-8 space-y-8">
-      <OwnerCard
-        userId={portfolio.owner.id}
-        displayName={portfolio.owner.displayName}
-        headline={portfolio.owner.headline}
-        avatarUrl={portfolio.owner.avatarUrl}
-      />
+    <div className="mx-auto max-w-6xl px-4 py-8">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.7fr)_320px]">
+        <section className="space-y-8">
+          <div className="space-y-3">
+            <h1 className="text-3xl font-bold leading-snug">{portfolio.title}</h1>
+            <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+              포트폴리오를 확인한 뒤 메시지로 협업 가능 여부, 일정, 작업 범위를 바로 조율할 수 있습니다.
+            </p>
+          </div>
 
-      <h1 className="text-2xl font-bold leading-snug">{portfolio.title}</h1>
+          <PortfolioGallery
+            coverImage={portfolio.coverImage}
+            images={portfolio.images}
+            title={portfolio.title}
+          />
 
-      <PortfolioGallery
-        coverImage={portfolio.coverImage}
-        images={portfolio.images}
-        title={portfolio.title}
-      />
+          <section>
+            <h2 className="mb-2 text-base font-semibold">작품 소개</h2>
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+              {portfolio.description || "설명이 없습니다."}
+            </p>
+          </section>
 
-      <section>
-        <h2 className="text-base font-semibold mb-2">작품 소개</h2>
-        <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
-          {portfolio.description || "설명이 없습니다."}
-        </p>
-      </section>
+          <section>
+            <h2 className="mb-2 text-base font-semibold">태그</h2>
+            <TagChips tags={portfolio.tags} />
+          </section>
+        </section>
 
-      <section>
-        <h2 className="text-base font-semibold mb-2">태그</h2>
-        <TagChips tags={portfolio.tags} />
-      </section>
+        <aside className="self-start lg:sticky lg:top-24">
+          <div className="space-y-5 rounded-2xl border bg-card p-5 shadow-sm">
+            <OwnerCard
+              userId={portfolio.owner.id}
+              displayName={portfolio.owner.displayName}
+              headline={portfolio.owner.headline}
+              avatarUrl={portfolio.owner.avatarUrl}
+            />
 
-      <section className="flex flex-wrap gap-6">
-        <div className="flex items-center gap-2 text-sm">
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
-          <span className="text-muted-foreground">가격</span>
-          <span className="font-semibold">{formatPrice(portfolio.price)}</span>
-        </div>
-        <div className="flex items-center gap-2 text-sm">
-          <Clock className="h-4 w-4 text-muted-foreground" />
-          <span className="text-muted-foreground">납기</span>
-          <span className="font-semibold">
-            {portfolio.durationDays ? `${portfolio.durationDays}일` : "협의"}
-          </span>
-        </div>
-      </section>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <div className="rounded-xl bg-muted/40 p-4">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <DollarSign className="h-4 w-4" />
+                  가격
+                </div>
+                <p className="mt-2 text-lg font-semibold">{formatPrice(portfolio.price)}</p>
+              </div>
 
-      <div className="flex items-center gap-3 pt-2 border-t">
-        <BookmarkButton
-          portfolioId={portfolio.id}
-          initialBookmarked={portfolio.isBookmarkedByViewer}
-          initialCount={portfolio.bookmarkCount}
-        />
-        <ContactCta targetUserId={portfolio.owner.id} />
+              <div className="rounded-xl bg-muted/40 p-4">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Clock className="h-4 w-4" />
+                  납기
+                </div>
+                <p className="mt-2 text-lg font-semibold">
+                  {portfolio.durationDays ? `${portfolio.durationDays}일` : "협의"}
+                </p>
+              </div>
+            </div>
+
+            <div className="border-t pt-5">
+              <div className="flex flex-col gap-3">
+                <ContactCta
+                  targetUserId={portfolio.owner.id}
+                  className="w-full justify-center"
+                />
+                <div className="flex items-center justify-between rounded-xl bg-muted/40 px-3 py-3">
+                  <span className="text-sm font-medium">북마크</span>
+                  <BookmarkButton
+                    portfolioId={portfolio.id}
+                    initialBookmarked={portfolio.isBookmarkedByViewer}
+                    initialCount={portfolio.bookmarkCount}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-muted/40 p-4">
+              <p className="text-sm font-semibold">다음 단계</p>
+              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                {[
+                  "포트폴리오와 태그를 확인해 작업 적합도를 판단합니다.",
+                  "메시지로 문의하면 바로 1:1 대화방이 열립니다.",
+                  "작업 범위, 일정, 예산을 협의해 협업을 이어갑니다.",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   );

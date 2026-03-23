@@ -60,12 +60,11 @@ export function FilterPanel() {
 
   return (
     <div className="space-y-6">
-      {/* 작업 가능 토글 — 추후 활성화 예정 */}
-      <div className="flex items-center gap-2 opacity-40 cursor-not-allowed select-none">
-        <Checkbox id="available" disabled />
-        <Label htmlFor="available" className="text-sm font-normal">
-          작업 가능한 작가만
-        </Label>
+      <div className="rounded-xl border bg-muted/30 p-4">
+        <p className="text-sm font-semibold">필터 사용 팁</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          분야와 스타일을 함께 선택하면 원하는 작업자를 더 빠르게 좁힐 수 있습니다.
+        </p>
       </div>
 
       {groups.map(

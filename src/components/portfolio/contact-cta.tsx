@@ -5,13 +5,15 @@ import { useRouter } from "next/navigation"
 import { MessageSquare } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { unwrapApiData } from "@/lib/utils/client-api"
 
 interface ContactCtaProps {
   targetUserId: string
+  className?: string
 }
 
-export function ContactCta({ targetUserId }: ContactCtaProps) {
+export function ContactCta({ targetUserId, className }: ContactCtaProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -38,9 +40,9 @@ export function ContactCta({ targetUserId }: ContactCtaProps) {
   }
 
   return (
-    <Button className="gap-2" onClick={handleClick} disabled={loading}>
+    <Button className={cn("gap-2", className)} onClick={handleClick} disabled={loading}>
       <MessageSquare className="h-4 w-4" />
-      {loading ? "연결 중..." : "메시지 보내기"}
+      {loading ? "대화방 여는 중..." : "메시지로 문의하기"}
     </Button>
   )
 }

@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { href: "/", icon: Home, label: "홈" },
   { href: "/explore", icon: Search, label: "탐색" },
-  { href: "/studio/portfolios/new", icon: PlusCircle, label: "새 작품" },
+  { href: "/studio/portfolios/new", icon: PlusCircle, label: "포트폴리오 등록" },
   { href: "/messages", icon: MessageSquare, label: "메시지" },
   { href: "/settings/profile", icon: User, label: "프로필" },
 ];
@@ -27,7 +27,7 @@ export function MobileNav() {
               href={href}
               aria-label={label}
               className={cn(
-                "flex flex-col items-center gap-1 px-3 py-2 text-xs transition-colors",
+                "flex max-w-20 flex-col items-center gap-1 px-3 py-2 text-center text-[11px] leading-tight transition-colors",
                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
               )}
             >

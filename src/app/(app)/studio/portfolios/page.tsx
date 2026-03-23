@@ -100,7 +100,7 @@ export default function PortfoliosPage() {
         <Button asChild>
           <Link href="/studio/portfolios/new">
             <Plus className="w-4 h-4 mr-2" />
-            새 포트폴리오
+            포트폴리오 등록
           </Link>
         </Button>
       </div>
@@ -150,7 +150,7 @@ export default function PortfoliosPage() {
             <Button asChild size="sm" className="mt-3">
               <Link href="/studio/portfolios/new">
                 <Plus className="w-4 h-4 mr-1" />
-                새 포트폴리오
+                포트폴리오 등록
               </Link>
             </Button>
           )}

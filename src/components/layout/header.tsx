@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Bell, MessageSquare, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -28,6 +28,8 @@ export function Header() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     let mounted = true;
@@ -97,6 +99,23 @@ export function Header() {
     router.push("/sign-in");
   };
 
+  const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const rawQuery = formData.get("q");
+    const query = typeof rawQuery === "string" ? rawQuery.trim() : "";
+    const nextParams = new URLSearchParams();
+    if (query) {
+      nextParams.set("q", query);
+    }
+
+    const nextUrl = nextParams.toString()
+      ? `/explore?${nextParams.toString()}`
+      : "/explore";
+
+    router.push(nextUrl);
+  };
+
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
@@ -106,16 +125,24 @@ export function Header() {
         </Link>
 
         {/* Search - desktop only */}
-        <div className="hidden md:flex flex-1 max-w-md mx-8">
+        <form
+          className="mx-8 hidden max-w-md flex-1 md:flex"
+          onSubmit={handleSearchSubmit}
+          role="search"
+        >
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
+              key={`${pathname}-${searchParams.get("q") ?? ""}`}
+              name="q"
               type="search"
-              placeholder="장르, 화풍, 아티스트를 검색하세요..."
-              className="pl-9 w-full"
+              defaultValue={pathname === "/explore" ? searchParams.get("q") ?? "" : ""}
+              placeholder="포트폴리오, 분야, 스타일, 작가를 검색하세요"
+              aria-label="포트폴리오, 분야, 스타일, 작가 검색"
+              className="w-full pl-9"
             />
           </div>
-        </div>
+        </form>
 
         {/* Right side */}
         <div className="flex items-center gap-2">
@@ -123,6 +150,10 @@ export function Header() {
             <div className="w-20" />
           ) : user ? (
             <>
+              <Button variant="ghost" className="hidden lg:inline-flex" asChild>
+                <Link href="/studio">스튜디오</Link>
+              </Button>
+
               {/* Bell icon with badge */}
               <Button variant="ghost" size="icon" className="relative" asChild>
                 <Link href="/notifications" aria-label="알림 페이지로 이동">

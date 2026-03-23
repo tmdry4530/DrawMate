@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -97,10 +97,22 @@ export default function ProfileSettingsPage() {
   };
 
   return (
-    <div className="container max-w-2xl py-8">
+    <div className="mx-auto grid w-full max-w-5xl gap-6 py-8 lg:grid-cols-[280px_minmax(0,1fr)]">
+      <section className="space-y-3">
+        <p className="text-sm font-semibold text-primary">프로필 설정</p>
+        <h1 className="text-3xl font-bold tracking-tight">프로필 편집</h1>
+        <p className="text-sm leading-6 text-muted-foreground">
+          협업 요청을 받을 때 가장 먼저 보이는 정보입니다. 이름, 소개, 활동 상태를 정리해
+          신뢰도와 응답률을 높여보세요.
+        </p>
+      </section>
+
       <Card>
         <CardHeader>
-          <CardTitle>프로필 편집</CardTitle>
+          <CardTitle>기본 정보</CardTitle>
+          <CardDescription>
+            공개 프로필에 노출될 핵심 정보를 관리합니다.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">

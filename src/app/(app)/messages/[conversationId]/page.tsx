@@ -218,8 +218,11 @@ export default function ConversationPage() {
               </Button>
             </div>
           ) : allMessages.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-              아직 메시지가 없습니다
+            <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
+              <p className="text-sm font-medium">아직 메시지가 없습니다</p>
+              <p className="text-sm text-muted-foreground">
+                첫 문의 내용을 남기면 이 대화방에서 협업을 이어갈 수 있습니다.
+              </p>
             </div>
           ) : (
             allMessages.map((msg) => (

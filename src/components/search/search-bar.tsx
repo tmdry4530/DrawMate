@@ -34,7 +34,8 @@ export function SearchBar() {
         type="text"
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
-        placeholder="포트폴리오 검색..."
+        placeholder="포트폴리오, 분야, 스타일, 작가를 검색하세요"
+        aria-label="포트폴리오, 분야, 스타일, 작가 검색"
         className="pl-9 pr-9"
       />
       {inputValue && (

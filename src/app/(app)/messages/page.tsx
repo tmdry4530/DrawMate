@@ -1,4 +1,6 @@
+import Link from "next/link"
 import { ConversationList } from "@/components/messaging/conversation-list"
+import { Button } from "@/components/ui/button"
 
 export default function MessagesPage() {
   return (
@@ -12,8 +14,16 @@ export default function MessagesPage() {
       </aside>
 
       {/* Right: empty state on desktop */}
-      <main className="hidden md:flex flex-1 items-center justify-center text-muted-foreground">
-        <p className="text-sm">대화를 선택하세요</p>
+      <main className="hidden md:flex flex-1 items-center justify-center px-6">
+        <div className="max-w-sm space-y-3 text-center">
+          <h2 className="text-xl font-semibold">대화를 선택하세요</h2>
+          <p className="text-sm leading-6 text-muted-foreground">
+            포트폴리오 상세에서 메시지를 보내면 이곳에서 바로 대화를 이어갈 수 있습니다.
+          </p>
+          <Button asChild variant="outline">
+            <Link href="/explore">포트폴리오 탐색</Link>
+          </Button>
+        </div>
       </main>
     </div>
   )

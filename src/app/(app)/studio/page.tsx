@@ -75,13 +75,13 @@ export default function StudioPage() {
         <div>
           <h1 className="text-2xl font-bold">스튜디오</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            포트폴리오를 관리하고 새 작품을 등록하세요.
+            포트폴리오를 관리하고 새 협업 기회를 위한 포트폴리오를 등록하세요.
           </p>
         </div>
         <Button asChild>
           <Link href="/studio/portfolios/new">
             <Plus className="w-4 h-4 mr-2" />
-            새 포트폴리오
+            포트폴리오 등록
           </Link>
         </Button>
       </div>
@@ -107,12 +107,9 @@ export default function StudioPage() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold">최근 포트폴리오</h2>
-          <Link
-            href="/studio/portfolios"
-            className="text-sm text-muted-foreground hover:text-foreground underline"
-          >
-            전체 보기
-          </Link>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/studio/portfolios">전체 보기</Link>
+          </Button>
         </div>
 
         {loading ? (
@@ -126,12 +123,12 @@ export default function StudioPage() {
             <ImageIcon className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
             <p className="font-medium mb-1">아직 포트폴리오가 없습니다</p>
             <p className="text-sm text-muted-foreground mb-4">
-              첫 번째 작품을 등록해 보세요.
+              첫 번째 포트폴리오를 등록해 보세요.
             </p>
             <Button asChild size="sm">
               <Link href="/studio/portfolios/new">
                 <Plus className="w-4 h-4 mr-1" />
-                새 포트폴리오
+                포트폴리오 등록
               </Link>
             </Button>
           </div>

@@ -87,7 +87,13 @@ export default function ExplorePage() {
 
   return (
     <div className="max-w-7xl mx-auto py-6 space-y-6">
-      {/* 검색바 */}
+      <section className="space-y-2">
+        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">포트폴리오 탐색</h1>
+        <p className="max-w-2xl text-sm text-muted-foreground md:text-base">
+          분야, 스타일, 스킬 태그로 작업자를 찾고 포트폴리오를 확인한 뒤 바로 메시지로 협업을 시작하세요.
+        </p>
+      </section>
+
       <SearchBar />
 
       <div className="flex gap-6">

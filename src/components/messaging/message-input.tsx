@@ -118,7 +118,7 @@ export function MessageInput({ conversationId, onMessageSent }: MessageInputProp
           onChange={(e) => setContent(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="메시지를 입력하세요..."
-          className="resize-none min-h-[40px] max-h-[120px]"
+          className="resize-none min-h-[44px] max-h-[120px]"
           rows={1}
         />
 

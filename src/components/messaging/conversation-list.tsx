@@ -1,11 +1,13 @@
 "use client"
 
+import Link from "next/link"
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { formatDistanceToNow } from "date-fns"
 import { ko } from "date-fns/locale"
 import { Search } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -77,8 +79,10 @@ export function ConversationList({ activeId }: { activeId?: string }) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-        불러오는 중...
+      <div className="space-y-3 p-4">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <div key={index} className="h-16 animate-pulse rounded-xl bg-muted" />
+        ))}
       </div>
     )
   }
@@ -99,8 +103,14 @@ export function ConversationList({ activeId }: { activeId?: string }) {
 
       <ScrollArea className="flex-1">
         {filtered.length === 0 ? (
-          <div className="flex items-center justify-center h-24 text-muted-foreground text-sm">
-            대화가 없습니다
+          <div className="flex h-full flex-col items-center justify-center gap-3 px-6 py-12 text-center">
+            <p className="text-sm font-medium">아직 대화가 없습니다</p>
+            <p className="text-sm text-muted-foreground">
+              포트폴리오 상세에서 메시지를 보내면 여기서 바로 이어집니다.
+            </p>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/explore">포트폴리오 탐색</Link>
+            </Button>
           </div>
         ) : (
           <ul>

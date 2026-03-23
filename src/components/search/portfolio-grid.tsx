@@ -1,9 +1,11 @@
 "use client"
 
+import Link from "next/link"
 import { useEffect, useRef } from "react"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { PortfolioCard } from "@/components/portfolio/portfolio-card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/components/ui/button"
 import { useExploreStore } from "@/store/explore-store"
 
 interface PortfolioItem {
@@ -70,6 +72,7 @@ export function PortfolioGrid() {
   const q = useExploreStore((s) => s.q)
   const sort = useExploreStore((s) => s.sort)
   const filters = useExploreStore((s) => s.filters)
+  const reset = useExploreStore((s) => s.reset)
 
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
@@ -108,6 +111,12 @@ export function PortfolioGrid() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
   const allItems = data?.pages.flatMap((p) => p.items) ?? []
+  const hasActiveFilters =
+    q.trim().length > 0 ||
+    filters.fieldTags.length > 0 ||
+    filters.skillTags.length > 0 ||
+    filters.toolTags.length > 0 ||
+    filters.styleTags.length > 0
 
   if (isLoading) {
     return (
@@ -121,8 +130,23 @@ export function PortfolioGrid() {
 
   if (allItems.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-        <p className="text-sm">검색 결과가 없습니다.</p>
+      <div className="rounded-2xl border border-dashed px-6 py-16 text-center">
+        <p className="text-lg font-semibold">조건에 맞는 포트폴리오를 찾지 못했어요</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {hasActiveFilters
+            ? "검색어나 필터를 조정해보세요. 그래도 없다면 직접 포트폴리오를 등록해 협업 요청을 받아볼 수 있습니다."
+            : "아직 공개된 포트폴리오가 많지 않습니다. 원하는 작업을 찾지 못했다면 직접 포트폴리오를 등록해보세요."}
+        </p>
+        <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
+          {hasActiveFilters && (
+            <Button variant="outline" onClick={() => reset()}>
+              조건 초기화
+            </Button>
+          )}
+          <Button asChild>
+            <Link href="/studio/portfolios/new">포트폴리오 등록</Link>
+          </Button>
+        </div>
       </div>
     )
   }
