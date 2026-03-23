@@ -218,8 +218,8 @@ export default async function PortfolioDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.7fr)_320px]">
+    <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
+      <div className="grid gap-10 lg:grid-cols-[1fr_340px] xl:gap-14">
         <section className="space-y-8">
           <div className="space-y-3">
             <h1 className="text-3xl font-bold leading-snug">{portfolio.title}</h1>

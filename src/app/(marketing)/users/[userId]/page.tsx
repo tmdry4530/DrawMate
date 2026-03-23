@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server-client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -139,9 +140,15 @@ export default async function UserProfilePage({ params }: Props) {
               <div className="grid grid-cols-2 gap-4 md:grid-cols-3 py-4">
                 {profile.portfolios.map((p) => (
                   <a key={p.id} href={`/portfolio/${p.slug}`} className="group block">
-                    <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                    <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
                       {p.thumbUrl ? (
-                        <img src={p.thumbUrl} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                        <Image
+                          src={p.thumbUrl}
+                          alt={p.title}
+                          fill
+                          sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          className="object-cover group-hover:scale-105 transition-transform"
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">이미지 없음</div>
                       )}

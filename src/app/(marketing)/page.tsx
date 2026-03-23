@@ -175,44 +175,48 @@ export default async function HomePage() {
 
   return (
     <div className="mx-auto max-w-7xl py-10 space-y-12">
-      <section className="rounded-3xl border bg-gradient-to-b from-muted/50 via-background to-background px-6 py-12 text-center md:px-10 md:py-20">
-        <div className="mx-auto flex max-w-3xl flex-col items-center space-y-6">
-          <Badge variant="secondary" className="rounded-full px-4 py-1 text-sm">
-            작가-어시스턴트 협업 플랫폼
+      <section className="relative overflow-hidden rounded-[2.5rem] border bg-card px-6 py-16 text-center md:px-10 md:py-28 shadow-sm">
+        {/* Background decorative elements */}
+        <div className="absolute top-0 left-1/2 -z-10 -translate-x-1/2 w-full max-w-4xl opacity-50 dark:opacity-30 pointer-events-none">
+          <div className="aspect-[2/1] bg-gradient-to-b from-primary/30 to-transparent blur-3xl" />
+        </div>
+        
+        <div className="mx-auto flex max-w-3xl flex-col items-center space-y-8 relative z-10">
+          <Badge variant="secondary" className="rounded-full px-5 py-1.5 text-sm border-primary/20 bg-primary/10 text-primary">
+            ✨ 작가와 어시스턴트를 위한 프리미엄 매칭 플랫폼
           </Badge>
-          <h1 className="text-3xl font-bold tracking-tight leading-tight md:text-5xl">
-            웹툰·일러스트 작업에 맞는
-            <br className="hidden sm:block" /> 작가와 어시스턴트를 연결합니다
+          <h1 className="text-4xl font-extrabold tracking-tight leading-tight md:text-[3.5rem] md:leading-[1.15] text-foreground">
+            완벽한 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-500">작업 파트너</span>와 함께<br className="hidden sm:block" /> 놀라운 작품을 완성하세요
           </h1>
-          <p className="max-w-2xl text-base text-muted-foreground md:text-lg">
-            포트폴리오 탐색, 메시지, 협업 문의까지 한곳에서 이어지는 창작 매칭 경험을 제공합니다.
+          <p className="max-w-2xl text-lg text-muted-foreground md:text-xl">
+            웹툰, 일러스트부터 애니메이션까지. 포트폴리오를 탐색하고 꼭 맞는 어시스턴트와 즉시 협업을 시작할 수 있습니다.
           </p>
           <div className="flex flex-wrap justify-center gap-2">
             {["웹툰", "일러스트", "애니메이션", "배경", "채색", "캐릭터 디자인"].map((label) => (
-              <Badge key={label} variant="outline" className="rounded-full">
+              <Badge key={label} variant="outline" className="rounded-full font-medium text-muted-foreground shadow-sm">
                 {label}
               </Badge>
             ))}
           </div>
-          <div className="flex flex-col justify-center gap-3 sm:flex-row">
-            <Button asChild size="lg" className="min-w-44">
-              <Link href="/explore">탐색 시작</Link>
+          <div className="flex flex-col justify-center gap-4 sm:flex-row w-full sm:w-auto pt-4">
+            <Button asChild size="lg" className="min-w-40 sm:min-w-48 rounded-full shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all text-base py-6">
+              <Link href="/explore">포트폴리오 탐색하기</Link>
             </Button>
-            <Button asChild size="lg" variant="ghost" className="min-w-44 text-muted-foreground hover:text-foreground">
-              <Link href="/studio/portfolios/new">포트폴리오 등록</Link>
+            <Button asChild size="lg" variant="outline" className="min-w-40 sm:min-w-48 rounded-full text-base py-6 border-muted-foreground/20 hover:bg-secondary/50">
+              <Link href="/studio/portfolios/new">내 작품 올리기</Link>
             </Button>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-6 md:grid-cols-3 mt-4">
         {featureCards.map(({ title, description, icon: Icon }) => (
-          <div key={title} className="rounded-2xl border bg-card p-6 shadow-sm">
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <Icon className="h-5 w-5" />
+          <div key={title} className="relative overflow-hidden rounded-[2rem] border bg-gradient-to-b from-card to-muted/20 p-8 shadow-sm transition-all hover:shadow-md hover:-translate-y-1">
+            <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
+              <Icon className="h-6 w-6" />
             </div>
-            <h2 className="text-lg font-semibold">{title}</h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
+            <h2 className="text-xl font-bold">{title}</h2>
+            <p className="mt-3 text-base leading-relaxed text-muted-foreground">{description}</p>
           </div>
         ))}
       </section>
