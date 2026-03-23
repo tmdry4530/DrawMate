@@ -5,6 +5,7 @@ export async function proxy(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request);
 
   const { pathname } = request.nextUrl;
+  const authEntryPaths = ["/sign-in", "/sign-up"];
   const protectedPrefixes = [
     "/studio",
     "/messages",
@@ -16,6 +17,16 @@ export async function proxy(request: NextRequest) {
   const isProtectedPage = protectedPrefixes.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   );
+  const isAuthEntryPage = authEntryPaths.includes(pathname);
+
+  if (isAuthEntryPage && user) {
+    const requestedNext = request.nextUrl.searchParams.get("next");
+    const safeNext =
+      requestedNext && requestedNext.startsWith("/") && !requestedNext.startsWith("//")
+        ? requestedNext
+        : "/";
+    return NextResponse.redirect(new URL(safeNext, request.url));
+  }
 
   if (isProtectedPage) {
     if (!user) {

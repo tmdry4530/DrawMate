@@ -1,6 +1,21 @@
 import { createClient } from "@/lib/supabase/server-client";
 import * as response from "@/lib/utils/api-response";
 
+async function syncBookmarkCount(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  portfolioId: string
+) {
+  const { count } = await supabase
+    .from("bookmarks")
+    .select("id", { count: "exact", head: true })
+    .eq("portfolio_id", portfolioId);
+
+  await supabase
+    .from("portfolios")
+    .update({ bookmark_count: count ?? 0 })
+    .eq("id", portfolioId);
+}
+
 export async function POST(
   _request: Request,
   { params }: { params: Promise<{ portfolioId: string }> }
@@ -17,25 +32,30 @@ export async function POST(
     return response.unauthorized();
   }
 
-  // 이미 북마크 되어있는지 확인 (멱등)
-  const { data: existing } = await supabase
-    .from("bookmarks")
-    .select("id")
-    .eq("user_id", user.id)
-    .eq("portfolio_id", portfolioId)
-    .maybeSingle();
+  const { error: rpcError } = await supabase.rpc("toggle_portfolio_bookmark", {
+    p_portfolio_id: portfolioId,
+    p_should_bookmark: true,
+  });
 
-  if (existing) {
-    return response.success({ bookmarked: true }, undefined, 200);
-  }
+  if (rpcError) {
+    // Fallback for environments where RPC is not deployed yet
+    if (rpcError.code === "42883") {
+      const { error: insertError } = await supabase
+        .from("bookmarks")
+        .upsert(
+          { user_id: user.id, portfolio_id: portfolioId },
+          { onConflict: "user_id,portfolio_id", ignoreDuplicates: true }
+        );
 
-  // 북마크 추가
-  const { error: insertError } = await supabase
-    .from("bookmarks")
-    .insert({ user_id: user.id, portfolio_id: portfolioId });
+      if (insertError) {
+        return response.error("INTERNAL_ERROR", "북마크 추가에 실패했습니다.", 500);
+      }
 
-  if (insertError) {
-    return response.error("INTERNAL_ERROR", `북마크 추가 실패: ${insertError.message}`, 500);
+      await syncBookmarkCount(supabase, portfolioId);
+      return response.success({ bookmarked: true }, undefined, 201);
+    }
+
+    return response.error("INTERNAL_ERROR", "북마크 추가에 실패했습니다.", 500);
   }
 
   return response.success({ bookmarked: true }, undefined, 201);
@@ -57,14 +77,28 @@ export async function DELETE(
     return response.unauthorized();
   }
 
-  const { error: deleteError } = await supabase
-    .from("bookmarks")
-    .delete()
-    .eq("user_id", user.id)
-    .eq("portfolio_id", portfolioId);
+  const { error: rpcError } = await supabase.rpc("toggle_portfolio_bookmark", {
+    p_portfolio_id: portfolioId,
+    p_should_bookmark: false,
+  });
 
-  if (deleteError) {
-    return response.error("INTERNAL_ERROR", `북마크 해제 실패: ${deleteError.message}`, 500);
+  if (rpcError) {
+    if (rpcError.code === "42883") {
+      const { error: deleteError } = await supabase
+        .from("bookmarks")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("portfolio_id", portfolioId);
+
+      if (deleteError) {
+        return response.error("INTERNAL_ERROR", "북마크 해제에 실패했습니다.", 500);
+      }
+
+      await syncBookmarkCount(supabase, portfolioId);
+      return response.success({ bookmarked: false });
+    }
+
+    return response.error("INTERNAL_ERROR", "북마크 해제에 실패했습니다.", 500);
   }
 
   return response.success({ bookmarked: false });

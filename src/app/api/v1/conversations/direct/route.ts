@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server-client";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import * as response from "@/lib/utils/api-response";
 import { createDirectConversationSchema } from "@/validators/messaging";
 
@@ -38,38 +39,32 @@ export async function POST(request: Request) {
     return response.error("CONFLICT", "자기 자신과 대화할 수 없습니다.", 409);
   }
 
-  // Check if conversation already exists via direct_key
+  const adminUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const adminSupabase =
+    adminUrl && serviceRoleKey
+      ? createSupabaseClient(adminUrl, serviceRoleKey, {
+          auth: { autoRefreshToken: false, persistSession: false },
+        })
+      : null;
+
+  // Canonical direct key: smaller UUID first
   const directKey =
     user.id < targetUserId
       ? `${user.id}:${targetUserId}`
       : `${targetUserId}:${user.id}`;
 
-  const { data: existing } = await supabase
-    .from("conversations")
-    .select("id")
-    .eq("direct_key", directKey)
-    .maybeSingle();
-
-  if (existing) {
-    // Conversation exists — optionally send initial message
-    if (initialMessage?.body) {
-      const { error: insertError } = await supabase.from("messages").insert({
-        conversation_id: existing.id,
-        sender_id: user.id,
-        message_type: "text",
-        body: initialMessage.body,
-        metadata: sourcePortfolioId
-          ? { source_portfolio_id: sourcePortfolioId }
-          : {},
-      });
-      if (insertError) {
-        return response.error("INTERNAL_ERROR", "초기 메시지 전송에 실패했습니다.", 500);
-      }
-    }
-    return response.success({ conversationId: existing.id, reused: true });
+  let existedBefore = false;
+  if (adminSupabase) {
+    const { data: existingConversation } = await adminSupabase
+      .from("conversations")
+      .select("id")
+      .eq("direct_key", directKey)
+      .maybeSingle();
+    existedBefore = !!existingConversation;
   }
 
-  // Create new conversation via RPC
+  // Create (or reuse) conversation via RPC
   const { data: conversationId, error: rpcError } = await supabase.rpc(
     "create_direct_conversation",
     {
@@ -83,5 +78,39 @@ export async function POST(request: Request) {
     return response.error("INTERNAL_ERROR", "대화방 생성에 실패했습니다.", 500);
   }
 
-  return response.success({ conversationId, reused: false }, undefined, 201);
+  const { data: myParticipant } = await supabase
+    .from("conversation_participants")
+    .select("user_id")
+    .eq("conversation_id", conversationId as string)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!myParticipant) {
+    if (!adminSupabase) {
+      return response.error("INTERNAL_ERROR", "대화방 참여자 동기화에 실패했습니다.", 500);
+    }
+
+    const { error: participantError } = await adminSupabase
+      .from("conversation_participants")
+      .upsert(
+        [
+          { conversation_id: conversationId, user_id: user.id },
+          { conversation_id: conversationId, user_id: targetUserId },
+        ],
+        {
+          onConflict: "conversation_id,user_id",
+          ignoreDuplicates: true,
+        }
+      );
+
+    if (participantError) {
+      return response.error("INTERNAL_ERROR", "대화방 참여자 동기화에 실패했습니다.", 500);
+    }
+  }
+
+  return response.success(
+    { conversationId, reused: existedBefore },
+    undefined,
+    existedBefore ? 200 : 201
+  );
 }

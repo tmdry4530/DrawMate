@@ -21,6 +21,7 @@ interface BookmarkApiItem {
     id: string
     slug: string
     title: string
+    thumbnailUrl?: string | null
     bookmarkCount: number
     profiles?: {
       displayName?: string | null
@@ -60,6 +61,7 @@ export default function BookmarksPage() {
               id: item.portfolio!.id,
               slug: item.portfolio!.slug,
               title: item.portfolio!.title,
+              thumbnailUrl: item.portfolio!.thumbnailUrl ?? null,
               ownerName: item.portfolio!.profiles?.displayName ?? "알 수 없음",
               ownerAvatarUrl:
                 item.portfolio!.profiles?.avatarUrl ??

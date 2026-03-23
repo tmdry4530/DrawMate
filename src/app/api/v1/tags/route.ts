@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from("tags")
-    .select("id, name, category, sort_order, is_active")
+    .select("id, slug, name, category, sort_order, is_active")
     .order("sort_order", { ascending: true });
 
   if (category) {

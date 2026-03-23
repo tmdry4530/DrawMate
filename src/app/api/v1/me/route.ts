@@ -16,7 +16,9 @@ export async function GET() {
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("role, display_name, avatar_path, availability_status, is_profile_public, notify_new_message, notify_bookmark")
+    .select(
+      "role, display_name, headline, bio, sns_links, avatar_path, availability_status, is_profile_public, notify_new_message, notify_bookmark"
+    )
     .eq("id", user.id)
     .single();
 
@@ -27,6 +29,9 @@ export async function GET() {
   const camelProfile = toCamelCaseKeys(profile) as {
     role: string;
     displayName: string;
+    headline: string | null;
+    bio: string | null;
+    snsLinks: string[] | null;
     avatarPath: string | null;
     availabilityStatus: string;
     isProfilePublic: boolean;
@@ -42,6 +47,9 @@ export async function GET() {
     profile: {
       role: camelProfile.role,
       displayName: camelProfile.displayName,
+      headline: camelProfile.headline ?? null,
+      bio: camelProfile.bio ?? null,
+      snsLinks: camelProfile.snsLinks ?? [],
       avatarUrl,
       availabilityStatus: camelProfile.availabilityStatus,
       isProfilePublic: camelProfile.isProfilePublic,

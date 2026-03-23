@@ -34,7 +34,8 @@ export async function GET(request: Request) {
     .select(
       `id, created_at,
        portfolios(id, slug, title, summary, status, visibility, bookmark_count, view_count, published_at,
-         profiles!portfolios_owner_id_fkey(id, display_name, avatar_path))`
+         profiles!portfolios_owner_id_fkey(id, display_name, avatar_path),
+         portfolio_images(thumb_path, display_path, original_path, is_cover, sort_order))`
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
@@ -76,13 +77,33 @@ export async function GET(request: Request) {
       ? supabase.storage.from("profile-avatars").getPublicUrl(avatarPath).data.publicUrl
       : null;
 
+    const rawImages = (camelPortfolio?.portfolioImages as
+      | Array<{
+          thumbPath?: string | null;
+          displayPath?: string | null;
+          originalPath?: string | null;
+          isCover?: boolean;
+          sortOrder?: number;
+        }>
+      | undefined) ?? [];
+    const sortedImages = [...rawImages].sort(
+      (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+    );
+    const coverImage = sortedImages.find((image) => image.isCover) ?? sortedImages[0] ?? null;
+    const thumbnailPath =
+      coverImage?.thumbPath ?? coverImage?.displayPath ?? coverImage?.originalPath ?? null;
+    const thumbnailUrl = thumbnailPath
+      ? supabase.storage.from("portfolio-public").getPublicUrl(thumbnailPath).data.publicUrl
+      : null;
+
     return {
       id: bm.id,
       bookmarkedAt: bm.created_at,
       portfolio: camelPortfolio
         ? {
-            ...camelPortfolio,
-            profiles: profile
+          ...camelPortfolio,
+          thumbnailUrl,
+          profiles: profile
               ? {
                   ...profile,
                   avatarUrl,
