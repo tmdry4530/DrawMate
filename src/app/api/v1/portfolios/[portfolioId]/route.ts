@@ -189,17 +189,41 @@ export async function PATCH(
 
   // Sync tags if provided
   if (tagIds !== undefined) {
-    // 기존 태그 삭제
-    await supabase.from("portfolio_tags").delete().eq("portfolio_id", portfolioId);
-    // 새 태그 삽입 (빈 배열이면 삭제만)
-    if (tagIds.length > 0) {
-      const tagInserts = tagIds.map((tagId: string) => ({
-        portfolio_id: portfolioId,
-        tag_id: tagId,
-      }));
-      const { error: tagError } = await supabase.from("portfolio_tags").insert(tagInserts);
-      if (tagError) {
-        return response.error("INTERNAL_ERROR", `태그 동기화 실패: ${tagError.message}`, 500);
+    const uniqueTagIds = Array.from(new Set(tagIds));
+
+    const { error: replaceTagError } = await supabase.rpc("replace_portfolio_tags", {
+      p_portfolio_id: portfolioId,
+      p_tag_ids: uniqueTagIds,
+    });
+
+    if (replaceTagError) {
+      // Fallback for environments where the RPC is not yet deployed
+      if (replaceTagError.code === "42883") {
+        const { error: deleteTagError } = await supabase
+          .from("portfolio_tags")
+          .delete()
+          .eq("portfolio_id", portfolioId);
+
+        if (deleteTagError) {
+          return response.error("INTERNAL_ERROR", "태그 동기화에 실패했습니다.", 500);
+        }
+
+        if (uniqueTagIds.length > 0) {
+          const tagInserts = uniqueTagIds.map((tagId: string) => ({
+            portfolio_id: portfolioId,
+            tag_id: tagId,
+          }));
+
+          const { error: upsertTagError } = await supabase
+            .from("portfolio_tags")
+            .upsert(tagInserts, { onConflict: "portfolio_id,tag_id", ignoreDuplicates: true });
+
+          if (upsertTagError) {
+            return response.error("INTERNAL_ERROR", "태그 동기화에 실패했습니다.", 500);
+          }
+        }
+      } else {
+        return response.error("INTERNAL_ERROR", "태그 동기화에 실패했습니다.", 500);
       }
     }
   }

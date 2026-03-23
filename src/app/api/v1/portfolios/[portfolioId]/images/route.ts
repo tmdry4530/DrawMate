@@ -5,6 +5,9 @@ import { toCamelCaseKeys } from "@/server/mappers/case-converter";
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_IMAGES_PER_PORTFOLIO = 20;
+const UNIQUE_CONSTRAINT_ERROR_CODE = "23505";
+const EMPTY_RESULT_ERROR_CODE = "PGRST116";
+const MAX_INSERT_RETRIES = 3;
 
 export async function POST(
   request: Request,
@@ -38,10 +41,14 @@ export async function POST(
   }
 
   // Check current image count
-  const { count: imageCount } = await supabase
+  const { count: imageCount, error: imageCountError } = await supabase
     .from("portfolio_images")
     .select("id", { count: "exact", head: true })
     .eq("portfolio_id", portfolioId);
+
+  if (imageCountError) {
+    return response.error("INTERNAL_ERROR", "이미지 개수 확인에 실패했습니다.", 500);
+  }
 
   if ((imageCount ?? 0) >= MAX_IMAGES_PER_PORTFOLIO) {
     return response.error(
@@ -92,32 +99,53 @@ export async function POST(
 
   const { data: urlData } = supabase.storage.from("portfolio-public").getPublicUrl(filename);
 
-  // Get the next sort_order
-  const { data: lastImage } = await supabase
-    .from("portfolio_images")
-    .select("sort_order")
-    .eq("portfolio_id", portfolioId)
-    .order("sort_order", { ascending: false })
-    .limit(1)
-    .single();
+  let imageRow: Record<string, unknown> | null = null;
 
-  const sortOrder = ((lastImage?.sort_order as number) ?? -1) + 1;
+  for (let attempt = 0; attempt < MAX_INSERT_RETRIES; attempt += 1) {
+    const { data: lastImage, error: sortError } = await supabase
+      .from("portfolio_images")
+      .select("sort_order")
+      .eq("portfolio_id", portfolioId)
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-  const { data: imageRow, error: insertError } = await supabase
-    .from("portfolio_images")
-    .insert({
-      portfolio_id: portfolioId,
-      original_path: filename,
-      display_path: filename,
-      sort_order: sortOrder,
-    })
-    .select("id, original_path, display_path, thumb_path, sort_order, is_cover, created_at")
-    .single();
+    if (sortError && sortError.code !== EMPTY_RESULT_ERROR_CODE) {
+      await supabase.storage.from("portfolio-public").remove([filename]);
+      return response.error("INTERNAL_ERROR", "이미지 순서 계산에 실패했습니다.", 500);
+    }
 
-  if (insertError || !imageRow) {
-    // Cleanup uploaded file
+    const sortOrder = ((lastImage?.sort_order as number | undefined) ?? -1) + 1;
+    const shouldSetCover = (imageCount ?? 0) === 0 && attempt === 0;
+
+    const { data: insertedRow, error: insertError } = await supabase
+      .from("portfolio_images")
+      .insert({
+        portfolio_id: portfolioId,
+        original_path: filename,
+        display_path: filename,
+        sort_order: sortOrder,
+        is_cover: shouldSetCover,
+      })
+      .select("id, original_path, display_path, thumb_path, sort_order, is_cover, created_at")
+      .single();
+
+    if (!insertError && insertedRow) {
+      imageRow = insertedRow as Record<string, unknown>;
+      break;
+    }
+
+    if (insertError?.code === UNIQUE_CONSTRAINT_ERROR_CODE) {
+      continue;
+    }
+
     await supabase.storage.from("portfolio-public").remove([filename]);
     return response.error("INTERNAL_ERROR", "이미지 정보 저장에 실패했습니다.", 500);
+  }
+
+  if (!imageRow) {
+    await supabase.storage.from("portfolio-public").remove([filename]);
+    return response.error("INTERNAL_ERROR", "이미지 저장 충돌이 발생했습니다. 다시 시도해 주세요.", 500);
   }
 
   const camelImage = toCamelCaseKeys(imageRow) as Record<string, unknown>;

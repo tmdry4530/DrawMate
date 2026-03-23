@@ -13,6 +13,10 @@ export function SearchBar() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
+    setInputValue(storeQ)
+  }, [storeQ])
+
+  useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = setTimeout(() => {
       setQ(inputValue)

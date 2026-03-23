@@ -78,24 +78,13 @@ export function FilterPanel() {
                   const isChecked = filters[group.category].includes(tag.slug)
                   const inputId = `filter-${group.category}-${tag.id}`
                   return (
-                    <div
-                      key={tag.id}
-                      className="flex items-center gap-2 cursor-pointer"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        toggleTag(group.category, tag.slug)
-                      }}
-                    >
+                    <div key={tag.id} className="flex items-center gap-2">
                       <Checkbox
                         id={inputId}
                         checked={isChecked}
-                        tabIndex={-1}
-                        className="pointer-events-none"
+                        onCheckedChange={() => toggleTag(group.category, tag.slug)}
                       />
-                      <Label
-                        htmlFor={inputId}
-                        className="text-sm font-normal cursor-pointer pointer-events-none"
-                      >
+                      <Label htmlFor={inputId} className="text-sm font-normal cursor-pointer">
                         {tag.name}
                       </Label>
                     </div>

@@ -17,6 +17,11 @@ interface UploadProgress {
   [key: string]: number; // clientId -> 0~100
 }
 
+interface UploadResult {
+  uploadedId?: string;
+  errorMessage?: string;
+}
+
 export function ImageUploader() {
   const { images, addImage, removeImage, updateImage, setCoverImage, portfolioId } =
     useEditorStore();
@@ -24,8 +29,8 @@ export function ImageUploader() {
   const [uploadProgress, setUploadProgress] = useState<UploadProgress>({});
 
   const uploadFile = useCallback(
-    async (file: File, clientImageId: string): Promise<string | undefined> => {
-      if (!portfolioId) return undefined;
+    async (file: File, clientImageId: string): Promise<UploadResult> => {
+      if (!portfolioId) return { errorMessage: "포트폴리오 ID가 없습니다." };
 
       const formData = new FormData();
       formData.append("file", file);
@@ -48,12 +53,18 @@ export function ImageUploader() {
             try {
               const json = JSON.parse(xhr.responseText);
               const data = unwrapApiData<{ image?: { id?: string }; id?: string }>(json);
-              resolve(data?.image?.id ?? data?.id);
+              resolve({ uploadedId: data?.image?.id ?? data?.id });
             } catch {
-              resolve(undefined);
+              resolve({ errorMessage: "업로드 응답을 해석하지 못했습니다." });
             }
           } else {
-            resolve(undefined);
+            try {
+              const payload = JSON.parse(xhr.responseText);
+              const message = payload?.error?.message as string | undefined;
+              resolve({ errorMessage: message ?? "이미지 업로드에 실패했습니다." });
+            } catch {
+              resolve({ errorMessage: "이미지 업로드에 실패했습니다." });
+            }
           }
         };
         xhr.onerror = () => {
@@ -62,7 +73,7 @@ export function ImageUploader() {
             delete next[clientImageId];
             return next;
           });
-          resolve(undefined);
+          resolve({ errorMessage: "네트워크 오류로 업로드에 실패했습니다." });
         };
         xhr.open("POST", `/api/v1/portfolios/${portfolioId}/images`);
         xhr.send(formData);
@@ -105,21 +116,26 @@ export function ImageUploader() {
         });
         // 백그라운드 업로드 (portfolioId 있을 때만)
         if (portfolioId) {
-          uploadFile(file, clientImageId).then((uploadedId) => {
+          uploadFile(file, clientImageId).then(({ uploadedId, errorMessage }) => {
+            const currentImages = useEditorStore.getState().images;
+            const currentIndex = currentImages.findIndex(
+              (image) => image.clientId === clientImageId
+            );
+            if (currentIndex < 0) return;
+
             if (uploadedId) {
-              const currentImages = useEditorStore.getState().images;
-              const currentIndex = currentImages.findIndex(
-                (image) => image.clientId === clientImageId
-              );
-              if (currentIndex >= 0) {
-                updateImage(currentIndex, { id: uploadedId });
-              }
+              updateImage(currentIndex, { id: uploadedId });
+              return;
             }
+
+            URL.revokeObjectURL(currentImages[currentIndex].previewUrl);
+            removeImage(currentIndex);
+            toast.error(errorMessage ?? `${file.name} 업로드에 실패했습니다.`);
           });
         }
       }
     },
-    [images, addImage, portfolioId, uploadFile, updateImage]
+    [images, addImage, portfolioId, uploadFile, updateImage, removeImage]
   );
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {

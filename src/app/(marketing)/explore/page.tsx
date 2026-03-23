@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { SlidersHorizontal } from "lucide-react"
 import { useExploreStore } from "@/store/explore-store"
 import { Button } from "@/components/ui/button"
@@ -17,23 +17,73 @@ import { FilterPanel } from "@/components/search/filter-panel"
 import { SortDropdown } from "@/components/search/sort-dropdown"
 import { PortfolioGrid } from "@/components/search/portfolio-grid"
 
+type SortOption = "latest" | "popular" | "price_asc" | "price_desc"
+
+function getTagParams(searchParams: URLSearchParams, key: string): string[] {
+  return Array.from(new Set([...searchParams.getAll(`${key}[]`), ...searchParams.getAll(key)]))
+}
+
+function normalizeSort(value: string | null): SortOption {
+  if (value === "latest" || value === "popular" || value === "price_asc" || value === "price_desc") {
+    return value
+  }
+  return "latest"
+}
+
 export default function ExplorePage() {
+  const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
+  const q = useExploreStore((s) => s.q)
+  const sort = useExploreStore((s) => s.sort)
+  const filters = useExploreStore((s) => s.filters)
   const setFilters = useExploreStore((s) => s.setFilters)
   const setQ = useExploreStore((s) => s.setQ)
+  const setSort = useExploreStore((s) => s.setSort)
 
+  // URL -> store sync
   useEffect(() => {
-    const fieldTags = searchParams.getAll("fieldTags[]")
-    const skillTags = searchParams.getAll("skillTags[]")
-    const toolTags = searchParams.getAll("toolTags[]")
-    const styleTags = searchParams.getAll("styleTags[]")
-    const q = searchParams.get("q")
+    const fieldTags = getTagParams(searchParams, "fieldTags")
+    const skillTags = getTagParams(searchParams, "skillTags")
+    const toolTags = getTagParams(searchParams, "toolTags")
+    const styleTags = getTagParams(searchParams, "styleTags")
+    const nextQ = searchParams.get("q") ?? ""
+    const nextSort = normalizeSort(searchParams.get("sort"))
 
-    if (fieldTags.length || skillTags.length || toolTags.length || styleTags.length) {
-      setFilters({ fieldTags, skillTags, toolTags, styleTags })
-    }
-    if (q) setQ(q)
-  }, [searchParams, setFilters, setQ])
+    setFilters({ fieldTags, skillTags, toolTags, styleTags })
+    setQ(nextQ)
+    setSort(nextSort)
+  }, [searchParams, setFilters, setQ, setSort])
+
+  // store -> URL sync
+  useEffect(() => {
+    const nextParams = new URLSearchParams()
+
+    if (q.trim()) nextParams.set("q", q.trim())
+    if (sort !== "latest") nextParams.set("sort", sort)
+    filters.fieldTags.forEach((tag) => nextParams.append("fieldTags[]", tag))
+    filters.skillTags.forEach((tag) => nextParams.append("skillTags[]", tag))
+    filters.toolTags.forEach((tag) => nextParams.append("toolTags[]", tag))
+    filters.styleTags.forEach((tag) => nextParams.append("styleTags[]", tag))
+
+    const nextQueryString = nextParams.toString()
+    const currentQueryString = searchParams.toString()
+
+    if (nextQueryString === currentQueryString) return
+
+    const nextUrl = nextQueryString ? `${pathname}?${nextQueryString}` : pathname
+    router.replace(nextUrl, { scroll: false })
+  }, [
+    q,
+    sort,
+    filters.fieldTags,
+    filters.skillTags,
+    filters.toolTags,
+    filters.styleTags,
+    pathname,
+    router,
+    searchParams,
+  ])
 
   return (
     <div className="max-w-7xl mx-auto py-6 space-y-6">

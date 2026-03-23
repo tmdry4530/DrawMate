@@ -14,9 +14,30 @@ interface PortfolioRow {
     display_name: string | null
     avatar_path: string | null
   } | null
-  cover_image: {
+  cover_image:
+    | {
+        thumb_path: string | null
+        display_path: string | null
+        original_path: string | null
+        is_cover: boolean
+        sort_order: number
+      }
+    | {
+        thumb_path: string | null
+        display_path: string | null
+        original_path: string | null
+        is_cover: boolean
+        sort_order: number
+      }[]
+    | null
+}
+
+interface CoverImageRow {
     thumb_path: string | null
-  } | null
+    display_path: string | null
+    original_path: string | null
+    is_cover: boolean
+    sort_order: number
 }
 
 interface TagRow {
@@ -33,28 +54,40 @@ async function getRecentPortfolios(): Promise<PortfolioRow[]> {
     .select(
       `id, slug, title, bookmark_count,
        owner:profiles!owner_id(id, display_name, avatar_path),
-       cover_image:portfolio_images(thumb_path)`
+       cover_image:portfolio_images(thumb_path, display_path, original_path, is_cover, sort_order)`
     )
     .eq("status", "published")
     .eq("visibility", "public")
     .is("deleted_at", null)
-    .eq("portfolio_images.is_cover", true)
     .order("published_at", { ascending: false })
     .limit(8)
 
   const rows = (data ?? []) as unknown as PortfolioRow[]
   return rows.map((row) => {
     const owner = Array.isArray(row.owner) ? row.owner[0] : row.owner
-    const coverImage = Array.isArray(row.cover_image) ? row.cover_image[0] : row.cover_image
+    const rawCoverImages = Array.isArray(row.cover_image)
+      ? row.cover_image
+      : row.cover_image
+        ? [row.cover_image]
+        : []
+    const orderedCoverImages = [...rawCoverImages].sort(
+      (a: CoverImageRow, b: CoverImageRow) => a.sort_order - b.sort_order
+    )
+    const selectedCoverImage =
+      orderedCoverImages.find((image) => image.is_cover) ?? orderedCoverImages[0] ?? null
 
     const avatarPath = owner?.avatar_path ?? null
-    const thumbPath = coverImage?.thumb_path ?? null
+    const publicPath =
+      selectedCoverImage?.thumb_path ??
+      selectedCoverImage?.display_path ??
+      selectedCoverImage?.original_path ??
+      null
 
     const avatarUrl = avatarPath
       ? supabase.storage.from("profile-avatars").getPublicUrl(avatarPath).data.publicUrl
       : null
-    const thumbUrl = thumbPath
-      ? supabase.storage.from("portfolio-public").getPublicUrl(thumbPath).data.publicUrl
+    const thumbUrl = publicPath
+      ? supabase.storage.from("portfolio-public").getPublicUrl(publicPath).data.publicUrl
       : null
 
     return {
@@ -65,9 +98,9 @@ async function getRecentPortfolios(): Promise<PortfolioRow[]> {
             avatar_path: avatarUrl,
           }
         : null,
-      cover_image: coverImage
+      cover_image: selectedCoverImage
         ? {
-            ...coverImage,
+            ...selectedCoverImage,
             thumb_path: thumbUrl,
           }
         : null,
