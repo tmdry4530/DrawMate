@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { unwrapApiData } from "@/lib/utils/client-api";
 
 export default function ProfileSettingsPage() {
   const [displayName, setDisplayName] = useState("");
@@ -22,6 +23,33 @@ export default function ProfileSettingsPage() {
     "open" | "busy" | "unavailable"
   >("open");
   const [isSaving, setIsSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/v1/me")
+      .then((res) => res.json())
+      .then((json) => {
+        const data = unwrapApiData<{
+          profile?: {
+            displayName?: string;
+            headline?: string;
+            bio?: string;
+            snsLinks?: string[];
+            availabilityStatus?: "open" | "busy" | "unavailable";
+          };
+        }>(json);
+        const p = data?.profile;
+        if (p) {
+          setDisplayName(p.displayName ?? "");
+          setHeadline(p.headline ?? "");
+          setBio(p.bio ?? "");
+          setSnsLinks(p.snsLinks?.length ? p.snsLinks : [""]);
+          setAvailabilityStatus(p.availabilityStatus ?? "open");
+        }
+      })
+      .catch(() => toast.error("프로필 정보를 불러오지 못했습니다."))
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleAddSnsLink = () => {
     if (snsLinks.length >= 5) return;

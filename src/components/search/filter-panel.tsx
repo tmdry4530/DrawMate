@@ -74,21 +74,33 @@ export function FilterPanel() {
             <div key={group.category}>
               <p className="text-sm font-semibold mb-3">{group.label}</p>
               <div className="space-y-2">
-                {group.tags.map((tag) => (
-                  <div key={tag.id} className="flex items-center gap-2">
-                    <Checkbox
-                      id={`${group.category}-${tag.slug}`}
-                      checked={filters[group.category].includes(tag.slug)}
-                      onCheckedChange={() => toggleTag(group.category, tag.slug)}
-                    />
-                    <Label
-                      htmlFor={`${group.category}-${tag.slug}`}
-                      className="text-sm font-normal cursor-pointer"
+                {group.tags.map((tag) => {
+                  const isChecked = filters[group.category].includes(tag.slug)
+                  const inputId = `filter-${group.category}-${tag.id}`
+                  return (
+                    <div
+                      key={tag.id}
+                      className="flex items-center gap-2 cursor-pointer"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        toggleTag(group.category, tag.slug)
+                      }}
                     >
-                      {tag.name}
-                    </Label>
-                  </div>
-                ))}
+                      <Checkbox
+                        id={inputId}
+                        checked={isChecked}
+                        tabIndex={-1}
+                        className="pointer-events-none"
+                      />
+                      <Label
+                        htmlFor={inputId}
+                        className="text-sm font-normal cursor-pointer pointer-events-none"
+                      >
+                        {tag.name}
+                      </Label>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )

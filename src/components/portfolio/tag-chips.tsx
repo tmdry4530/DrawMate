@@ -21,6 +21,13 @@ export function TagChips({ tags }: TagChipsProps) {
     return acc
   }, {})
 
+  const categoryLabels: Record<string, string> = {
+    field: "분야",
+    skill: "스킬",
+    tool: "도구",
+    style: "스타일",
+  }
+
   const hasCategories = Object.keys(grouped).length > 1 || !grouped["기타"]
 
   if (!hasCategories) {
@@ -39,7 +46,7 @@ export function TagChips({ tags }: TagChipsProps) {
     <div className="space-y-3">
       {Object.entries(grouped).map(([category, categoryTags]) => (
         <div key={category}>
-          <p className="text-xs font-medium text-muted-foreground mb-1.5">{category}</p>
+          <p className="text-xs font-medium text-muted-foreground mb-1.5">{categoryLabels[category] ?? category}</p>
           <div className="flex flex-wrap gap-2">
             {categoryTags.map((tag) => (
               <Badge key={tag.id} variant="secondary">
