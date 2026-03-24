@@ -144,7 +144,7 @@ export default function ConversationPage() {
           filter: `conversation_id=eq.${conversationId}`,
         },
         () => {
-          queryClient.resetQueries({ queryKey: ["messages", conversationId] })
+          queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
         }
       )
       .subscribe((status) => {
@@ -154,7 +154,7 @@ export default function ConversationPage() {
     // 폴링 폴백: Realtime 연결 실패 시 2초마다 refetch
     const pollInterval = setInterval(() => {
       if (!realtimeActive) {
-        queryClient.resetQueries({ queryKey: ["messages", conversationId] })
+        queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
       }
     }, 2000)
 
@@ -177,7 +177,7 @@ export default function ConversationPage() {
   const canSendMessage = !isLoading && !isError && Boolean(currentUserId)
 
   const handleMessageSent = useCallback(() => {
-    queryClient.resetQueries({ queryKey: ["messages", conversationId] })
+    queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
   }, [queryClient, conversationId])
 
   return (
