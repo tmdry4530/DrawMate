@@ -173,8 +173,8 @@ export default function ConversationPage() {
   const currentUserId = data?.pages[0]?.currentUserId ?? ""
   const canSendMessage = !isLoading && !isError && Boolean(currentUserId)
 
-  function handleMessageSent() {
-    queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
+  async function handleMessageSent() {
+    await queryClient.refetchQueries({ queryKey: ["messages", conversationId] })
   }
 
   return (
@@ -218,7 +218,7 @@ export default function ConversationPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-4">
+        <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col justify-end">
           {hasNextPage && (
             <div className="flex justify-center mb-4">
               <Button
