@@ -86,7 +86,7 @@ export default function NotificationsSettingsPage() {
   };
 
   return (
-    <div className="container max-w-2xl py-8">
+    <div className="mx-auto w-full max-w-2xl py-8 px-4">
       <Card>
         <CardHeader>
           <CardTitle>알림 설정</CardTitle>

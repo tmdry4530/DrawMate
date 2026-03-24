@@ -139,8 +139,6 @@ export default function ConversationPage() {
 
   function handleMessageSent() {
     queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
-    queryClient.invalidateQueries({ queryKey: ["conversations"] })
-    queryClient.invalidateQueries({ queryKey: ["conversation-meta", conversationId] })
   }
 
   return (

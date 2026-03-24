@@ -318,10 +318,9 @@ export async function POST(
     const ext = file.name.split(".").pop() ?? "bin";
     const storagePath = `${conversationId}/${message.id}/${crypto.randomUUID()}_${index}.${ext}`;
 
-    const arrayBuffer = await file.arrayBuffer();
     const { error: uploadError } = await dataClient.storage
       .from("chat-attachments")
-      .upload(storagePath, arrayBuffer, {
+      .upload(storagePath, file, {
         contentType: file.type,
         upsert: false,
       });
@@ -349,11 +348,27 @@ export async function POST(
     attachments.push(attachment as MessageAttachmentRow);
   }
 
-  const messageWithAttachments = {
-    ...(message as MessageRow),
-    message_attachments: attachments,
+  const mappedMessage = {
+    id: message.id,
+    conversationId: message.conversation_id,
+    senderId: message.sender_id,
+    messageType: message.message_type,
+    body: message.body,
+    metadata: message.metadata,
+    createdAt: message.created_at,
+    editedAt: message.edited_at,
+    attachments: attachments.map((a) => ({
+      id: a.id,
+      storagePath: a.storage_path,
+      previewPath: a.preview_path,
+      mimeType: a.mime_type,
+      sizeBytes: a.size_bytes,
+      width: a.width,
+      height: a.height,
+      sortOrder: a.sort_order,
+      imageUrl: null,
+    })),
   };
 
-  const mappedMessage = await mapMessageRow(dataClient, messageWithAttachments);
   return response.success({ message: mappedMessage }, undefined, 201);
 }

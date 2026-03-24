@@ -80,7 +80,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="container max-w-2xl py-8 space-y-4">
+    <div className="mx-auto w-full max-w-2xl py-8 space-y-4 px-4">
       <Card>
         <CardHeader>
           <CardTitle>설정</CardTitle>

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server-client";
+import { createAdminClient } from "@/lib/supabase/admin-client";
 import * as response from "@/lib/utils/api-response";
 import { toCamelCaseKeys } from "@/server/mappers/case-converter";
 
@@ -8,6 +9,8 @@ const MAX_FILES = 5;
 
 export async function POST(request: Request) {
   const supabase = await createClient();
+  const adminSupabase = createAdminClient();
+  const dataClient = adminSupabase ?? supabase;
 
   const {
     data: { user },
@@ -36,7 +39,7 @@ export async function POST(request: Request) {
   }
 
   // Verify participant
-  const { data: participant } = await supabase
+  const { data: participant } = await dataClient
     .from("conversation_participants")
     .select("user_id")
     .eq("conversation_id", conversationId)
@@ -48,7 +51,7 @@ export async function POST(request: Request) {
   }
 
   // Verify message ownership for attachment insert
-  const { data: message } = await supabase
+  const { data: message } = await dataClient
     .from("messages")
     .select("id, sender_id, conversation_id")
     .eq("id", messageId)
@@ -96,10 +99,9 @@ export async function POST(request: Request) {
     const ext = file.name.split(".").pop() ?? "bin";
     const storagePath = `${conversationId}/${messageId}/${crypto.randomUUID()}_${i}.${ext}`;
 
-    const arrayBuffer = await file.arrayBuffer();
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await dataClient.storage
       .from("chat-attachments")
-      .upload(storagePath, arrayBuffer, {
+      .upload(storagePath, file, {
         contentType: file.type,
         upsert: false,
       });
@@ -109,7 +111,7 @@ export async function POST(request: Request) {
     }
 
     // Create attachment record for existing message
-    const { data: attachment, error: dbError } = await supabase
+    const { data: attachment, error: dbError } = await dataClient
       .from("message_attachments")
       .insert({
         message_id: messageId,
