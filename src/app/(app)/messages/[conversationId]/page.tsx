@@ -129,8 +129,9 @@ export default function ConversationPage() {
     staleTime: 30_000,
   })
 
-  // Supabase Realtime: 새 메시지 INSERT 구독
+  // Supabase Realtime: 새 메시지 INSERT 구독 + 폴링 폴백
   useEffect(() => {
+    let realtimeActive = false
     const supabase = createClient()
     const channel = supabase
       .channel(`messages:${conversationId}`)
@@ -146,9 +147,19 @@ export default function ConversationPage() {
           queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        realtimeActive = status === "SUBSCRIBED"
+      })
+
+    // 폴링 폴백: Realtime 연결 실패 시 5초마다 refetch
+    const pollInterval = setInterval(() => {
+      if (!realtimeActive) {
+        queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
+      }
+    }, 5000)
 
     return () => {
+      clearInterval(pollInterval)
       supabase.removeChannel(channel)
     }
   }, [conversationId, queryClient])
@@ -158,7 +169,7 @@ export default function ConversationPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [data])
 
-  const allMessages = data?.pages.flatMap((p) => p.messages) ?? []
+  const allMessages = (data?.pages.flatMap((p) => p.messages) ?? []).toReversed()
   const currentUserId = data?.pages[0]?.currentUserId ?? ""
   const canSendMessage = !isLoading && !isError && Boolean(currentUserId)
 
