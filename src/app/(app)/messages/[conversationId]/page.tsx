@@ -184,9 +184,9 @@ export default function ConversationPage() {
     setOptimisticMessages((prev) => [...prev, msg])
   }, [])
 
-  const handleMessageSent = useCallback(() => {
+  const handleMessageSent = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
     setOptimisticMessages([])
-    queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
   }, [queryClient, conversationId])
 
   return (

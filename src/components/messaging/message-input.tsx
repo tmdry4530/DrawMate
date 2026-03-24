@@ -20,6 +20,7 @@ export function MessageInput({ conversationId, currentUserId, onMessageSent, onO
   const [filePreview, setFilePreview] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
   const sendingRef = useRef(false)
+  const composingRef = useRef(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
@@ -91,7 +92,7 @@ export function MessageInput({ conversationId, currentUserId, onMessageSent, onO
   }, [content, file, conversationId, currentUserId, onMessageSent, onOptimisticMessage])
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !composingRef.current) {
       e.preventDefault()
       handleSubmit(e as unknown as FormEvent)
     }
@@ -143,6 +144,8 @@ export function MessageInput({ conversationId, currentUserId, onMessageSent, onO
           value={content}
           onChange={(e) => setContent(e.target.value)}
           onKeyDown={handleKeyDown}
+          onCompositionStart={() => { composingRef.current = true }}
+          onCompositionEnd={() => { composingRef.current = false }}
           placeholder="메시지를 입력하세요..."
           className="resize-none min-h-[44px] max-h-[120px]"
           rows={1}
