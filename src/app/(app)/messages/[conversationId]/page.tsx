@@ -129,7 +129,7 @@ export default function ConversationPage() {
     staleTime: 30_000,
   })
 
-  // Supabase Realtime: 새 메시지 INSERT 구독 + 폴링 폴백
+  // Supabase Realtime + 폴링 폴백 (2초)
   useEffect(() => {
     let realtimeActive = false
     const supabase = createClient()
@@ -144,19 +144,19 @@ export default function ConversationPage() {
           filter: `conversation_id=eq.${conversationId}`,
         },
         () => {
-          queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
+          queryClient.resetQueries({ queryKey: ["messages", conversationId] })
         }
       )
       .subscribe((status) => {
         realtimeActive = status === "SUBSCRIBED"
       })
 
-    // 폴링 폴백: Realtime 연결 실패 시 5초마다 refetch
+    // 폴링 폴백: Realtime 연결 실패 시 2초마다 refetch
     const pollInterval = setInterval(() => {
       if (!realtimeActive) {
-        queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
+        queryClient.resetQueries({ queryKey: ["messages", conversationId] })
       }
-    }, 5000)
+    }, 2000)
 
     return () => {
       clearInterval(pollInterval)
