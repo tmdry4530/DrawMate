@@ -99,7 +99,7 @@ export default function ConversationPage() {
   const params = useParams<{ conversationId: string }>()
   const router = useRouter()
   const queryClient = useQueryClient()
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   const conversationId = params.conversationId
 
   const {
@@ -166,7 +166,10 @@ export default function ConversationPage() {
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+    const container = messagesContainerRef.current
+    if (container) {
+      container.scrollTop = container.scrollHeight
+    }
   }, [data])
 
   const allMessages = (data?.pages.flatMap((p) => p.messages) ?? []).toReversed()
@@ -218,7 +221,7 @@ export default function ConversationPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col justify-end">
+        <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 py-4 flex flex-col justify-end">
           {hasNextPage && (
             <div className="flex justify-center mb-4">
               <Button
@@ -268,7 +271,6 @@ export default function ConversationPage() {
             ))
           )}
 
-          <div ref={bottomRef} />
         </div>
 
         {/* Input */}
