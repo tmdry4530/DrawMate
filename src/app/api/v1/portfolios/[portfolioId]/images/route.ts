@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server-client";
+import { createAdminClient } from "@/lib/supabase/admin-client";
 import * as response from "@/lib/utils/api-response";
 import { toCamelCaseKeys } from "@/server/mappers/case-converter";
 
@@ -15,6 +16,8 @@ export async function POST(
 ) {
   const { portfolioId } = await params;
   const supabase = await createClient();
+  const adminSupabase = createAdminClient();
+  const dataClient = adminSupabase ?? supabase;
 
   const {
     data: { user },
@@ -25,7 +28,7 @@ export async function POST(
     return response.unauthorized();
   }
 
-  const { data: portfolio, error: fetchError } = await supabase
+  const { data: portfolio, error: fetchError } = await dataClient
     .from("portfolios")
     .select("id, owner_id")
     .eq("id", portfolioId)
@@ -41,7 +44,7 @@ export async function POST(
   }
 
   // Check current image count
-  const { count: imageCount, error: imageCountError } = await supabase
+  const { count: imageCount, error: imageCountError } = await dataClient
     .from("portfolio_images")
     .select("id", { count: "exact", head: true })
     .eq("portfolio_id", portfolioId);
@@ -85,10 +88,9 @@ export async function POST(
   const ext = file.type.split("/")[1].replace("jpeg", "jpg");
   const filename = `${user.id}/${portfolioId}/${crypto.randomUUID()}.${ext}`;
 
-  const arrayBuffer = await file.arrayBuffer();
-  const { error: uploadError } = await supabase.storage
+  const { error: uploadError } = await dataClient.storage
     .from("portfolio-public")
-    .upload(filename, arrayBuffer, {
+    .upload(filename, file, {
       contentType: file.type,
       upsert: false,
     });
@@ -97,7 +99,7 @@ export async function POST(
     return response.error("INTERNAL_ERROR", "이미지 업로드에 실패했습니다.", 500);
   }
 
-  const { data: urlData } = supabase.storage.from("portfolio-public").getPublicUrl(filename);
+  const { data: urlData } = dataClient.storage.from("portfolio-public").getPublicUrl(filename);
 
   let imageRow: Record<string, unknown> | null = null;
 
@@ -111,7 +113,7 @@ export async function POST(
       .maybeSingle();
 
     if (sortError && sortError.code !== EMPTY_RESULT_ERROR_CODE) {
-      await supabase.storage.from("portfolio-public").remove([filename]);
+      await dataClient.storage.from("portfolio-public").remove([filename]);
       return response.error("INTERNAL_ERROR", "이미지 순서 계산에 실패했습니다.", 500);
     }
 
@@ -139,12 +141,12 @@ export async function POST(
       continue;
     }
 
-    await supabase.storage.from("portfolio-public").remove([filename]);
+    await dataClient.storage.from("portfolio-public").remove([filename]);
     return response.error("INTERNAL_ERROR", "이미지 정보 저장에 실패했습니다.", 500);
   }
 
   if (!imageRow) {
-    await supabase.storage.from("portfolio-public").remove([filename]);
+    await dataClient.storage.from("portfolio-public").remove([filename]);
     return response.error("INTERNAL_ERROR", "이미지 저장 충돌이 발생했습니다. 다시 시도해 주세요.", 500);
   }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, type ChangeEvent, type FormEvent } from "react"
+import { useState, useRef, useCallback, type ChangeEvent, type FormEvent } from "react"
 import Image from "next/image"
 import { Paperclip, Send, X } from "lucide-react"
 import { toast } from "sonner"
@@ -17,6 +17,7 @@ export function MessageInput({ conversationId, onMessageSent }: MessageInputProp
   const [file, setFile] = useState<File | null>(null)
   const [filePreview, setFilePreview] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
+  const sendingRef = useRef(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
@@ -34,20 +35,30 @@ export function MessageInput({ conversationId, onMessageSent }: MessageInputProp
     if (fileRef.current) fileRef.current.value = ""
   }
 
-  async function handleSubmit(e: FormEvent) {
+  const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault()
+    if (sendingRef.current) return
     if (!content.trim() && !file) return
 
+    sendingRef.current = true
     setSending(true)
     try {
-      const formData = new FormData()
-      formData.append("content", content.trim())
-      if (file) formData.append("image", file)
-
-      const res = await fetch(`/api/v1/conversations/${conversationId}/messages`, {
-        method: "POST",
-        body: formData,
-      })
+      let res: Response
+      if (file) {
+        const formData = new FormData()
+        formData.append("content", content.trim())
+        formData.append("image", file)
+        res = await fetch(`/api/v1/conversations/${conversationId}/messages`, {
+          method: "POST",
+          body: formData,
+        })
+      } else {
+        res = await fetch(`/api/v1/conversations/${conversationId}/messages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ body: content.trim() }),
+        })
+      }
 
       if (!res.ok) {
         const payload = await res.json().catch(() => null)
@@ -60,9 +71,10 @@ export function MessageInput({ conversationId, onMessageSent }: MessageInputProp
     } catch (err) {
       toast.error((err as Error).message)
     } finally {
+      sendingRef.current = false
       setSending(false)
     }
-  }
+  }, [content, file, conversationId, onMessageSent])
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {

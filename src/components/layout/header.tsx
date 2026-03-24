@@ -189,7 +189,7 @@ export function Header() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem asChild>
-                    <Link href="/settings/profile">프로필 보기</Link>
+                    <Link href={`/users/${user.id}`}>프로필 보기</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/studio">스튜디오</Link>
