@@ -173,9 +173,9 @@ export default function ConversationPage() {
   const currentUserId = data?.pages[0]?.currentUserId ?? ""
   const canSendMessage = !isLoading && !isError && Boolean(currentUserId)
 
-  async function handleMessageSent() {
-    await queryClient.refetchQueries({ queryKey: ["messages", conversationId] })
-  }
+  const handleMessageSent = useCallback(() => {
+    queryClient.resetQueries({ queryKey: ["messages", conversationId] })
+  }, [queryClient, conversationId])
 
   return (
     <div className="flex h-[calc(100vh-4rem)]">
