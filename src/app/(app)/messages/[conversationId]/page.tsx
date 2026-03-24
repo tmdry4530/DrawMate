@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useCallback } from "react"
+import { useEffect, useRef, useCallback, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query"
 import { ArrowLeft } from "lucide-react"
@@ -172,11 +172,20 @@ export default function ConversationPage() {
     }
   }, [data])
 
-  const allMessages = (data?.pages.flatMap((p) => p.messages) ?? []).toReversed()
+  const [optimisticMessages, setOptimisticMessages] = useState<Message[]>([])
+  const allMessages = [
+    ...(data?.pages.flatMap((p) => p.messages) ?? []).toReversed(),
+    ...optimisticMessages,
+  ]
   const currentUserId = data?.pages[0]?.currentUserId ?? ""
   const canSendMessage = !isLoading && !isError && Boolean(currentUserId)
 
+  const handleOptimisticMessage = useCallback((msg: { id: string; content: string; senderId: string; createdAt: string }) => {
+    setOptimisticMessages((prev) => [...prev, msg])
+  }, [])
+
   const handleMessageSent = useCallback(() => {
+    setOptimisticMessages([])
     queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
   }, [queryClient, conversationId])
 
@@ -277,7 +286,9 @@ export default function ConversationPage() {
         {canSendMessage && (
           <MessageInput
             conversationId={conversationId}
+            currentUserId={currentUserId}
             onMessageSent={handleMessageSent}
+            onOptimisticMessage={handleOptimisticMessage}
           />
         )}
       </main>

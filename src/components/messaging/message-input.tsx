@@ -9,10 +9,12 @@ import { Textarea } from "@/components/ui/textarea"
 
 interface MessageInputProps {
   conversationId: string
+  currentUserId: string
   onMessageSent?: () => void
+  onOptimisticMessage?: (msg: { id: string; content: string; senderId: string; createdAt: string }) => void
 }
 
-export function MessageInput({ conversationId, onMessageSent }: MessageInputProps) {
+export function MessageInput({ conversationId, currentUserId, onMessageSent, onOptimisticMessage }: MessageInputProps) {
   const [content, setContent] = useState("")
   const [file, setFile] = useState<File | null>(null)
   const [filePreview, setFilePreview] = useState<string | null>(null)
@@ -41,12 +43,25 @@ export function MessageInput({ conversationId, onMessageSent }: MessageInputProp
     if (!content.trim() && !file) return
 
     sendingRef.current = true
+    const messageText = content.trim()
+    setContent("")
     setSending(true)
+
+    // 낙관적 업데이트: 서버 응답 전에 즉시 화면에 표시
+    if (messageText && onOptimisticMessage) {
+      onOptimisticMessage({
+        id: `optimistic-${Date.now()}`,
+        content: messageText,
+        senderId: currentUserId,
+        createdAt: new Date().toISOString(),
+      })
+    }
+
     try {
       let res: Response
       if (file) {
         const formData = new FormData()
-        formData.append("content", content.trim())
+        formData.append("content", messageText)
         formData.append("image", file)
         res = await fetch(`/api/v1/conversations/${conversationId}/messages`, {
           method: "POST",
@@ -56,7 +71,7 @@ export function MessageInput({ conversationId, onMessageSent }: MessageInputProp
         res = await fetch(`/api/v1/conversations/${conversationId}/messages`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ body: content.trim() }),
+          body: JSON.stringify({ body: messageText }),
         })
       }
 
@@ -65,7 +80,6 @@ export function MessageInput({ conversationId, onMessageSent }: MessageInputProp
         throw new Error(payload?.error?.message ?? "메시지 전송 실패")
       }
 
-      setContent("")
       removeFile()
       onMessageSent?.()
     } catch (err) {
@@ -74,7 +88,7 @@ export function MessageInput({ conversationId, onMessageSent }: MessageInputProp
       sendingRef.current = false
       setSending(false)
     }
-  }, [content, file, conversationId, onMessageSent])
+  }, [content, file, conversationId, currentUserId, onMessageSent, onOptimisticMessage])
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
