@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query"
 import { ArrowLeft } from "lucide-react"
@@ -10,6 +10,7 @@ import { MessageInput } from "@/components/messaging/message-input"
 import { ConversationList } from "@/components/messaging/conversation-list"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { unwrapApiData } from "@/lib/utils/client-api"
+import { createClient } from "@/lib/supabase/browser-client"
 
 interface Message {
   id: string
@@ -127,6 +128,30 @@ export default function ConversationPage() {
     queryFn: () => fetchConversationMeta(conversationId),
     staleTime: 30_000,
   })
+
+  // Supabase Realtime: 새 메시지 INSERT 구독
+  useEffect(() => {
+    const supabase = createClient()
+    const channel = supabase
+      .channel(`messages:${conversationId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [conversationId, queryClient])
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
