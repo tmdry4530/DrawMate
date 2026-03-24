@@ -44,11 +44,12 @@ export async function POST(request: NextRequest) {
   }
 
   const user = data.user;
+  const hasSession = !!data.session;
   return res.success(
     {
       userId: user?.id,
       email: user?.email,
-      emailVerificationRequired: !user?.confirmed_at,
+      emailVerificationRequired: !hasSession,
     },
     undefined,
     201
