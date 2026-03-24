@@ -190,7 +190,7 @@ export default function ConversationPage() {
   }, [queryClient, conversationId])
 
   return (
-    <div className="flex h-[calc(100vh-4rem)]">
+    <div className="flex h-full">
       {/* Left: conversation list (desktop only) */}
       <aside className="hidden md:flex w-80 border-r shrink-0 flex-col">
         <div className="px-4 py-3 border-b">

@@ -15,8 +15,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { createClient } from "@/lib/supabase/browser-client";
 import { unwrapApiData } from "@/lib/utils/client-api";
+import { NotificationItem } from "@/components/notifications/notification-item";
 
 interface UserProfile {
   displayName: string | null;
@@ -26,6 +28,7 @@ interface UserProfile {
 export function Header() {
   const [user, setUser] = useState<{ id: string; email?: string; profile?: UserProfile } | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [notifications, setNotifications] = useState<Array<{ id: string; type: "message_received" | "message_replied" | "bookmark_added" | "system_notice"; title: string; body: string; isRead: boolean; createdAt: string }>>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
@@ -35,15 +38,28 @@ export function Header() {
     let mounted = true;
     const supabase = createClient();
 
-    const loadUnreadCount = async () => {
+    const loadNotifications = async () => {
       try {
-        const res = await fetch("/api/v1/notifications?limit=1&unreadOnly=true");
+        const res = await fetch("/api/v1/notifications?limit=20");
         if (!res.ok || !mounted) return;
         const json = await res.json();
-        const data = unwrapApiData<{ unreadCount?: number }>(json);
+        const data = unwrapApiData<{
+          unreadCount?: number;
+          items?: Array<{ id: string; type: "message_received" | "message_replied" | "bookmark_added" | "system_notice"; title: string; body: string; readAt: string | null; createdAt: string }>;
+        }>(json);
         setUnreadCount(data?.unreadCount ?? 0);
+        setNotifications(
+          (data?.items ?? []).map((item) => ({
+            id: item.id,
+            type: item.type,
+            title: item.title,
+            body: item.body,
+            isRead: !!item.readAt,
+            createdAt: item.createdAt,
+          }))
+        );
       } catch {
-        // keep header usable even when unread fetch fails
+        // keep header usable even when notification fetch fails
       }
     };
 
@@ -68,7 +84,7 @@ export function Header() {
           });
           setLoading(false);
         }
-        await loadUnreadCount();
+        await loadNotifications();
       } else {
         if (mounted) {
           setUser(null);
@@ -97,6 +113,20 @@ export function Header() {
     setUser(null);
     setUnreadCount(0);
     router.push("/sign-in");
+  };
+
+  const handleMarkAsRead = async (notificationId: string) => {
+    await fetch(`/api/v1/notifications/${notificationId}/read`, { method: "PATCH" });
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n))
+    );
+    setUnreadCount((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleMarkAllRead = async () => {
+    await fetch("/api/v1/notifications/read-all", { method: "POST" });
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    setUnreadCount(0);
   };
 
   const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -154,17 +184,45 @@ export function Header() {
                 <Link href="/studio">스튜디오</Link>
               </Button>
 
-              {/* Bell icon with badge */}
-              <Button variant="ghost" size="icon" className="relative rounded-full text-muted-foreground hover:text-foreground transition-colors duration-200" asChild>
-                <Link href="/notifications" aria-label="알림 페이지로 이동">
-                  <Bell className="h-5 w-5" />
-                  {unreadCount > 0 && (
-                    <Badge className="absolute -right-1 -top-1 h-4 min-w-4 rounded-full px-1 text-xs flex items-center justify-center">
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </Badge>
-                  )}
-                </Link>
-              </Button>
+              {/* Bell icon with dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative rounded-full text-muted-foreground hover:text-foreground transition-colors duration-200" aria-label="알림">
+                    <Bell className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                      <Badge className="absolute -right-1 -top-1 h-4 min-w-4 rounded-full px-1 text-xs flex items-center justify-center">
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80 p-0">
+                  <div className="flex items-center justify-between px-4 py-3 border-b">
+                    <span className="text-sm font-semibold">알림</span>
+                    {unreadCount > 0 && (
+                      <button type="button" onClick={handleMarkAllRead} className="text-xs text-primary hover:underline">
+                        모두 읽음
+                      </button>
+                    )}
+                  </div>
+                  <ScrollArea className="max-h-80">
+                    {notifications.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
+                        <Bell className="h-8 w-8 mb-2" />
+                        <p className="text-sm">알림이 없습니다</p>
+                      </div>
+                    ) : (
+                      notifications.map((n) => (
+                        <NotificationItem
+                          key={n.id}
+                          notification={n}
+                          onMarkAsRead={handleMarkAsRead}
+                        />
+                      ))
+                    )}
+                  </ScrollArea>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               {/* Messages icon */}
               <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground transition-colors duration-200" asChild>
