@@ -12,7 +12,7 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isMessagesPage = pathname.startsWith("/messages/");
+  const isMessagesPage = pathname.startsWith("/messages");
 
   return (
     <div className={isMessagesPage ? "flex flex-col h-dvh overflow-hidden" : ""}>
