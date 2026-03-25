@@ -1,5 +1,4 @@
 import Image from "next/image"
-import { cn } from "@/lib/utils"
 
 interface PortfolioGalleryProps {
   coverImage: string
@@ -13,38 +12,33 @@ export function PortfolioGallery({ coverImage, images, title }: PortfolioGallery
   return (
     <div className="space-y-3">
       {/* 커버 이미지 */}
-      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-muted">
+      <div className="flex justify-center rounded-xl bg-muted overflow-hidden">
         <Image
           src={coverImage}
           alt={title}
-          fill
-          className="object-cover"
-          priority
+          width={0}
+          height={0}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+          className="h-auto w-full max-h-[75vh] object-contain"
+          priority
         />
       </div>
 
-      {/* 추가 이미지 그리드 */}
+      {/* 추가 이미지 */}
       {otherImages.length > 0 && (
-        <div
-          className={cn(
-            "grid gap-2",
-            otherImages.length === 1 && "grid-cols-1",
-            otherImages.length === 2 && "grid-cols-2",
-            otherImages.length >= 3 && "grid-cols-3"
-          )}
-        >
+        <div className="space-y-3">
           {otherImages.map((img, idx) => (
             <div
               key={idx}
-              className="relative aspect-square overflow-hidden rounded-lg bg-muted"
+              className="flex justify-center rounded-lg bg-muted overflow-hidden"
             >
               <Image
                 src={img}
                 alt={`${title} 이미지 ${idx + 2}`}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 33vw, 25vw"
+                width={0}
+                height={0}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+                className="h-auto w-full max-h-[75vh] object-contain"
               />
             </div>
           ))}

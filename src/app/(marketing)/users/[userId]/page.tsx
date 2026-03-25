@@ -30,17 +30,19 @@ async function getProfile(userId: string) {
 
   const { data: portfolios } = await supabase
     .from("portfolios")
-    .select("id, slug, title, bookmark_count, portfolio_images(thumb_path, is_cover)")
+    .select("id, slug, title, bookmark_count, portfolio_images(thumb_path, display_path, original_path, is_cover, sort_order)")
     .eq("owner_id", userId)
     .eq("status", "published")
     .is("deleted_at", null)
     .order("published_at", { ascending: false });
 
   const portfolioItems = (portfolios ?? []).map((p: Record<string, unknown>) => {
-    const images = p.portfolio_images as Array<{ thumb_path: string | null; is_cover: boolean }> | null;
-    const cover = images?.find((i) => i.is_cover) ?? images?.[0];
-    const thumbUrl = cover?.thumb_path
-      ? supabase.storage.from("portfolio-public").getPublicUrl(cover.thumb_path).data.publicUrl
+    const images = p.portfolio_images as Array<{ thumb_path: string | null; display_path: string | null; original_path: string | null; is_cover: boolean; sort_order: number }> | null;
+    const sorted = [...(images ?? [])].sort((a, b) => a.sort_order - b.sort_order);
+    const cover = sorted.find((i) => i.is_cover) ?? sorted[0];
+    const coverPath = cover?.thumb_path ?? cover?.display_path ?? cover?.original_path ?? null;
+    const thumbUrl = coverPath
+      ? supabase.storage.from("portfolio-public").getPublicUrl(coverPath).data.publicUrl
       : null;
     return { id: p.id as string, slug: p.slug as string, title: p.title as string, thumbUrl, bookmarkCount: (p.bookmark_count as number) ?? 0 };
   });
@@ -140,7 +142,7 @@ export default async function UserProfilePage({ params }: Props) {
               <div className="grid grid-cols-2 gap-4 md:grid-cols-3 py-4">
                 {profile.portfolios.map((p) => (
                   <a key={p.id} href={`/portfolio/${p.slug}`} className="group block">
-                    <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
+                    <div className="relative aspect-[4/3] bg-muted rounded-lg overflow-hidden">
                       {p.thumbUrl ? (
                         <Image
                           src={p.thumbUrl}

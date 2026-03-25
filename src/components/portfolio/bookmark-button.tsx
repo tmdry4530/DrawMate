@@ -1,7 +1,9 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Heart } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -23,6 +25,7 @@ export function BookmarkButton({
   initialBookmarked = false,
   initialCount = 0,
 }: BookmarkButtonProps) {
+  const router = useRouter()
   const [bookmarked, setBookmarked] = useState(initialBookmarked)
   const [count, setCount] = useState(initialCount)
   const [loading, setLoading] = useState(false)
@@ -39,6 +42,15 @@ export function BookmarkButton({
     try {
       const method = next ? "POST" : "DELETE"
       const res = await fetch(`/api/v1/portfolios/${portfolioId}/bookmark`, { method })
+
+      if (res.status === 401) {
+        setBookmarked(!next)
+        setCount((prev) => Math.max(0, prev + (next ? -1 : 1)))
+        toast.error("로그인이 필요합니다.")
+        router.push("/sign-in")
+        return
+      }
+
       const payload = (await res.json().catch(() => null)) as BookmarkToggleResponse | null
 
       if (!res.ok) {

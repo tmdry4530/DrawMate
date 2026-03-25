@@ -26,6 +26,11 @@ export function ContactCta({ targetUserId, className }: ContactCtaProps) {
         body: JSON.stringify({ targetUserId }),
       })
       if (!res.ok) {
+        if (res.status === 401) {
+          toast.error("로그인이 필요합니다.")
+          router.push("/sign-in")
+          return
+        }
         const payload = await res.json().catch(() => null)
         throw new Error(payload?.error?.message ?? "대화 생성 실패")
       }
