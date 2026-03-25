@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/server-client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Props {
   params: Promise<{ userId: string }>;
@@ -88,80 +87,80 @@ export default async function UserProfilePage({ params }: Props) {
   const initials = (profile.display_name ?? "U").slice(0, 2).toUpperCase();
 
   return (
-    <div className="min-h-screen">
-      {/* Cover area */}
-      <div className="h-48 bg-gradient-to-r from-violet-500 to-indigo-500" />
-
-      <div className="container max-w-4xl px-4">
-        {/* Avatar + info */}
-        <div className="-mt-16 flex items-end gap-4 pb-6">
-          <Avatar className="h-32 w-32 border-4 border-background">
-            <AvatarImage src={profile.avatar_path ?? undefined} alt={profile.display_name ?? "사용자"} />
-            <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
-          </Avatar>
-          <div className="mb-2 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl font-bold">{profile.display_name ?? "사용자"}</h1>
-              <Badge variant={availabilityVariant[status]}>
-                {availabilityLabel[status]}
-              </Badge>
+    <div className="max-w-5xl mx-auto px-4 py-8">
+      {/* 헤더 */}
+      <Card className="mb-8">
+        <CardContent className="p-6">
+          <div className="flex items-center gap-5">
+            <Avatar className="h-20 w-20">
+              <AvatarImage src={profile.avatar_path ?? undefined} alt={profile.display_name ?? "사용자"} />
+              <AvatarFallback className="text-xl">{initials}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-2xl font-bold">{profile.display_name ?? "사용자"}</h1>
+                <Badge variant={availabilityVariant[status]}>
+                  {availabilityLabel[status]}
+                </Badge>
+              </div>
+              {profile.headline && (
+                <p className="text-muted-foreground text-sm mt-1">{profile.headline}</p>
+              )}
+              {profile.bio && (
+                <p className="text-sm text-muted-foreground mt-3 whitespace-pre-wrap line-clamp-3">
+                  {profile.bio}
+                </p>
+              )}
             </div>
-            {profile.headline && (
-              <p className="text-muted-foreground mt-1">{profile.headline}</p>
-            )}
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Bio */}
-        {profile.bio && (
-          <Card className="mb-6">
-            <CardContent className="pt-4">
-              <p className="text-sm whitespace-pre-wrap">{profile.bio}</p>
-            </CardContent>
-          </Card>
+      {/* 통계 카드 */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <Card>
+          <CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold">{profile.portfolioCount}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">작품</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 포트폴리오 */}
+      <div>
+        <h2 className="font-semibold mb-4">작품</h2>
+        {profile.portfolioCount === 0 ? (
+          <div className="text-center py-16 border-2 border-dashed rounded-xl">
+            <p className="text-sm text-muted-foreground">아직 공개된 작품이 없습니다.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {profile.portfolios.map((p) => (
+              <Card key={p.id} className="overflow-hidden group">
+                <a href={`/portfolio/${p.slug}`} className="block">
+                  <div className="relative aspect-[4/3] bg-muted">
+                    {p.thumbUrl ? (
+                      <Image
+                        src={p.thumbUrl}
+                        alt={p.title}
+                        fill
+                        sizes="(max-width: 768px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
+                        이미지 없음
+                      </div>
+                    )}
+                  </div>
+                  <CardContent className="p-3">
+                    <p className="text-sm font-medium line-clamp-1">{p.title}</p>
+                  </CardContent>
+                </a>
+              </Card>
+            ))}
+          </div>
         )}
-
-        {/* Stats */}
-        <div className="flex gap-4 mb-6 text-sm text-muted-foreground">
-          <span>
-            <strong className="text-foreground">{profile.portfolioCount}</strong> 작품
-          </span>
-        </div>
-
-        {/* Tabs */}
-        <Tabs defaultValue="works">
-          <TabsList>
-            <TabsTrigger value="works">작품</TabsTrigger>
-          </TabsList>
-          <TabsContent value="works">
-            {profile.portfolioCount === 0 ? (
-              <div className="py-16 text-center text-muted-foreground">
-                아직 공개된 작품이 없습니다.
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 py-4">
-                {profile.portfolios.map((p) => (
-                  <a key={p.id} href={`/portfolio/${p.slug}`} className="group block">
-                    <div className="relative aspect-[4/3] bg-muted rounded-lg overflow-hidden">
-                      {p.thumbUrl ? (
-                        <Image
-                          src={p.thumbUrl}
-                          alt={p.title}
-                          fill
-                          sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          className="object-cover group-hover:scale-105 transition-transform"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">이미지 없음</div>
-                      )}
-                    </div>
-                    <p className="mt-2 text-sm font-medium line-clamp-1">{p.title}</p>
-                  </a>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
       </div>
     </div>
   );

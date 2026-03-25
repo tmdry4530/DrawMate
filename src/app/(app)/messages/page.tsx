@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 
 export default function MessagesPage() {
   return (
-    <div className="flex h-[calc(100vh-4rem)]">
+    <div className="flex h-full">
       {/* Left: conversation list */}
       <aside className="w-full md:w-80 md:border-r shrink-0 flex flex-col">
         <div className="px-4 py-3 border-b">
