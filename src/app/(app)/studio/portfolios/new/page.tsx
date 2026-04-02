@@ -4,29 +4,31 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { unwrapApiData } from "@/lib/utils/client-api";
 
-let inFlightDraftCreation: Promise<string> | null = null;
+let cachedDraftPromise: Promise<string> | null = null;
 
 async function createDraft(): Promise<string> {
-  if (!inFlightDraftCreation) {
-    inFlightDraftCreation = fetch("/api/v1/portfolios", {
+  if (!cachedDraftPromise) {
+    cachedDraftPromise = fetch("/api/v1/portfolios", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({}),
-    })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("포트폴리오 생성에 실패했습니다.");
-        const json = await res.json();
-        const data = unwrapApiData<{ portfolio?: { id?: string }; id?: string }>(json);
-        const id = data?.portfolio?.id ?? data?.id;
-        if (!id) throw new Error("포트폴리오 ID를 받지 못했습니다.");
-        return id;
-      })
-      .finally(() => {
-        inFlightDraftCreation = null;
-      });
+    }).then(async (res) => {
+      if (!res.ok) {
+        cachedDraftPromise = null;
+        throw new Error("포트폴리오 생성에 실패했습니다.");
+      }
+      const json = await res.json();
+      const data = unwrapApiData<{ portfolio?: { id?: string }; id?: string }>(json);
+      const id = data?.portfolio?.id ?? data?.id;
+      if (!id) {
+        cachedDraftPromise = null;
+        throw new Error("포트폴리오 ID를 받지 못했습니다.");
+      }
+      return id;
+    });
   }
 
-  return inFlightDraftCreation;
+  return cachedDraftPromise;
 }
 
 export default function NewPortfolioPage() {
