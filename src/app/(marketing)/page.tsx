@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Mail, Shield, Handshake, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { PortfolioCard } from "@/components/portfolio/portfolio-card";
 import { createClient } from "@/lib/supabase/server-client";
 
@@ -122,81 +121,246 @@ async function getPopularTags(): Promise<TagRow[]> {
   return (data ?? []) as TagRow[];
 }
 
-function TagSection({ tags }: { tags: TagRow[] }) {
-  if (tags.length === 0) return null;
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      {tags.map((tag) => (
-        <Link key={tag.id} href={`/explore?fieldTags[]=${tag.slug}`}>
-          <Badge
-            variant="secondary"
-            className="rounded-full border border-transparent bg-muted px-3 py-1 text-xs font-medium hover:border-border hover:bg-muted/70"
-          >
-            {tag.name}
-          </Badge>
-        </Link>
-      ))}
-    </div>
-  );
-}
+const FALLBACK_TAGS = [
+  "#캐릭터디자인",
+  "#일러스트",
+  "#3D아트",
+  "#브랜딩",
+  "#UI디자인",
+  "#모션그래픽",
+  "#웹툰",
+  "#개념미술",
+  "#타이포그래피",
+  "#사진",
+  "#영상편집",
+  "#제품디자인",
+];
 
 export default async function HomePage() {
   const [portfolios, tags] = await Promise.all([getRecentPortfolios(), getPopularTags()]);
 
-  return (
-    <div className="mx-auto max-w-7xl px-4 py-20 md:py-32">
-      {/* Minimalist Hero Section */}
-      <section className="mx-auto max-w-3xl text-center">
-        <h1 className="text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
-          협업 파트너를 찾는
-          <br /> 가장 명확한 방법
-        </h1>
-        <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
-          불필요한 기능은 덜어내고 작업물에만 집중했습니다. 완성도 높은 포트폴리오를 탐색하고 바로 소통하세요.
-        </p>
+  const marqueeItems =
+    tags.length > 0 ? tags.map((t) => `#${t.name}`) : FALLBACK_TAGS;
 
-        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Button asChild size="lg" className="rounded-full px-8 h-12 text-base">
-            <Link href="/explore">
-              포트폴리오 탐색
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-          <Button asChild size="lg" variant="secondary" className="rounded-full px-8 h-12 text-base">
-            <Link href="/studio/portfolios/new">스튜디오</Link>
-          </Button>
+  return (
+    <div className="overflow-hidden">
+      {/* ── Hero ── */}
+      <section className="relative mx-auto flex max-w-7xl flex-col items-center gap-12 px-4 pt-24 pb-16 md:flex-row md:items-center md:gap-8 md:pt-32 lg:pt-40">
+        {/* Left: copy */}
+        <div className="flex-1 text-center md:text-left">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            크리에이터 플랫폼
+          </p>
+          <h1 className="font-headline text-5xl font-bold leading-tight tracking-tight md:text-6xl lg:text-7xl">
+            The Hub{" "}
+            <span className="text-primary italic">for Creators</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-md text-lg leading-relaxed text-muted-foreground md:mx-0">
+            완성도 높은 포트폴리오를 탐색하고, 재능 있는 작가와 바로 연결되세요.
+            불필요한 과정은 없습니다.
+          </p>
+          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row md:items-start">
+            <Button
+              asChild
+              size="lg"
+              className="gradient-primary h-12 rounded-full border-0 px-8 text-base font-semibold text-white"
+            >
+              <Link href="/explore">
+                포트폴리오 탐색
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="h-12 rounded-full border-foreground/30 px-8 text-base font-semibold"
+            >
+              <Link href="/sign-up">작가로 참여하기</Link>
+            </Button>
+          </div>
+        </div>
+
+        {/* Right: floating art cards */}
+        <div className="relative flex-1 select-none">
+          <div className="relative mx-auto h-[420px] w-full max-w-[480px]">
+            {/* Background decorative cards */}
+            <div
+              className="absolute left-4 top-8 h-52 w-40 rounded-2xl bg-muted"
+              style={{ transform: "rotate(-6deg)" }}
+            />
+            <div
+              className="absolute right-4 top-12 h-48 w-36 rounded-2xl bg-primary/10"
+              style={{ transform: "rotate(5deg)" }}
+            />
+            {/* Main hero image placeholder */}
+            <div className="absolute inset-x-12 top-6 bottom-0 overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-primary/10 to-muted flex items-center justify-center">
+              <span className="font-headline text-4xl font-bold text-primary/30">
+                DrawMate
+              </span>
+            </div>
+            {/* Floating accent card */}
+            <div
+              className="absolute bottom-10 right-0 flex items-center gap-2 rounded-xl bg-card px-4 py-3 shadow-lg border border-border"
+              style={{ transform: "rotate(3deg)" }}
+            >
+              <Star className="h-4 w-4 text-primary fill-primary" />
+              <span className="text-sm font-semibold">크리에이터 허브</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Tags Section */}
-      {tags.length > 0 && (
-        <section className="mx-auto mt-24 max-w-4xl text-center">
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground mb-6">
-            Explore By Category
-          </p>
-          <div className="flex justify-center flex-wrap gap-2">
-            {tags.map((tag) => (
-              <Link key={tag.id} href={`/explore?fieldTags[]=${tag.slug}`}>
-                <Badge
-                  variant="outline"
-                  className="rounded-full border-muted-foreground/20 px-4 py-2 text-sm font-medium hover:border-foreground hover:bg-foreground hover:text-background transition-colors"
-                >
-                  {tag.name}
-                </Badge>
-              </Link>
+      {/* ── Marquee Ticker ── */}
+      <section className="bg-secondary py-5 overflow-hidden">
+        <div className="relative flex">
+          <div className="animate-marquee flex shrink-0 items-center gap-6 whitespace-nowrap">
+            {marqueeItems.map((tag, i) => (
+              <span key={`a-${i}`} className="flex items-center gap-6">
+                <span className="text-sm font-semibold tracking-wide text-foreground">
+                  {tag}
+                </span>
+                <Star className="h-3 w-3 shrink-0 text-primary fill-primary" />
+              </span>
             ))}
           </div>
-        </section>
-      )}
+          <div className="animate-marquee flex shrink-0 items-center gap-6 whitespace-nowrap" aria-hidden>
+            {marqueeItems.map((tag, i) => (
+              <span key={`b-${i}`} className="flex items-center gap-6">
+                <span className="text-sm font-semibold tracking-wide text-foreground">
+                  {tag}
+                </span>
+                <Star className="h-3 w-3 shrink-0 text-primary fill-primary" />
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
 
-      <section className="mt-32 mb-20">
-        <div className="mb-12 flex flex-col items-center text-center">
-          <h2 className="text-3xl font-bold tracking-tight">최신 작업물</h2>
-          <p className="mt-3 text-sm text-muted-foreground max-w-sm">
+      {/* ── Features Bento Grid ── */}
+      <section className="mx-auto max-w-7xl px-4 py-24">
+        <div className="mb-14 text-center">
+          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+            Engineered for Talent
+          </p>
+          <h2 className="font-headline text-4xl font-bold tracking-tight md:text-5xl">
+            작업에 집중하세요.{" "}
+            <span className="text-muted-foreground font-normal">나머지는 저희가.</span>
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {/* Large card: Easy Messaging */}
+          <div className="col-span-1 md:col-span-2 lg:col-span-2 rounded-3xl bg-card border border-border p-8 flex flex-col gap-6">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+              <Mail className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-headline text-2xl font-bold">간편한 메시징</h3>
+              <p className="mt-2 text-muted-foreground leading-relaxed">
+                복잡한 절차 없이 작가에게 바로 메시지를 보내세요. 협업 문의부터 채용 제안까지 한 곳에서 관리됩니다.
+              </p>
+            </div>
+            <div className="flex gap-3 mt-auto">
+              <div className="h-2 w-16 rounded-full bg-primary" />
+              <div className="h-2 w-10 rounded-full bg-muted" />
+              <div className="h-2 w-12 rounded-full bg-muted" />
+            </div>
+          </div>
+
+          {/* Secure Portfolio */}
+          <div className="rounded-3xl bg-primary p-8 flex flex-col gap-4 text-primary-foreground">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20">
+              <Shield className="h-6 w-6 text-white" />
+            </div>
+            <h3 className="font-headline text-xl font-bold">안전한 포트폴리오</h3>
+            <p className="text-sm leading-relaxed text-white/80">
+              공개 범위 설정과 권한 관리로 내 작업물을 안전하게 보호하세요.
+            </p>
+          </div>
+
+          {/* Direct Hiring */}
+          <div className="rounded-3xl p-8 flex flex-col gap-4" style={{ backgroundColor: "#0d9488" }}>
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20">
+              <Handshake className="h-6 w-6 text-white" />
+            </div>
+            <h3 className="font-headline text-xl font-bold text-white">다이렉트 채용</h3>
+            <p className="text-sm leading-relaxed text-white/80">
+              중간 단계 없이 작가와 직접 협업 계약을 체결하세요.
+            </p>
+          </div>
+
+          {/* World Class Curation */}
+          <div className="col-span-1 md:col-span-2 rounded-3xl bg-muted border border-border p-8 flex flex-col gap-6 md:flex-row md:items-center">
+            <div className="flex-1">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-background mb-4">
+                <Star className="h-6 w-6 text-primary fill-primary" />
+              </div>
+              <h3 className="font-headline text-2xl font-bold">월드클래스 큐레이션</h3>
+              <p className="mt-2 text-muted-foreground leading-relaxed">
+                검증된 작가들의 포트폴리오만 엄선하여 제공합니다. 퀄리티 높은 크리에이터를 한눈에 발견하세요.
+              </p>
+            </div>
+            <div className="flex gap-3 shrink-0">
+              <div className="h-28 w-20 rounded-2xl bg-primary/10" />
+              <div className="h-28 w-20 rounded-2xl bg-primary/20" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA Section ── */}
+      <section className="relative mx-auto max-w-7xl px-4 py-24 text-center overflow-hidden">
+        {/* Decorative circles */}
+        <div className="pointer-events-none absolute -left-32 top-1/2 h-96 w-96 -translate-y-1/2 rounded-full bg-primary/5" />
+        <div className="pointer-events-none absolute -right-32 top-1/2 h-96 w-96 -translate-y-1/2 rounded-full bg-primary/5" />
+
+        <div className="relative">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            지금 시작하세요
+          </p>
+          <h2 className="font-headline text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
+            움직임을 시작할{" "}
+            <span className="text-primary italic">준비가 되셨나요?</span>
+          </h2>
+          <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground">
+            DrawMate와 함께 당신의 크리에이티브 커리어를 새롭게 시작하세요.
+          </p>
+          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <Button
+              asChild
+              size="lg"
+              className="gradient-primary h-12 rounded-full border-0 px-10 text-base font-semibold text-white"
+            >
+              <Link href="/sign-up">
+                무료로 시작하기
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="ghost"
+              className="h-12 rounded-full px-10 text-base font-semibold"
+            >
+              <Link href="/explore">포트폴리오 둘러보기</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Portfolio Grid ── */}
+      <section className="mx-auto max-w-7xl px-4 pb-32">
+        <div className="mb-12 text-center">
+          <h2 className="font-headline text-3xl font-bold tracking-tight md:text-4xl">
+            최신 작업물
+          </h2>
+          <p className="mt-3 text-muted-foreground">
             최근 등록된 포트폴리오를 탐색하고 협업을 제안하세요.
           </p>
-        </div>        {portfolios.length === 0 ? (
+        </div>
+
+        {portfolios.length === 0 ? (
           <div className="rounded-2xl border border-dashed px-6 py-16 text-center">
             <p className="text-lg font-semibold">아직 공개된 포트폴리오가 없습니다</p>
             <p className="mt-2 text-sm text-muted-foreground">
