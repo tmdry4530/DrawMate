@@ -62,8 +62,8 @@ export default function SignUpPage() {
   return (
     <>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">
-          창작의 여정을 시작하세요
+        <h1 className="font-headline font-extrabold text-3xl text-foreground tracking-tight">
+          시작하기
         </h1>
         <p className="mt-2 text-muted-foreground">
           무료로 가입하고 포트폴리오를 공유해보세요.
@@ -78,7 +78,7 @@ export default function SignUpPage() {
             <div className="w-full border-t border-border/60" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-3 text-muted-foreground tracking-wider">
+            <span className="bg-card px-3 text-muted-foreground tracking-wider">
               또는
             </span>
           </div>
@@ -86,7 +86,7 @@ export default function SignUpPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="displayName" className="text-sm font-medium">
+            <label htmlFor="displayName" className="text-sm font-medium text-foreground">
               이름 <span className="text-muted-foreground font-normal">(선택)</span>
             </label>
             <Input
@@ -97,11 +97,11 @@ export default function SignUpPage() {
               value={form.displayName}
               onChange={handleChange}
               autoComplete="name"
-              className="h-12 rounded-xl bg-secondary/50 border-border/50 focus:bg-background transition-colors"
+              className="h-12 rounded-xl bg-muted border-0 focus:bg-card transition-colors"
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium">
+            <label htmlFor="email" className="text-sm font-medium text-foreground">
               이메일
             </label>
             <Input
@@ -113,11 +113,11 @@ export default function SignUpPage() {
               onChange={handleChange}
               required
               autoComplete="email"
-              className="h-12 rounded-xl bg-secondary/50 border-border/50 focus:bg-background transition-colors"
+              className="h-12 rounded-xl bg-muted border-0 focus:bg-card transition-colors"
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="password" className="text-sm font-medium">
+            <label htmlFor="password" className="text-sm font-medium text-foreground">
               비밀번호
             </label>
             <Input
@@ -129,12 +129,12 @@ export default function SignUpPage() {
               onChange={handleChange}
               required
               autoComplete="new-password"
-              className="h-12 rounded-xl bg-secondary/50 border-border/50 focus:bg-background transition-colors"
+              className="h-12 rounded-xl bg-muted border-0 focus:bg-card transition-colors"
             />
           </div>
           <Button
             type="submit"
-            className="w-full h-12 rounded-xl text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all mt-2"
+            className="w-full h-12 rounded-xl text-base font-bold shadow-lg shadow-primary/20 gradient-primary text-white mt-2"
             disabled={loading}
           >
             {loading ? "처리 중..." : "회원가입"}

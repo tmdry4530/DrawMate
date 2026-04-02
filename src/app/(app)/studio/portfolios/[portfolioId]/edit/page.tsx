@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEditorStore } from "@/store/editor-store";
 import { EditorWizard } from "@/components/portfolio-editor/editor-wizard";
 import { unwrapApiData } from "@/lib/utils/client-api";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Eye, Loader2 } from "lucide-react";
 
 export default function EditPortfolioPage() {
   const params = useParams();
@@ -14,6 +17,8 @@ export default function EditPortfolioPage() {
     useEditorStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [portfolioSlug, setPortfolioSlug] = useState<string | null>(null);
+  const [portfolioStatus, setPortfolioStatus] = useState<string | null>(null);
 
   useEffect(() => {
     reset();
@@ -27,6 +32,8 @@ export default function EditPortfolioPage() {
       .then((json) => {
         const p = unwrapApiData<Record<string, unknown>>(json);
         if (typeof p.templateId === "string") setTemplate(p.templateId);
+        if (typeof p.slug === "string") setPortfolioSlug(p.slug);
+        if (typeof p.status === "string") setPortfolioStatus(p.status);
         setFormData({
           title: (p.title as string) ?? "",
           summary: (p.summary as string) ?? "",
@@ -80,25 +87,68 @@ export default function EditPortfolioPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-muted-foreground">포트폴리오를 불러오는 중...</p>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        <p className="text-sm text-muted-foreground">포트폴리오를 불러오는 중...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <p className="text-red-500">{error}</p>
-        <button
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <p className="text-red-500 text-sm">{error}</p>
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => router.push("/studio/portfolios")}
-          className="text-sm underline text-muted-foreground"
+          className="text-muted-foreground"
         >
+          <ArrowLeft className="w-4 h-4 mr-1.5" />
           목록으로 돌아가기
-        </button>
+        </Button>
       </div>
     );
   }
 
-  return <EditorWizard onComplete={handleComplete} />;
+  return (
+    <div className="flex flex-col min-h-screen">
+      {/* 편집 상단 바 */}
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b px-4 py-2.5 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            className="shrink-0 w-8 h-8 text-muted-foreground hover:text-foreground"
+          >
+            <Link href="/studio/portfolios">
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+          </Button>
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium hidden sm:block">
+              포트폴리오 편집
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {portfolioStatus === "published" && portfolioSlug && (
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/portfolio/${portfolioSlug}`} target="_blank">
+                <Eye className="w-3.5 h-3.5 mr-1.5" />
+                미리보기
+              </Link>
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* 에디터 위저드 */}
+      <div className="flex-1">
+        <EditorWizard onComplete={handleComplete} />
+      </div>
+    </div>
+  );
 }

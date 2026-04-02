@@ -70,7 +70,7 @@ export default function SignInPage() {
   return (
     <>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="font-headline font-extrabold text-3xl text-foreground tracking-tight">
           다시 만나서 반가워요
         </h1>
         <p className="mt-2 text-muted-foreground">
@@ -86,7 +86,7 @@ export default function SignInPage() {
             <div className="w-full border-t border-border/60" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-3 text-muted-foreground tracking-wider">
+            <span className="bg-card px-3 text-muted-foreground tracking-wider">
               또는
             </span>
           </div>
@@ -94,7 +94,7 @@ export default function SignInPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium">
+            <label htmlFor="email" className="text-sm font-medium text-foreground">
               이메일
             </label>
             <Input
@@ -106,12 +106,12 @@ export default function SignInPage() {
               onChange={handleChange}
               required
               autoComplete="email"
-              className="h-12 rounded-xl bg-secondary/50 border-border/50 focus:bg-background transition-colors"
+              className="h-12 rounded-xl bg-muted border-0 focus:bg-card transition-colors"
             />
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label htmlFor="password" className="text-sm font-medium">
+              <label htmlFor="password" className="text-sm font-medium text-foreground">
                 비밀번호
               </label>
               <Link
@@ -130,12 +130,12 @@ export default function SignInPage() {
               onChange={handleChange}
               required
               autoComplete="current-password"
-              className="h-12 rounded-xl bg-secondary/50 border-border/50 focus:bg-background transition-colors"
+              className="h-12 rounded-xl bg-muted border-0 focus:bg-card transition-colors"
             />
           </div>
           <Button
             type="submit"
-            className="w-full h-12 rounded-xl text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all mt-2"
+            className="w-full h-12 rounded-xl text-base font-bold shadow-lg shadow-primary/20 gradient-primary text-white mt-2"
             disabled={loading}
           >
             {loading ? "로그인 중..." : "로그인"}
