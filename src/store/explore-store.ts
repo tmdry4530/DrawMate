@@ -28,19 +28,49 @@ const initialFilters: TagFilters = {
   styleTags: [],
 };
 
+function arraysEqual(a: string[], b: string[]) {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i += 1) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
+function filtersEqual(a: TagFilters, b: TagFilters) {
+  return (
+    arraysEqual(a.fieldTags, b.fieldTags) &&
+    arraysEqual(a.skillTags, b.skillTags) &&
+    arraysEqual(a.toolTags, b.toolTags) &&
+    arraysEqual(a.styleTags, b.styleTags)
+  );
+}
+
 export const useExploreStore = create<ExploreState>((set) => ({
   q: "",
   sort: "latest",
   filters: { ...initialFilters },
 
-  setQ: (q) => set({ q }),
+  setQ: (q) =>
+    set((state) => {
+      if (state.q === q) return state;
+      return { q };
+    }),
 
-  setSort: (sort) => set({ sort }),
+  setSort: (sort) =>
+    set((state) => {
+      if (state.sort === sort) return state;
+      return { sort };
+    }),
 
   setFilters: (partial) =>
-    set((state) => ({
-      filters: { ...state.filters, ...partial },
-    })),
+    set((state) => {
+      const nextFilters = { ...state.filters, ...partial };
+      if (filtersEqual(state.filters, nextFilters)) {
+        return state;
+      }
+      return { filters: nextFilters };
+    }),
 
   toggleTag: (category, slug) =>
     set((state) => {
@@ -51,7 +81,17 @@ export const useExploreStore = create<ExploreState>((set) => ({
       return { filters: { ...state.filters, [category]: updated } };
     }),
 
-  clearFilters: () => set({ filters: { ...initialFilters } }),
+  clearFilters: () =>
+    set((state) => {
+      if (filtersEqual(state.filters, initialFilters)) return state;
+      return { filters: { ...initialFilters } };
+    }),
 
-  reset: () => set({ q: "", sort: "latest", filters: { ...initialFilters } }),
+  reset: () =>
+    set((state) => {
+      if (state.q === "" && state.sort === "latest" && filtersEqual(state.filters, initialFilters)) {
+        return state;
+      }
+      return { q: "", sort: "latest", filters: { ...initialFilters } };
+    }),
 }));

@@ -14,8 +14,8 @@ import {
 } from "@/components/ui/sheet"
 import { SearchBar } from "@/components/search/search-bar"
 import { FilterPanel } from "@/components/search/filter-panel"
-import { SortDropdown } from "@/components/search/sort-dropdown"
 import { PortfolioGrid } from "@/components/search/portfolio-grid"
+import { cn } from "@/lib/utils"
 
 type SortOption = "latest" | "popular" | "price_asc" | "price_desc"
 
@@ -30,30 +30,41 @@ function normalizeSort(value: string | null): SortOption {
   return "latest"
 }
 
+const FILTER_PILLS = [
+  { label: "All Works", fieldTag: null },
+  { label: "일러스트레이션", fieldTag: "일러스트레이션" },
+  { label: "UI/UX 디자인", fieldTag: "ui-ux" },
+  { label: "3D 모션", fieldTag: "3d-모션" },
+  { label: "에디토리얼", fieldTag: "에디토리얼" },
+]
+
 export default function ExplorePage() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const searchParamsString = searchParams.toString()
   const q = useExploreStore((s) => s.q)
   const sort = useExploreStore((s) => s.sort)
   const filters = useExploreStore((s) => s.filters)
   const setFilters = useExploreStore((s) => s.setFilters)
   const setQ = useExploreStore((s) => s.setQ)
   const setSort = useExploreStore((s) => s.setSort)
+  const reset = useExploreStore((s) => s.reset)
 
   // URL -> store sync
   useEffect(() => {
-    const fieldTags = getTagParams(searchParams, "fieldTags")
-    const skillTags = getTagParams(searchParams, "skillTags")
-    const toolTags = getTagParams(searchParams, "toolTags")
-    const styleTags = getTagParams(searchParams, "styleTags")
-    const nextQ = searchParams.get("q") ?? ""
-    const nextSort = normalizeSort(searchParams.get("sort"))
+    const params = new URLSearchParams(searchParamsString)
+    const fieldTags = getTagParams(params, "fieldTags")
+    const skillTags = getTagParams(params, "skillTags")
+    const toolTags = getTagParams(params, "toolTags")
+    const styleTags = getTagParams(params, "styleTags")
+    const nextQ = params.get("q") ?? ""
+    const nextSort = normalizeSort(params.get("sort"))
 
     setFilters({ fieldTags, skillTags, toolTags, styleTags })
     setQ(nextQ)
     setSort(nextSort)
-  }, [searchParams, setFilters, setQ, setSort])
+  }, [searchParamsString, setFilters, setQ, setSort])
 
   // store -> URL sync
   useEffect(() => {
@@ -67,7 +78,7 @@ export default function ExplorePage() {
     filters.styleTags.forEach((tag) => nextParams.append("styleTags[]", tag))
 
     const nextQueryString = nextParams.toString()
-    const currentQueryString = searchParams.toString()
+    const currentQueryString = searchParamsString
 
     if (nextQueryString === currentQueryString) return
 
@@ -82,68 +93,103 @@ export default function ExplorePage() {
     filters.styleTags,
     pathname,
     router,
-    searchParams,
+    searchParamsString,
   ])
 
+  function handlePillClick(fieldTag: string | null) {
+    if (fieldTag === null) {
+      reset()
+    } else {
+      setFilters({
+        fieldTags: [fieldTag],
+        skillTags: [],
+        toolTags: [],
+        styleTags: [],
+      })
+    }
+  }
+
+  const activePill =
+    filters.fieldTags.length === 1 &&
+    filters.skillTags.length === 0 &&
+    filters.toolTags.length === 0 &&
+    filters.styleTags.length === 0
+      ? filters.fieldTags[0]
+      : null
+
+  const isAllActive =
+    filters.fieldTags.length === 0 &&
+    filters.skillTags.length === 0 &&
+    filters.toolTags.length === 0 &&
+    filters.styleTags.length === 0 &&
+    !q.trim()
+
   return (
-    <div className="max-w-7xl mx-auto py-10 space-y-10">
-      {/* 페이지 헤더 */}
-      <section className="space-y-3 animate-fade-up">
-        <h1 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
-          포트폴리오{" "}
-          <span className="gradient-text">탐색</span>
-        </h1>
-        <p className="max-w-2xl text-sm text-muted-foreground md:text-base leading-relaxed">
-          분야, 스타일, 스킬 태그로 작업자를 찾고 포트폴리오를 확인한 뒤 바로 메시지로 협업을 시작하세요.
-        </p>
-      </section>
-
-      {/* 검색 영역 */}
-      <div className="animate-fade-up" style={{ animationDelay: "80ms" }}>
-        <SearchBar />
-      </div>
-
-      <div className="flex gap-8">
-        {/* 데스크탑 필터 사이드바 */}
-        <aside className="hidden md:block w-60 shrink-0">
-          <div className="sticky top-20">
-            <div className="glass rounded-2xl p-4">
-              <FilterPanel />
-            </div>
-          </div>
-        </aside>
-
-        {/* 메인 콘텐츠 */}
-        <div className="flex-1 min-w-0 space-y-5">
-          <div className="flex items-center justify-between">
-            {/* 모바일 필터 버튼 */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm" className="md:hidden gap-1.5">
-                  <SlidersHorizontal className="h-4 w-4" />
-                  필터
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-72 overflow-y-auto">
-                <SheetHeader>
-                  <SheetTitle>필터</SheetTitle>
-                </SheetHeader>
-                <div className="mt-6">
-                  <FilterPanel />
-                </div>
-              </SheetContent>
-            </Sheet>
-
-            <div className="ml-auto">
-              <SortDropdown />
-            </div>
+    <div className="pt-12 pb-20 px-6 max-w-screen-2xl mx-auto">
+      {/* Hero */}
+      <section className="mb-12 animate-fade-up">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+          <div className="max-w-2xl">
+            <p className="font-headline font-bold text-[hsl(var(--tertiary,38_60%_45%))] text-sm tracking-widest uppercase mb-3">
+              Curated Selection
+            </p>
+            <h1 className="text-5xl md:text-7xl font-headline font-extrabold text-foreground tracking-tighter leading-tight">
+              Discover the{" "}
+              <span className="gradient-text italic">Moving Mind</span>.
+            </h1>
           </div>
 
-          <div className="stagger-children">
-            <PortfolioGrid />
+          {/* Filter Pills */}
+          <div className="flex flex-wrap gap-3 shrink-0">
+            {FILTER_PILLS.map((pill) => {
+              const isActive =
+                pill.fieldTag === null ? isAllActive : activePill === pill.fieldTag
+              return (
+                <button
+                  key={pill.label}
+                  onClick={() => handlePillClick(pill.fieldTag)}
+                  className={cn(
+                    "px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200",
+                    isActive
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-card text-foreground hover:bg-muted border border-border/40"
+                  )}
+                >
+                  {pill.label}
+                </button>
+              )
+            })}
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Search + Mobile Filter */}
+      <section className="mb-10 animate-fade-up" style={{ animationDelay: "80ms" }}>
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <SearchBar />
+          </div>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-1.5 shrink-0 rounded-full border-none bg-muted">
+                <SlidersHorizontal className="h-4 w-4" />
+                필터
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-72 overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>필터</SheetTitle>
+              </SheetHeader>
+              <div className="mt-6">
+                <FilterPanel />
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </section>
+
+      {/* Grid */}
+      <PortfolioGrid />
     </div>
   )
 }

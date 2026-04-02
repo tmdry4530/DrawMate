@@ -24,7 +24,7 @@ export function SortDropdown() {
 
   return (
     <Select value={sort} onValueChange={(v) => setSort(v as SortOption)}>
-      <SelectTrigger className="w-36">
+      <SelectTrigger className="w-40 rounded-full border-none bg-muted">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

@@ -7,6 +7,7 @@ import { PortfolioCard } from "@/components/portfolio/portfolio-card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { useExploreStore } from "@/store/explore-store"
+import { Loader2 } from "lucide-react"
 
 interface PortfolioItem {
   id: string
@@ -58,12 +59,12 @@ async function fetchPortfolios({
   return json.data
 }
 
-function PortfolioCardSkeleton() {
+function PortfolioCardSkeleton({ index }: { index: number }) {
+  const aspects = ["aspect-[3/4]", "aspect-square", "aspect-[4/5]", "aspect-[16/9]"]
+  const aspect = aspects[index % aspects.length]
   return (
-    <div className="space-y-2">
-      <Skeleton className="aspect-video w-full rounded-lg" />
-      <Skeleton className="h-4 w-3/4" />
-      <Skeleton className="h-4 w-1/2" />
+    <div className="break-inside-avoid mb-8">
+      <Skeleton className={`${aspect} w-full rounded-xl`} />
     </div>
   )
 }
@@ -76,7 +77,7 @@ export function PortfolioGrid() {
 
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
-  const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery({
+  const { data, isLoading, isFetching, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery({
     queryKey: ["portfolios", q, sort, filters],
     queryFn: ({ pageParam }) =>
       fetchPortfolios({
@@ -120,9 +121,9 @@ export function PortfolioGrid() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="asymmetric-grid">
         {Array.from({ length: 6 }).map((_, i) => (
-          <PortfolioCardSkeleton key={i} />
+          <PortfolioCardSkeleton key={i} index={i} />
         ))}
       </div>
     )
@@ -130,7 +131,7 @@ export function PortfolioGrid() {
 
   if (allItems.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed px-6 py-16 text-center">
+      <div className="rounded-2xl bg-muted px-6 py-16 text-center">
         <p className="text-lg font-semibold">조건에 맞는 포트폴리오를 찾지 못했어요</p>
         <p className="mt-2 text-sm text-muted-foreground">
           {hasActiveFilters
@@ -139,7 +140,7 @@ export function PortfolioGrid() {
         </p>
         <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
           {hasActiveFilters && (
-            <Button variant="outline" onClick={() => reset()}>
+            <Button variant="outline" onClick={() => reset()} className="rounded-full border-none bg-muted">
               조건 초기화
             </Button>
           )}
@@ -152,11 +153,18 @@ export function PortfolioGrid() {
   }
 
   return (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {allItems.map((p) => (
+    <div className="relative">
+      {isFetching && !isFetchingNextPage && !isLoading && (
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          <span>결과 업데이트 중...</span>
+        </div>
+      )}
+      <div className="asymmetric-grid">
+        {allItems.map((p, i) => (
           <PortfolioCard
             key={p.id}
+            index={i}
             slug={p.slug}
             title={p.title}
             thumbnailUrl={p.thumbnailUrl}
@@ -168,14 +176,14 @@ export function PortfolioGrid() {
       </div>
 
       {isFetchingNextPage && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        <div className="asymmetric-grid mt-2">
           {Array.from({ length: 3 }).map((_, i) => (
-            <PortfolioCardSkeleton key={i} />
+            <PortfolioCardSkeleton key={i} index={allItems.length + i} />
           ))}
         </div>
       )}
 
       <div ref={sentinelRef} className="h-1" />
-    </>
+    </div>
   )
 }

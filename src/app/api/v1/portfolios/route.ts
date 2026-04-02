@@ -56,6 +56,13 @@ interface TagCategoryFilter {
   slugs: string[];
 }
 
+function normalizeSortOption(value: string | null): SortOption {
+  if (value === "latest" || value === "popular" || value === "price_asc" || value === "price_desc") {
+    return value;
+  }
+  return "latest";
+}
+
 function encodeCursor(payload: CursorPayload): string {
   return Buffer.from(JSON.stringify(payload)).toString("base64");
 }
@@ -157,7 +164,7 @@ export async function GET(request: Request) {
 
   const q = searchParams.get("q") ?? undefined;
   const cursorParam = searchParams.get("cursor") ?? undefined;
-  const sort = (searchParams.get("sort") ?? "latest") as SortOption;
+  const sort = normalizeSortOption(searchParams.get("sort"));
 
   const fieldTags = searchParams.getAll("fieldTags[]");
   const skillTags = searchParams.getAll("skillTags[]");
@@ -210,6 +217,10 @@ export async function GET(request: Request) {
     query = query.in("id", filteredPortfolioIds);
   }
 
+  if (sort === "price_asc" || sort === "price_desc") {
+    query = query.not("starting_price_krw", "is", null);
+  }
+
   // Cursor-based pagination
   if (cursorParam) {
     const decoded = decodeCursor(cursorParam);
@@ -232,16 +243,20 @@ export async function GET(request: Request) {
       query = query.lt("bookmark_count", bookmarkCursor); // reuse field as bookmark_count cursor
     } else if (sort === "price_asc") {
       const priceCursor = Number(decoded.published_at);
-      if (!Number.isFinite(priceCursor)) {
+      if (!Number.isFinite(priceCursor) || !UUID_REGEX.test(decoded.id)) {
         return response.validationError("유효하지 않은 커서 형식입니다.");
       }
-      query = query.gt("starting_price_krw", priceCursor);
+      query = query.or(
+        `starting_price_krw.gt.${priceCursor},and(starting_price_krw.eq.${priceCursor},id.lt.${decoded.id})`
+      );
     } else if (sort === "price_desc") {
       const priceCursor = Number(decoded.published_at);
-      if (!Number.isFinite(priceCursor)) {
+      if (!Number.isFinite(priceCursor) || !UUID_REGEX.test(decoded.id)) {
         return response.validationError("유효하지 않은 커서 형식입니다.");
       }
-      query = query.lt("starting_price_krw", priceCursor);
+      query = query.or(
+        `starting_price_krw.lt.${priceCursor},and(starting_price_krw.eq.${priceCursor},id.lt.${decoded.id})`
+      );
     }
   }
 
@@ -251,9 +266,13 @@ export async function GET(request: Request) {
   } else if (sort === "popular") {
     query = query.order("bookmark_count", { ascending: false }).order("published_at", { ascending: false });
   } else if (sort === "price_asc") {
-    query = query.order("starting_price_krw", { ascending: true }).order("published_at", { ascending: false });
+    query = query
+      .order("starting_price_krw", { ascending: true, nullsFirst: false })
+      .order("id", { ascending: false });
   } else if (sort === "price_desc") {
-    query = query.order("starting_price_krw", { ascending: false }).order("published_at", { ascending: false });
+    query = query
+      .order("starting_price_krw", { ascending: false, nullsFirst: false })
+      .order("id", { ascending: false });
   }
 
   const { data: portfolios, error } = await query;
@@ -271,7 +290,7 @@ export async function GET(request: Request) {
     const last = pageItems[pageItems.length - 1];
     let cursorValue = last.published_at;
     if (sort === "popular") cursorValue = String(last.bookmark_count);
-    else if (sort === "price_asc" || sort === "price_desc") cursorValue = String(last.starting_price_krw ?? 0);
+    else if (sort === "price_asc" || sort === "price_desc") cursorValue = String(last.starting_price_krw);
 
     nextCursor = encodeCursor({ published_at: cursorValue, id: last.id });
   }

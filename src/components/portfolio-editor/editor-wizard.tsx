@@ -273,9 +273,16 @@ export function EditorWizard({ onComplete }: EditorWizardProps) {
 
             {/* 다음 (마지막 스텝 아닐 때) */}
             {!isLastStep && (
-              <Button onClick={handleNext} disabled={!canProceed() || saving}>
-                다음
-              </Button>
+              <div className="flex items-center gap-3">
+                {currentStep === 2 && !canProceed() && (
+                  <span className="text-xs text-muted-foreground hidden sm:block">
+                    1장 이상의 이미지를 업로드해야 다음 단계로 이동할 수 있습니다.
+                  </span>
+                )}
+                <Button onClick={handleNext} disabled={!canProceed() || saving}>
+                  다음
+                </Button>
+              </div>
             )}
           </div>
         </div>

@@ -192,11 +192,13 @@ export default function ConversationPage() {
   return (
     <div className="flex h-full">
       {/* Left: conversation list (desktop only) */}
-      <aside className="hidden md:flex w-80 border-r shrink-0 flex-col">
-        <div className="px-4 py-3 border-b">
-          <h1 className="text-lg font-semibold">메시지</h1>
+      <aside className="hidden md:flex w-80 lg:w-96 shrink-0 flex-col bg-background">
+        <div className="p-6 pb-0">
+          <h1 className="font-headline text-2xl font-extrabold tracking-tight mb-6">메시지</h1>
         </div>
-        <ConversationList activeId={conversationId} />
+        <div className="flex-1 overflow-y-auto chat-scrollbar px-3 pb-6">
+          <ConversationList activeId={conversationId} />
+        </div>
       </aside>
 
       {/* Right: message thread */}

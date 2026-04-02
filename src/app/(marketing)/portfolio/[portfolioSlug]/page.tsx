@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { CheckCircle2, Clock, DollarSign } from "lucide-react";
+import { Clock, DollarSign } from "lucide-react";
 import { createClient } from "@/lib/supabase/server-client";
 import { PortfolioGallery } from "@/components/portfolio/portfolio-gallery";
 import { OwnerCard } from "@/components/portfolio/owner-card";
@@ -72,6 +72,7 @@ interface PortfolioDetailData {
   durationDays: number | null;
   bookmarkCount: number;
   isBookmarkedByViewer: boolean;
+  isOwnerByViewer: boolean;
   tags: Array<{ id: string; name: string; category: string }>;
   owner: {
     id: string;
@@ -140,6 +141,7 @@ async function getPortfolioBySlug(portfolioSlug: string): Promise<PortfolioDetai
     .filter((tag): tag is { id: string; name: string; category: string } => !!tag);
 
   let isBookmarkedByViewer = false;
+  let isOwnerByViewer = false;
   const {
     data: { user },
     error: authError,
@@ -153,6 +155,7 @@ async function getPortfolioBySlug(portfolioSlug: string): Promise<PortfolioDetai
       .maybeSingle();
 
     isBookmarkedByViewer = !!bookmark;
+    isOwnerByViewer = user.id === owner.id;
   }
 
   return {
@@ -165,6 +168,7 @@ async function getPortfolioBySlug(portfolioSlug: string): Promise<PortfolioDetai
     durationDays: row.duration_days,
     bookmarkCount: row.bookmark_count ?? 0,
     isBookmarkedByViewer,
+    isOwnerByViewer,
     tags,
     owner: {
       id: owner.id,
@@ -218,37 +222,48 @@ export default async function PortfolioDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
-      <div className="grid gap-10 lg:grid-cols-[1fr_340px] xl:gap-14">
-        <section className="space-y-8">
-          <div className="space-y-3">
-            <h1 className="text-3xl font-bold leading-snug">{portfolio.title}</h1>
-            <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-              포트폴리오를 확인한 뒤 메시지로 협업 가능 여부, 일정, 작업 범위를 바로 조율할 수 있습니다.
-            </p>
-          </div>
+    <div className="pb-20 px-4 md:px-8 max-w-screen-2xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        {/* Main Content */}
+        <div className="lg:col-span-8 space-y-12">
+          {/* Project Header */}
+          <header className="space-y-4">
+            <div className="flex items-center gap-2 text-tertiary text-sm font-bold tracking-widest uppercase font-headline">
+              Featured Project
+            </div>
+            <h1 className="text-5xl md:text-7xl font-black font-headline text-foreground tracking-tighter leading-none">
+              {portfolio.title}
+            </h1>
+          </header>
 
+          {/* Gallery */}
           <PortfolioGallery
             coverImage={portfolio.coverImage}
             images={portfolio.images}
             title={portfolio.title}
           />
 
-          <section>
-            <h2 className="mb-2 text-base font-semibold">작품 소개</h2>
-            <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
-              {portfolio.description || "설명이 없습니다."}
-            </p>
-          </section>
+          {/* Description */}
+          {portfolio.description && (
+            <article className="space-y-8">
+              <p className="text-2xl font-medium leading-relaxed">
+                {portfolio.description}
+              </p>
+            </article>
+          )}
 
-          <section>
-            <h2 className="mb-2 text-base font-semibold">태그</h2>
-            <TagChips tags={portfolio.tags} />
-          </section>
-        </section>
+          {/* Tags */}
+          {portfolio.tags.length > 0 && (
+            <section className="space-y-4 pt-8">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Project Tags</h4>
+              <TagChips tags={portfolio.tags} />
+            </section>
+          )}
+        </div>
 
-        <aside className="self-start lg:sticky lg:top-24">
-          <div className="space-y-5 rounded-2xl border bg-card p-5 shadow-sm">
+        {/* Sticky Sidebar */}
+        <aside className="lg:col-span-4">
+          <div className="sticky top-28 space-y-8">
             <OwnerCard
               userId={portfolio.owner.id}
               displayName={portfolio.owner.displayName}
@@ -256,57 +271,41 @@ export default async function PortfolioDetailPage({ params }: Props) {
               avatarUrl={portfolio.owner.avatarUrl}
             />
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-              <div className="rounded-xl bg-muted/40 p-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            {/* Price & Duration */}
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-muted">
+              <div>
+                <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                   <DollarSign className="h-4 w-4" />
-                  가격
-                </div>
-                <p className="mt-2 text-lg font-semibold">{formatPrice(portfolio.price)}</p>
+                  Price
+                </p>
+                <p className="mt-2 text-xl font-black font-headline tracking-tight">{formatPrice(portfolio.price)}</p>
               </div>
-
-              <div className="rounded-xl bg-muted/40 p-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div>
+                <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                   <Clock className="h-4 w-4" />
-                  납기
-                </div>
-                <p className="mt-2 text-lg font-semibold">
+                  Time
+                </p>
+                <p className="mt-2 text-xl font-black font-headline tracking-tight">
                   {portfolio.durationDays ? `${portfolio.durationDays}일` : "협의"}
                 </p>
               </div>
             </div>
 
-            <div className="border-t pt-5">
-              <div className="flex flex-col gap-3">
-                <ContactCta
-                  targetUserId={portfolio.owner.id}
-                  className="w-full justify-center"
-                />
-                <div className="flex items-center justify-between rounded-xl bg-muted/40 px-3 py-3">
-                  <span className="text-sm font-medium">북마크</span>
-                  <BookmarkButton
-                    portfolioId={portfolio.id}
-                    initialBookmarked={portfolio.isBookmarkedByViewer}
-                    initialCount={portfolio.bookmarkCount}
-                  />
-                </div>
-              </div>
-            </div>
+            {/* CTA */}
+            <ContactCta
+              targetUserId={portfolio.owner.id}
+              isOwner={portfolio.isOwnerByViewer}
+              className="w-full"
+            />
 
-            <div className="rounded-xl bg-muted/40 p-4">
-              <p className="text-sm font-semibold">다음 단계</p>
-              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                {[
-                  "포트폴리오와 태그를 확인해 작업 적합도를 판단합니다.",
-                  "메시지로 문의하면 바로 1:1 대화방이 열립니다.",
-                  "작업 범위, 일정, 예산을 협의해 협업을 이어갑니다.",
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
+            {/* Bookmark */}
+            <div className="flex items-center justify-between px-2">
+              <span className="text-sm font-medium text-muted-foreground">저장하기</span>
+              <BookmarkButton
+                portfolioId={portfolio.id}
+                initialBookmarked={portfolio.isBookmarkedByViewer}
+                initialCount={portfolio.bookmarkCount}
+              />
             </div>
           </div>
         </aside>

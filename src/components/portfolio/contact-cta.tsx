@@ -4,16 +4,16 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { MessageSquare } from "lucide-react"
 import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { unwrapApiData } from "@/lib/utils/client-api"
 
 interface ContactCtaProps {
   targetUserId: string
+  isOwner?: boolean
   className?: string
 }
 
-export function ContactCta({ targetUserId, className }: ContactCtaProps) {
+export function ContactCta({ targetUserId, isOwner, className }: ContactCtaProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -39,15 +39,38 @@ export function ContactCta({ targetUserId, className }: ContactCtaProps) {
       router.push(`/messages/${data.conversationId}`)
     } catch (err) {
       toast.error((err as Error).message)
-    } finally {
       setLoading(false)
     }
   }
 
+  if (isOwner) {
+    return (
+      <div className={cn("text-center space-y-2", className)}>
+        <button
+          disabled
+          className="w-full py-4 rounded-2xl bg-muted text-muted-foreground font-bold font-headline flex items-center justify-center gap-2 opacity-60 cursor-not-allowed"
+        >
+          <MessageSquare className="h-4 w-4" />
+          내 포트폴리오
+        </button>
+        <p className="text-xs text-muted-foreground whitespace-pre-wrap">
+          자신의 포트폴리오에는{"\n"}메시지를 보낼 수 없습니다.
+        </p>
+      </div>
+    )
+  }
+
   return (
-    <Button className={cn("gap-2", className)} onClick={handleClick} disabled={loading}>
+    <button
+      onClick={handleClick}
+      disabled={loading}
+      className={cn(
+        "w-full py-4 rounded-2xl gradient-primary text-white font-bold font-headline shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2",
+        className
+      )}
+    >
       <MessageSquare className="h-4 w-4" />
       {loading ? "대화방 여는 중..." : "메시지로 문의하기"}
-    </Button>
+    </button>
   )
 }

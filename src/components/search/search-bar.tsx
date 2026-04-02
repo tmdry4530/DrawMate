@@ -29,20 +29,19 @@ export function SearchBar() {
 
   return (
     <div className="relative w-full">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
       <Input
         type="text"
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
-        placeholder="포트폴리오, 분야, 스타일, 작가를 검색하세요"
+        placeholder="작업명, 분야, 작가 검색"
         aria-label="포트폴리오, 분야, 스타일, 작가 검색"
-        className="pl-9 pr-9"
+        className="border-none rounded-full py-2.5 px-6 pr-12 bg-muted focus-visible:ring-2 focus-visible:ring-secondary/20"
       />
-      {inputValue && (
+      {inputValue ? (
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+          className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full"
           onClick={() => {
             setInputValue("")
             setQ("")
@@ -50,6 +49,8 @@ export function SearchBar() {
         >
           <X className="h-4 w-4" />
         </Button>
+      ) : (
+        <Search className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       )}
     </div>
   )

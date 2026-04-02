@@ -112,7 +112,7 @@ export function Header() {
     await supabase.auth.signOut();
     setUser(null);
     setUnreadCount(0);
-    router.push("/sign-in");
+    router.replace("/");
   };
 
   const handleMarkAsRead = async (notificationId: string) => {
@@ -146,17 +146,53 @@ export function Header() {
     router.push(nextUrl);
   };
 
-  return (
-    <header className="animate-fade-down sticky top-0 z-50 glass">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-0 text-xl font-medium text-foreground shrink-0">
-          <span>Draw</span><span className="font-bold gradient-text">Mate</span>
-        </Link>
+  const isNavActive = (href: string) =>
+    pathname === href || pathname.startsWith(href + "/");
 
-        {/* Search - desktop only */}
+  return (
+    <header className="fixed top-0 w-full z-50 h-20 bg-white/70 backdrop-blur-xl border-b border-border/40">
+      <div className="flex justify-between items-center px-8 h-full w-full mx-auto max-w-screen-2xl">
+        {/* Left: Logo + Nav */}
+        <div className="flex items-center gap-8">
+          <Link href="/" className="flex items-center gap-0 shrink-0">
+            <span className="text-2xl font-black text-primary italic font-headline tracking-tight">
+              Draw
+            </span>
+            <span className="text-2xl font-black italic font-headline tracking-tight bg-gradient-to-r from-primary to-primary-container bg-clip-text text-transparent">
+              Mate
+            </span>
+          </Link>
+
+          {/* Nav links - desktop */}
+          <nav className="hidden md:flex items-center gap-6">
+            <Link
+              href="/explore"
+              className={
+                isNavActive("/explore")
+                  ? "text-sm font-bold text-primary border-b-2 border-primary pb-1 transition-colors"
+                  : "text-sm font-medium text-foreground hover:scale-105 hover:text-primary transition-all duration-200"
+              }
+            >
+              탐색
+            </Link>
+            {user && (
+              <Link
+                href="/messages"
+                className={
+                  isNavActive("/messages")
+                    ? "text-sm font-bold text-primary border-b-2 border-primary pb-1 transition-colors"
+                    : "text-sm font-medium text-foreground hover:scale-105 hover:text-primary transition-all duration-200"
+                }
+              >
+                메시지
+              </Link>
+            )}
+          </nav>
+        </div>
+
+        {/* Center: Search - desktop only */}
         <form
-          className="mx-8 hidden max-w-md flex-1 md:flex"
+          className="hidden md:flex flex-1 max-w-sm mx-8"
           onSubmit={handleSearchSubmit}
           role="search"
         >
@@ -167,14 +203,14 @@ export function Header() {
               name="q"
               type="search"
               defaultValue={pathname === "/explore" ? searchParams.get("q") ?? "" : ""}
-              placeholder="포트폴리오, 분야, 스타일, 작가를 검색하세요"
+              placeholder="포트폴리오, 분야, 스타일 검색"
               aria-label="포트폴리오, 분야, 스타일, 작가 검색"
-              className="w-full rounded-full pl-10 pr-4 glass border-border/40 focus-visible:border-primary/40 focus-visible:ring-primary/20 transition-all duration-200"
+              className="w-48 md:w-64 focus:w-80 rounded-full pl-10 pr-4 bg-muted border-border/40 focus-visible:border-primary/40 focus-visible:ring-primary/20 transition-all duration-300"
             />
           </div>
         </form>
 
-        {/* Right side */}
+        {/* Right: User actions */}
         <div className="flex items-center gap-1">
           {loading ? (
             <div className="w-20" />
@@ -267,15 +303,13 @@ export function Header() {
               <Button variant="ghost" className="rounded-full text-muted-foreground hover:text-foreground transition-colors duration-200" asChild>
                 <Link href="/sign-in">로그인</Link>
               </Button>
-              <Button className="rounded-full" asChild>
+              <Button className="rounded-full bg-primary hover:bg-primary/90 text-white" asChild>
                 <Link href="/sign-up">시작하기</Link>
               </Button>
             </>
           )}
         </div>
       </div>
-      {/* Gradient bottom border */}
-      <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
     </header>
   );
 }

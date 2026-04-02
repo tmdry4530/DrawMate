@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useExploreStore } from "@/store/explore-store"
 
 interface Tag {
@@ -29,7 +30,7 @@ export function FilterPanel() {
   const filters = useExploreStore((s) => s.filters)
   const toggleTag = useExploreStore((s) => s.toggleTag)
 
-  const { data: tags = [] } = useQuery<Tag[]>({
+  const { data: tags = [], isLoading } = useQuery<Tag[]>({
     queryKey: ["tags"],
     queryFn: fetchTags,
     staleTime: 5 * 60 * 1000,
@@ -58,14 +59,35 @@ export function FilterPanel() {
     },
   ]
 
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        {Array.from({ length: 3 }).map((_, idx) => (
+          <div key={idx} className="space-y-3">
+            <Skeleton className="h-4 w-14" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-20" />
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  const hasAnyTags = groups.some((group) => group.tags.length > 0)
+
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border bg-muted/30 p-4">
-        <p className="text-sm font-semibold">필터 사용 팁</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          분야와 스타일을 함께 선택하면 원하는 작업자를 더 빠르게 좁힐 수 있습니다.
-        </p>
-      </div>
+      {hasAnyTags && (
+        <div className="rounded-2xl bg-muted p-4">
+          <p className="text-sm font-semibold">필터 사용 팁</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            분야와 스타일을 함께 선택하면 원하는 작업자를 더 빠르게 좁힐 수 있습니다.
+          </p>
+        </div>
+      )}
 
       {groups.map(
         (group) =>

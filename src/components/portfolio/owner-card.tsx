@@ -12,17 +12,23 @@ export function OwnerCard({ userId, displayName, headline, avatarUrl }: OwnerCar
   const initials = displayName.slice(0, 2).toUpperCase()
 
   return (
-    <Link href={`/users/${userId}`} className="flex items-center gap-3 group">
-      <Avatar size="lg">
-        <AvatarImage src={avatarUrl ?? undefined} alt={displayName} />
-        <AvatarFallback>{initials}</AvatarFallback>
-      </Avatar>
-      <div className="flex-1 min-w-0">
-        <p className="font-semibold text-sm group-hover:underline truncate">{displayName}</p>
-        {headline && (
-          <p className="text-xs text-muted-foreground truncate">{headline}</p>
-        )}
-      </div>
-    </Link>
+    <div className="bg-card p-8 rounded-xl shadow-[0px_24px_48px_rgba(22,29,31,0.06)]">
+      <Link href={`/users/${userId}`} className="flex flex-col items-center text-center space-y-4 group">
+        <div className="relative">
+          <div className="w-24 h-24 rounded-full p-0.5 bg-gradient-to-tr from-primary to-tertiary">
+            <Avatar className="w-full h-full border-4 border-white">
+              <AvatarImage src={avatarUrl ?? undefined} alt={displayName} />
+              <AvatarFallback className="text-lg">{initials}</AvatarFallback>
+            </Avatar>
+          </div>
+        </div>
+        <div className="space-y-1">
+          <h2 className="text-xl font-black font-headline text-foreground group-hover:underline">{displayName}</h2>
+          {headline && (
+            <p className="text-sm font-medium text-muted-foreground uppercase tracking-tight">{headline}</p>
+          )}
+        </div>
+      </Link>
+    </div>
   )
 }

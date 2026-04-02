@@ -10,40 +10,69 @@ export function PortfolioGallery({ coverImage, images, title }: PortfolioGallery
   const otherImages = images.filter((img) => img !== coverImage)
 
   return (
-    <div className="space-y-3">
-      {/* 커버 이미지 */}
-      <div className="flex justify-center rounded-xl bg-muted overflow-hidden">
+    <section className="space-y-6">
+      {/* Main hero image */}
+      <div className="relative group aspect-[16/10] overflow-hidden rounded-xl bg-muted">
         <Image
           src={coverImage}
           alt={title}
-          width={0}
-          height={0}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-          className="h-auto w-full max-h-[75vh] object-contain"
+          fill
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
+          sizes="(max-width: 1200px) 100vw, 1200px"
           priority
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
       </div>
 
-      {/* 추가 이미지 */}
-      {otherImages.length > 0 && (
-        <div className="space-y-3">
-          {otherImages.map((img, idx) => (
-            <div
-              key={idx}
-              className="flex justify-center rounded-lg bg-muted overflow-hidden"
-            >
-              <Image
-                src={img}
-                alt={`${title} 이미지 ${idx + 2}`}
-                width={0}
-                height={0}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-                className="h-auto w-full max-h-[75vh] object-contain"
-              />
-            </div>
-          ))}
+      {/* Asymmetric sub-images */}
+      {otherImages.length >= 2 && (
+        <div className="grid grid-cols-2 gap-6">
+          <div className="relative aspect-square overflow-hidden rounded-xl bg-muted translate-y-4">
+            <Image
+              src={otherImages[0]}
+              alt={`${title} 이미지 2`}
+              fill
+              className="object-cover"
+              sizes="50vw"
+            />
+          </div>
+          <div className="relative aspect-square overflow-hidden rounded-xl bg-muted -translate-y-4">
+            <Image
+              src={otherImages[1]}
+              alt={`${title} 이미지 3`}
+              fill
+              className="object-cover"
+              sizes="50vw"
+            />
+          </div>
         </div>
       )}
-    </div>
+
+      {/* If only 1 other image */}
+      {otherImages.length === 1 && (
+        <div className="relative aspect-[16/9] overflow-hidden rounded-xl bg-muted">
+          <Image
+            src={otherImages[0]}
+            alt={`${title} 이미지 2`}
+            fill
+            className="object-cover"
+            sizes="100vw"
+          />
+        </div>
+      )}
+
+      {/* Remaining images as panoramic strips */}
+      {otherImages.slice(2).map((img, idx) => (
+        <div key={idx} className="relative aspect-[16/6] overflow-hidden rounded-xl bg-muted mt-8">
+          <Image
+            src={img}
+            alt={`${title} 이미지 ${idx + 4}`}
+            fill
+            className="object-cover"
+            sizes="100vw"
+          />
+        </div>
+      ))}
+    </section>
   )
 }

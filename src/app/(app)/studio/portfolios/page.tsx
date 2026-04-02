@@ -158,8 +158,9 @@ export default function PortfoliosPage() {
       ) : (
         <div className="space-y-3">
           {filtered.map((portfolio) => (
-            <Card key={portfolio.id}>
-              <CardContent className="p-4 flex items-center gap-4">
+            <Card key={portfolio.id} className="group relative overflow-hidden transition-all hover:border-primary/50 hover:shadow-md">
+              <Link href={`/studio/portfolios/${portfolio.id}/edit`} className="absolute inset-0 z-0" aria-label={`${portfolio.title} 편집`} />
+              <CardContent className="p-4 flex items-center gap-4 relative z-10 pointer-events-none">
                 {/* 썸네일 */}
                 <div className="w-20 h-14 rounded-md bg-muted overflow-hidden shrink-0">
                   {portfolio.coverImageUrl ? (
@@ -203,7 +204,7 @@ export default function PortfoliosPage() {
                 </div>
 
                 {/* 액션 버튼 */}
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 shrink-0 pointer-events-auto transition-opacity sm:opacity-50 sm:group-hover:opacity-100">
                   <Button size="sm" variant="outline" asChild>
                     <Link href={`/studio/portfolios/${portfolio.id}/edit`}>
                       <Edit2 className="w-3.5 h-3.5 mr-1" />

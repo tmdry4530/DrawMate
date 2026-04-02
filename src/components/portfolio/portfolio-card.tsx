@@ -1,7 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { Heart } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Bookmark } from "lucide-react"
 
 interface PortfolioCardProps {
   slug: string
@@ -10,68 +9,67 @@ interface PortfolioCardProps {
   ownerName: string
   ownerAvatarUrl?: string | null
   bookmarkCount?: number
+  index?: number
 }
+
+const ASPECT_RATIOS = ["aspect-[3/4]", "aspect-square", "aspect-[4/5]", "aspect-[16/9]"]
+
+const CATEGORY_LABELS = [
+  "일러스트레이션",
+  "UI/UX 디자인",
+  "3D 모션",
+  "에디토리얼",
+  "그래픽 디자인",
+  "브랜딩",
+]
 
 export function PortfolioCard({
   slug,
   title,
   thumbnailUrl,
   ownerName,
-  ownerAvatarUrl,
   bookmarkCount = 0,
+  index = 0,
 }: PortfolioCardProps) {
-  const initials = ownerName.slice(0, 2).toUpperCase()
+  const aspectRatio = ASPECT_RATIOS[index % ASPECT_RATIOS.length]
+  const categoryLabel = CATEGORY_LABELS[index % CATEGORY_LABELS.length]
 
   return (
-    <Link href={`/portfolio/${slug}`} className="group block">
-      <div className="hover-lift glow rounded-2xl overflow-hidden bg-card border border-border/50 transition-colors duration-300">
-        {/* 썸네일 */}
-        <div className="image-reveal relative aspect-[4/3] bg-muted">
-          {thumbnailUrl ? (
-            <Image
-              src={thumbnailUrl}
-              alt={title}
-              fill
-              className="object-cover"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">
-              이미지 없음
-            </div>
-          )}
-
-          {/* 하단 그라디언트 오버레이 */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-
-          {/* 호버시 제목 오버레이 */}
-          <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-            <p className="text-white text-xs font-medium line-clamp-2 leading-snug drop-shadow-sm">
-              {title}
-            </p>
+    <Link
+      href={`/portfolio/${slug}`}
+      className="portfolio-card break-inside-avoid relative group overflow-hidden rounded-xl bg-card mb-8 block"
+    >
+      <div className={`overflow-hidden rounded-xl ${aspectRatio} relative bg-muted`}>
+        {thumbnailUrl ? (
+          <Image
+            src={thumbnailUrl}
+            alt={title}
+            fill
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">
+            이미지 없음
           </div>
-        </div>
+        )}
 
-        {/* 콘텐츠 */}
-        <div className="p-4">
-          <p className="font-semibold text-sm truncate leading-snug mb-3">{title}</p>
-
+        {/* Hover overlay */}
+        <div className="overlay-actions absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent opacity-0 translate-y-4 transition-all duration-300 p-6 flex flex-col justify-end">
           <div className="flex items-center justify-between">
-            {/* 작가 정보 */}
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="ring-1 ring-transparent group-hover:ring-primary/40 rounded-full transition-all duration-300">
-                <Avatar size="sm">
-                  <AvatarImage src={ownerAvatarUrl ?? undefined} alt={ownerName} />
-                  <AvatarFallback>{initials}</AvatarFallback>
-                </Avatar>
-              </div>
-              <span className="text-xs text-muted-foreground truncate">{ownerName}</span>
+            <div className="min-w-0 pr-3">
+              <p className="text-white/70 text-xs uppercase tracking-widest mb-1">{categoryLabel}</p>
+              <h3 className="text-white text-xl font-bold font-headline line-clamp-1">{title}</h3>
+              <p className="text-white/90 text-sm italic">by {ownerName}</p>
             </div>
-
-            {/* 북마크 수 */}
-            <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0 group-hover:text-primary/70 transition-colors duration-300">
-              <Heart className="h-3.5 w-3.5 group-hover:fill-primary/40 transition-all duration-300" />
-              <span>{bookmarkCount}</span>
+            <div className="flex gap-2 shrink-0">
+              <span
+                className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center hover:bg-primary transition-colors"
+                aria-label={`북마크 ${bookmarkCount}`}
+                onClick={(e) => e.preventDefault()}
+              >
+                <Bookmark className="h-5 w-5" />
+              </span>
             </div>
           </div>
         </div>

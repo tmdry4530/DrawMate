@@ -16,10 +16,10 @@ export default function AppLayout({
 
   return (
     <div className={isMessagesPage ? "flex flex-col h-dvh overflow-hidden" : ""}>
-      <Suspense fallback={<div className="h-16 border-b bg-background" />}>
+      <Suspense fallback={<div className="h-20 border-b bg-background" />}>
         <Header />
       </Suspense>
-      <main className={isMessagesPage ? "flex-1 min-h-0 p-0 md:p-4" : "flex-1 pb-16 md:pb-0 px-4"}>
+      <main className={isMessagesPage ? "flex-1 min-h-0 pt-20 p-0 md:p-4" : "flex-1 pt-20 pb-16 md:pb-0"}>
         {isMessagesPage ? (
           <div className="h-full md:mx-auto md:max-w-6xl md:rounded-xl md:border md:shadow-sm md:overflow-hidden bg-background">
             {children}
