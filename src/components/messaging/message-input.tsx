@@ -4,7 +4,6 @@ import { useState, useRef, useCallback, type ChangeEvent, type FormEvent } from 
 import Image from "next/image"
 import { Paperclip, Send, X } from "lucide-react"
 import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 
 interface MessageInputProps {
@@ -99,9 +98,9 @@ export function MessageInput({ conversationId, currentUserId, onMessageSent, onO
   }
 
   return (
-    <form onSubmit={handleSubmit} className="border-t p-3 space-y-2 bg-background">
+    <form onSubmit={handleSubmit} className="p-6 bg-white/30 backdrop-blur-sm">
       {filePreview && (
-        <div className="relative inline-block">
+        <div className="relative inline-block mb-3">
           <Image
             src={filePreview}
             alt="첨부 미리보기"
@@ -121,7 +120,7 @@ export function MessageInput({ conversationId, currentUserId, onMessageSent, onO
         </div>
       )}
 
-      <div className="flex items-end gap-2">
+      <div className="flex items-end gap-3 bg-card p-3 rounded-3xl shadow-lg border border-primary/5">
         <input
           ref={fileRef}
           type="file"
@@ -129,16 +128,14 @@ export function MessageInput({ conversationId, currentUserId, onMessageSent, onO
           className="hidden"
           onChange={handleFileChange}
         />
-        <Button
+        <button
           type="button"
-          variant="ghost"
-          size="icon"
           aria-label="이미지 첨부"
-          className="shrink-0"
+          className="shrink-0 w-9 h-9 flex items-center justify-center rounded-full text-muted-foreground hover:bg-muted transition-colors"
           onClick={() => fileRef.current?.click()}
         >
           <Paperclip className="h-4 w-4" />
-        </Button>
+        </button>
 
         <Textarea
           value={content}
@@ -147,19 +144,18 @@ export function MessageInput({ conversationId, currentUserId, onMessageSent, onO
           onCompositionStart={() => { composingRef.current = true }}
           onCompositionEnd={() => { composingRef.current = false }}
           placeholder="메시지를 입력하세요..."
-          className="resize-none min-h-[44px] max-h-[120px]"
+          className="border-none focus:ring-0 bg-transparent py-2 resize-none min-h-[40px] max-h-[120px] shadow-none"
           rows={1}
         />
 
-        <Button
+        <button
           type="submit"
-          size="icon"
           aria-label="메시지 전송"
-          className="shrink-0"
           disabled={sending || (!content.trim() && !file)}
+          className="shrink-0 w-10 h-10 flex items-center justify-center bg-primary text-white rounded-full hover:scale-110 active:scale-95 transition-all shadow-md shadow-primary/20 disabled:opacity-50 disabled:pointer-events-none"
         >
           <Send className="h-4 w-4" />
-        </Button>
+        </button>
       </div>
     </form>
   )

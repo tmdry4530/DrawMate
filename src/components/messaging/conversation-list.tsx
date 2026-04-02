@@ -8,9 +8,7 @@ import { formatDistanceToNow } from "date-fns"
 import { ko } from "date-fns/locale"
 import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { unwrapApiData } from "@/lib/utils/client-api"
 
@@ -81,7 +79,7 @@ export function ConversationList({ activeId }: { activeId?: string }) {
     return (
       <div className="space-y-3 p-4">
         {Array.from({ length: 5 }).map((_, index) => (
-          <div key={index} className="h-16 animate-pulse rounded-xl bg-muted" />
+          <div key={index} className="h-20 animate-pulse rounded-3xl bg-muted" />
         ))}
       </div>
     )
@@ -89,12 +87,13 @@ export function ConversationList({ activeId }: { activeId?: string }) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-3 border-b">
+      <div className="px-4 pb-4">
         <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            type="text"
             placeholder="대화 검색..."
-            className="pl-8"
+            className="w-full rounded-2xl bg-muted border-none py-2.5 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -104,7 +103,7 @@ export function ConversationList({ activeId }: { activeId?: string }) {
       <ScrollArea className="flex-1">
         {filtered.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-3 px-6 py-12 text-center">
-            <p className="text-sm font-medium">아직 대화가 없습니다</p>
+            <p className="text-sm font-headline font-semibold">아직 대화가 없습니다</p>
             <p className="text-sm text-muted-foreground">
               포트폴리오 상세에서 메시지를 보내면 여기서 바로 이어집니다.
             </p>
@@ -113,52 +112,73 @@ export function ConversationList({ activeId }: { activeId?: string }) {
             </Button>
           </div>
         ) : (
-          <ul>
-            {filtered.map((conv) => (
-              <li key={conv.id}>
-                <button
-                type="button"
-                aria-label={`${conv.otherUser.name} 대화 열기`}
-                className={`flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-accent transition-colors ${
-                  activeId === conv.id ? "bg-accent" : ""
-                }`}
-                onClick={() => router.push(`/messages/${conv.id}`)}
-              >
-                <Avatar className="h-10 w-10 shrink-0">
-                  <AvatarImage src={conv.otherUser.profileImage ?? undefined} />
-                  <AvatarFallback>
-                    {conv.otherUser.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
+          <ul className="px-4">
+            {filtered.map((conv) => {
+              const isActive = activeId === conv.id
+              return (
+                <li key={conv.id} className="mb-2">
+                  <button
+                    type="button"
+                    aria-label={`${conv.otherUser.name} 대화 열기`}
+                    className={`flex w-full items-center gap-3 p-4 rounded-3xl transition-all text-left ${
+                      isActive
+                        ? "bg-card shadow-sm border border-primary/5"
+                        : "hover:bg-muted/50"
+                    }`}
+                    onClick={() => router.push(`/messages/${conv.id}`)}
+                  >
+                    <div className="relative shrink-0">
+                      <Avatar className="h-14 w-14 rounded-2xl">
+                        <AvatarImage
+                          src={conv.otherUser.profileImage ?? undefined}
+                          className="rounded-2xl object-cover"
+                        />
+                        <AvatarFallback className="rounded-2xl text-base font-bold">
+                          {conv.otherUser.name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-4 border-white rounded-full" />
+                    </div>
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium text-sm truncate">
-                      {conv.otherUser.name}
-                    </span>
-                    {conv.lastMessage && (
-                      <span className="text-xs text-muted-foreground shrink-0">
-                        {formatDistanceToNow(new Date(conv.lastMessage.createdAt), {
-                          addSuffix: true,
-                          locale: ko,
-                        })}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-xs text-muted-foreground truncate">
-                      {conv.lastMessage?.content ?? "메시지가 없습니다"}
-                    </p>
-                    {conv.unreadCount > 0 && (
-                      <Badge className="shrink-0 h-5 min-w-5 text-xs rounded-full px-1.5">
-                        {conv.unreadCount > 99 ? "99+" : conv.unreadCount}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-                </button>
-              </li>
-            ))}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-0.5">
+                        <span className="font-headline font-bold text-foreground text-sm truncate">
+                          {conv.otherUser.name}
+                        </span>
+                        {conv.lastMessage && (
+                          <span
+                            className={`text-[10px] font-bold shrink-0 ${
+                              isActive ? "text-primary" : "text-muted-foreground"
+                            }`}
+                          >
+                            {formatDistanceToNow(new Date(conv.lastMessage.createdAt), {
+                              addSuffix: false,
+                              locale: ko,
+                            })}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <p
+                          className={`text-sm truncate ${
+                            conv.unreadCount > 0
+                              ? "font-semibold text-foreground"
+                              : "text-muted-foreground"
+                          }`}
+                        >
+                          {conv.lastMessage?.content ?? "메시지가 없습니다"}
+                        </p>
+                        {conv.unreadCount > 0 && (
+                          <span className="shrink-0 w-5 h-5 bg-primary text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+                            {conv.unreadCount > 99 ? "99+" : conv.unreadCount}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                </li>
+              )
+            })}
           </ul>
         )}
       </ScrollArea>

@@ -167,6 +167,14 @@ body {
 
 h1, h2, h3 {
   font-family: var(--font-headline);
+  padding-inline: 0.05em;
+}
+
+/* Prevent italic/tracked text clipping */
+.font-headline,
+[class*="font-headline"] {
+  padding-inline: 0.05em;
+  margin-inline: -0.05em;
 }
 
 /* ── Selection ── */
@@ -345,6 +353,9 @@ h1, h2, h3 {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  padding: 0.15em;
+  margin: -0.15em;
+  display: inline-block;
 }
 
 /* ── Gradient primary button ── */

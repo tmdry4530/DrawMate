@@ -2,36 +2,45 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export default function UserProfileLoading() {
   return (
-    <div className="min-h-screen">
-      {/* Cover area */}
-      <div className="h-48 bg-gradient-to-r from-violet-500 to-indigo-500" />
-
-      <div className="container max-w-4xl px-4">
-        {/* Avatar + info */}
-        <div className="-mt-16 flex items-end gap-4 pb-6">
-          <Skeleton className="h-32 w-32 rounded-full border-4 border-background" />
-          <div className="mb-2 flex-1 space-y-2">
-            <Skeleton className="h-8 w-40" />
-            <Skeleton className="h-4 w-60" />
+    <div className="pb-20 px-6 max-w-screen-2xl mx-auto">
+      {/* Header */}
+      <header className="flex flex-col md:flex-row items-center md:items-start gap-12 mb-20 pt-8">
+        {/* Avatar */}
+        <div className="relative">
+          <Skeleton className="w-48 h-48 rounded-full" />
+        </div>
+        {/* Info */}
+        <div className="flex-1 text-center md:text-left space-y-4">
+          <Skeleton className="h-12 w-64 mx-auto md:mx-0" />
+          <Skeleton className="h-4 w-40 mx-auto md:mx-0" />
+          <Skeleton className="h-5 w-full max-w-lg mx-auto md:mx-0" />
+          <Skeleton className="h-5 w-3/4 max-w-md mx-auto md:mx-0" />
+          <div className="flex flex-wrap justify-center md:justify-start gap-4 pt-4">
+            <Skeleton className="h-10 w-32 rounded-full" />
+            <Skeleton className="h-10 w-32 rounded-full" />
           </div>
         </div>
+      </header>
 
-        {/* Stats */}
-        <div className="flex gap-4 mb-6">
-          <Skeleton className="h-5 w-20" />
+      {/* Featured */}
+      <section className="mb-20">
+        <Skeleton className="h-8 w-48 mb-8" />
+        <Skeleton className="w-full h-[400px] rounded-xl" />
+      </section>
+
+      {/* Gallery grid */}
+      <section>
+        <div className="flex gap-8 mb-12">
+          <Skeleton className="h-10 w-24" />
+          <Skeleton className="h-10 w-24" />
+          <Skeleton className="h-10 w-24" />
         </div>
-
-        {/* Portfolio grid skeleton */}
-        <Skeleton className="h-9 w-24 mb-4" />
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 py-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="space-y-2">
-              <Skeleton className="aspect-video w-full rounded-lg" />
-              <Skeleton className="h-4 w-3/4" />
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="aspect-square w-full rounded-xl" />
           ))}
         </div>
-      </div>
+      </section>
     </div>
   )
 }

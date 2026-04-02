@@ -176,7 +176,7 @@ export default function ExplorePage() {
                 필터
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-72 overflow-y-auto">
+            <SheetContent side="left" className="w-72 overflow-y-auto px-6 pt-8">
               <SheetHeader>
                 <SheetTitle>필터</SheetTitle>
               </SheetHeader>

@@ -175,51 +175,56 @@ export function Header() {
             >
               탐색
             </Link>
+            <Link
+              href="/messages"
+              className={
+                isNavActive("/messages")
+                  ? "text-sm font-bold text-primary border-b-2 border-primary pb-1 transition-colors"
+                  : "text-sm font-medium text-foreground hover:scale-105 hover:text-primary transition-all duration-200"
+              }
+            >
+              메시지
+            </Link>
             {user && (
               <Link
-                href="/messages"
+                href="/studio"
                 className={
-                  isNavActive("/messages")
+                  isNavActive("/studio")
                     ? "text-sm font-bold text-primary border-b-2 border-primary pb-1 transition-colors"
                     : "text-sm font-medium text-foreground hover:scale-105 hover:text-primary transition-all duration-200"
                 }
               >
-                메시지
+                스튜디오
               </Link>
             )}
           </nav>
         </div>
 
-        {/* Center: Search - desktop only */}
-        <form
-          className="hidden md:flex flex-1 max-w-sm mx-8"
-          onSubmit={handleSearchSubmit}
-          role="search"
-        >
-          <div className="relative w-full">
-            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-            <Input
-              key={`${pathname}-${searchParams.get("q") ?? ""}`}
-              name="q"
-              type="search"
-              defaultValue={pathname === "/explore" ? searchParams.get("q") ?? "" : ""}
-              placeholder="포트폴리오, 분야, 스타일 검색"
-              aria-label="포트폴리오, 분야, 스타일, 작가 검색"
-              className="w-48 md:w-64 focus:w-80 rounded-full pl-10 pr-4 bg-muted border-border/40 focus-visible:border-primary/40 focus-visible:ring-primary/20 transition-all duration-300"
-            />
-          </div>
-        </form>
+        {/* Right: Search + User actions */}
+        <div className="flex items-center gap-3">
+          <form
+            className="hidden md:flex"
+            onSubmit={handleSearchSubmit}
+            role="search"
+          >
+            <div className="relative">
+              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              <Input
+                key={`${pathname}-${searchParams.get("q") ?? ""}`}
+                name="q"
+                type="search"
+                defaultValue={pathname === "/explore" ? searchParams.get("q") ?? "" : ""}
+                placeholder="포트폴리오, 분야, 스타일 검색"
+                aria-label="포트폴리오, 분야, 스타일, 작가 검색"
+                className="w-48 lg:w-64 rounded-full pl-10 pr-4 bg-muted border-border/40 focus-visible:border-primary/40 focus-visible:ring-primary/20 transition-all duration-300"
+              />
+            </div>
+          </form>
 
-        {/* Right: User actions */}
-        <div className="flex items-center gap-1">
           {loading ? (
             <div className="w-20" />
           ) : user ? (
             <>
-              <Button variant="ghost" className="hidden lg:inline-flex rounded-full text-muted-foreground hover:text-foreground transition-colors duration-200" asChild>
-                <Link href="/studio">스튜디오</Link>
-              </Button>
-
               {/* Bell icon with dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -259,13 +264,6 @@ export function Header() {
                   </ScrollArea>
                 </DropdownMenuContent>
               </DropdownMenu>
-
-              {/* Messages icon */}
-              <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground transition-colors duration-200" asChild>
-                <Link href="/messages" aria-label="메시지 페이지로 이동">
-                  <MessageSquare className="h-5 w-5" />
-                </Link>
-              </Button>
 
               {/* Avatar + Dropdown */}
               <DropdownMenu>

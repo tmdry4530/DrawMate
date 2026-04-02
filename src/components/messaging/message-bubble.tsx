@@ -20,30 +20,30 @@ export function MessageBubble({ message, isMine }: MessageBubbleProps) {
     <div className={`flex ${isMine ? "justify-end" : "justify-start"} mb-3`}>
       <div className={`max-w-[70%] flex flex-col ${isMine ? "items-end" : "items-start"}`}>
         {message.imageUrl && (
-          <div className="mb-1 rounded-lg overflow-hidden">
+          <div className="mb-1 bg-card p-2 rounded-2xl shadow-sm border border-primary/10">
             <Image
               src={message.imageUrl}
               alt="첨부 이미지"
               width={240}
               height={180}
-              className="object-cover"
+              className="rounded-xl object-cover"
             />
           </div>
         )}
 
         {message.content && (
           <div
-            className={`px-3 py-2 rounded-2xl text-sm leading-relaxed break-words ${
+            className={`px-5 py-3.5 rounded-2xl text-sm leading-relaxed break-words ${
               isMine
-                ? "bg-blue-500 text-white rounded-br-sm"
-                : "bg-muted text-foreground rounded-bl-sm"
+                ? "bg-primary text-white rounded-br-none shadow-md"
+                : "bg-card text-foreground rounded-bl-none shadow-sm"
             }`}
           >
             {message.content}
           </div>
         )}
 
-        <span className="text-xs text-muted-foreground mt-1">
+        <span className="text-[10px] font-bold text-muted-foreground uppercase mt-1">
           {formatDistanceToNow(new Date(message.createdAt), {
             addSuffix: true,
             locale: ko,

@@ -204,45 +204,59 @@ export default function ConversationPage() {
       {/* Right: message thread */}
       <main className="flex flex-col flex-1 min-w-0">
         {/* Header */}
-        <div className="flex items-center gap-2 px-4 py-3 border-b">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            aria-label="메시지 목록으로 돌아가기"
-            onClick={() => router.push("/messages")}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          {conversationMeta?.peer ? (
-            <div className="flex items-center gap-2 min-w-0">
-              <Avatar className="h-7 w-7">
-                <AvatarImage src={conversationMeta.peer.avatarUrl ?? undefined} />
-                <AvatarFallback>
-                  {(conversationMeta.peer.displayName ?? "U").charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <span className="font-medium text-sm truncate">
-                {conversationMeta.peer.displayName ?? "알 수 없음"}
-              </span>
-            </div>
-          ) : (
-            <span className="font-medium text-sm">대화</span>
-          )}
+        <div className="h-20 flex-shrink-0 flex items-center justify-between px-8 bg-white/50 backdrop-blur-md border-b border-primary/5">
+          <div className="flex items-center gap-3 min-w-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              aria-label="메시지 목록으로 돌아가기"
+              onClick={() => router.push("/messages")}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            {conversationMeta?.peer ? (
+              <>
+                <div className="relative">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={conversationMeta.peer.avatarUrl ?? undefined} />
+                    <AvatarFallback>
+                      {(conversationMeta.peer.displayName ?? "U").charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-headline font-extrabold text-lg leading-tight truncate">
+                    {conversationMeta.peer.displayName ?? "알 수 없음"}
+                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-xs text-green-600 font-medium">온라인</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <span className="font-headline font-extrabold text-lg">대화</span>
+            )}
+          </div>
         </div>
 
         {/* Messages */}
-        <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 py-4 flex flex-col justify-end">
+        <div
+          ref={messagesContainerRef}
+          className="flex-1 overflow-y-auto chat-scrollbar p-8 space-y-6 flex flex-col justify-end"
+        >
           {hasNextPage && (
-            <div className="flex justify-center mb-4">
-              <Button
-                variant="ghost"
-                size="sm"
+            <div className="flex justify-center">
+              <button
+                type="button"
                 onClick={() => fetchNextPage()}
                 disabled={isFetchingNextPage}
+                className="px-4 py-1 bg-muted rounded-full text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:bg-muted/80 transition-colors disabled:opacity-50"
               >
                 {isFetchingNextPage ? "불러오는 중..." : "이전 메시지 보기"}
-              </Button>
+              </button>
             </div>
           )}
 
@@ -267,7 +281,7 @@ export default function ConversationPage() {
             </div>
           ) : allMessages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
-              <p className="text-sm font-medium">아직 메시지가 없습니다</p>
+              <p className="text-sm font-headline font-semibold">아직 메시지가 없습니다</p>
               <p className="text-sm text-muted-foreground">
                 첫 문의 내용을 남기면 이 대화방에서 협업을 이어갈 수 있습니다.
               </p>
@@ -281,7 +295,6 @@ export default function ConversationPage() {
               />
             ))
           )}
-
         </div>
 
         {/* Input */}
