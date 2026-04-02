@@ -66,7 +66,6 @@ export function PortfolioCard({
               <span
                 className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center hover:bg-primary transition-colors"
                 aria-label={`북마크 ${bookmarkCount}`}
-                onClick={(e) => e.preventDefault()}
               >
                 <Bookmark className="h-5 w-5" />
               </span>
