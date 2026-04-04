@@ -27,26 +27,28 @@ const sections = [
 
 export default function TermsPage() {
   return (
-    <div className="mx-auto max-w-4xl py-10">
-      <div className="rounded-2xl border bg-card p-6 md:p-8">
-        <p className="text-sm font-semibold text-primary">이용약관</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight">DrawMate 서비스 이용 안내</h1>
-        <p className="mt-3 text-sm leading-6 text-muted-foreground">
-          이 문서는 현재 서비스 구조를 기준으로 정리한 기본 안내입니다. 정식 운영 전 사업자 정보,
-          세부 정책, 법적 고지 문구는 별도로 보강되어야 합니다.
-        </p>
+    <div className="bg-black min-h-screen">
+      <div className="mx-auto max-w-4xl py-10">
+        <div className="border border-neutral-800 p-6 md:p-8">
+          <p className="text-xs font-black uppercase tracking-widest text-neutral-400">이용약관</p>
+          <h1 className="mt-2 text-3xl font-black uppercase tracking-tighter text-white">DrawMate 서비스 이용 안내</h1>
+          <p className="mt-3 text-sm leading-6 text-neutral-400">
+            이 문서는 현재 서비스 구조를 기준으로 정리한 기본 안내입니다. 정식 운영 전 사업자 정보,
+            세부 정책, 법적 고지 문구는 별도로 보강되어야 합니다.
+          </p>
 
-        <div className="mt-8 space-y-8">
-          {sections.map((section) => (
-            <section key={section.title}>
-              <h2 className="text-lg font-semibold">{section.title}</h2>
-              <ul className="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
-                {section.items.map((item) => (
-                  <li key={item}>• {item}</li>
-                ))}
-              </ul>
-            </section>
-          ))}
+          <div className="mt-8 space-y-8">
+            {sections.map((section) => (
+              <section key={section.title}>
+                <h2 className="text-lg font-black uppercase tracking-tighter text-white">{section.title}</h2>
+                <ul className="mt-3 space-y-2 text-sm leading-6 text-neutral-400">
+                  {section.items.map((item) => (
+                    <li key={item}>• {item}</li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
         </div>
       </div>
     </div>

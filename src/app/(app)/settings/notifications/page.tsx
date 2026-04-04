@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { unwrapApiData } from "@/lib/utils/client-api";
 
@@ -87,55 +86,59 @@ export default function NotificationsSettingsPage() {
 
   return (
     <div className="mx-auto w-full max-w-2xl py-8 px-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>알림 설정</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-3">
+      <div className="border border-neutral-800 bg-[#131313]">
+        <div className="border-b border-neutral-800 px-6 py-4">
+          <h2 className="font-black uppercase tracking-tighter text-white">알림 설정</h2>
+        </div>
+        <div className="px-6 py-6 space-y-6">
+          <div className="flex items-center gap-4 border-b border-neutral-800 pb-6">
             <Checkbox
               id="new-message"
               checked={newMessage}
               onCheckedChange={(checked) => handleNewMessageChange(!!checked)}
               disabled={loading || saving}
+              className="rounded-none border-neutral-600 data-[state=checked]:bg-white data-[state=checked]:text-black"
             />
             <div>
-              <label htmlFor="new-message" className="text-sm font-medium cursor-pointer">
+              <label htmlFor="new-message" className="text-sm font-black uppercase tracking-widest text-white cursor-pointer">
                 새 메시지 알림
               </label>
-              <p className="text-xs text-muted-foreground">In-app</p>
+              <p className="text-xs text-neutral-500 mt-0.5">In-app</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4 border-b border-neutral-800 pb-6">
             <Checkbox
               id="bookmark"
               checked={bookmark}
               onCheckedChange={(checked) => handleBookmarkChange(!!checked)}
               disabled={loading || saving}
+              className="rounded-none border-neutral-600 data-[state=checked]:bg-white data-[state=checked]:text-black"
             />
             <div>
-              <label htmlFor="bookmark" className="text-sm font-medium cursor-pointer">
+              <label htmlFor="bookmark" className="text-sm font-black uppercase tracking-widest text-white cursor-pointer">
                 북마크 알림
               </label>
-              <p className="text-xs text-muted-foreground">In-app</p>
+              <p className="text-xs text-neutral-500 mt-0.5">In-app</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Checkbox id="push" checked={false} disabled />
+          <div className="flex items-center gap-4 opacity-40">
+            <Checkbox
+              id="push"
+              checked={false}
+              disabled
+              className="rounded-none border-neutral-600"
+            />
             <div>
-              <label
-                htmlFor="push"
-                className="text-sm font-medium text-muted-foreground cursor-not-allowed"
-              >
+              <label htmlFor="push" className="text-sm font-black uppercase tracking-widest text-neutral-500 cursor-not-allowed">
                 Push 알림
               </label>
-              <p className="text-xs text-muted-foreground">준비 중</p>
+              <p className="text-xs text-neutral-600 mt-0.5">준비 중</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

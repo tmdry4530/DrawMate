@@ -98,7 +98,7 @@ export function MessageInput({ conversationId, currentUserId, onMessageSent, onO
   }
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 bg-white/30 backdrop-blur-sm">
+    <form onSubmit={handleSubmit} className="p-6 bg-[#131313] border-t border-neutral-800">
       {filePreview && (
         <div className="relative inline-block mb-3">
           <Image
@@ -107,20 +107,20 @@ export function MessageInput({ conversationId, currentUserId, onMessageSent, onO
             width={120}
             height={80}
             unoptimized
-            className="h-20 w-auto rounded-lg object-cover border"
+            className="h-20 w-auto rounded-none object-cover border border-neutral-800"
           />
           <button
             type="button"
             onClick={removeFile}
             aria-label="첨부 이미지 제거"
-            className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-0.5"
+            className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-none p-0.5"
           >
             <X className="h-3 w-3" />
           </button>
         </div>
       )}
 
-      <div className="flex items-end gap-3 bg-card p-3 rounded-3xl shadow-lg border border-primary/5">
+      <div className="flex items-end gap-3 bg-transparent p-3 rounded-none border border-neutral-800">
         <input
           ref={fileRef}
           type="file"
@@ -131,7 +131,7 @@ export function MessageInput({ conversationId, currentUserId, onMessageSent, onO
         <button
           type="button"
           aria-label="이미지 첨부"
-          className="shrink-0 w-9 h-9 flex items-center justify-center rounded-full text-muted-foreground hover:bg-muted transition-colors"
+          className="shrink-0 w-9 h-9 flex items-center justify-center rounded-none text-muted-foreground hover:bg-neutral-800 transition-colors"
           onClick={() => fileRef.current?.click()}
         >
           <Paperclip className="h-4 w-4" />
@@ -152,7 +152,7 @@ export function MessageInput({ conversationId, currentUserId, onMessageSent, onO
           type="submit"
           aria-label="메시지 전송"
           disabled={sending || (!content.trim() && !file)}
-          className="shrink-0 w-10 h-10 flex items-center justify-center bg-primary text-white rounded-full hover:scale-110 active:scale-95 transition-all shadow-md shadow-primary/20 disabled:opacity-50 disabled:pointer-events-none"
+          className="shrink-0 w-10 h-10 flex items-center justify-center bg-primary text-white rounded-none hover:opacity-80 active:opacity-70 transition-opacity disabled:opacity-50 disabled:pointer-events-none"
         >
           <Send className="h-4 w-4" />
         </button>

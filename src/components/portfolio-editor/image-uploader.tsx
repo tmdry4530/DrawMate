@@ -183,7 +183,7 @@ export function ImageUploader() {
     <div>
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-2">이미지 업로드</h2>
-        <p className="text-muted-foreground">
+        <p className="text-neutral-500">
           작품 이미지를 업로드하세요. 최대 {MAX_IMAGES}장, 각 파일{" "}
           {MAX_FILE_SIZE_MB}MB 이하 (JPEG, PNG, WEBP)
         </p>
@@ -192,14 +192,14 @@ export function ImageUploader() {
       {/* 드래그 앤 드롭 영역 */}
       {images.length < MAX_IMAGES && (
         <div
-          className="border-2 border-dashed rounded-xl p-10 text-center mb-6 cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+          className="border-2 border-dashed border-neutral-700 p-10 text-center mb-6 cursor-pointer hover:border-white hover:bg-white/5"
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onClick={() => fileInputRef.current?.click()}
         >
-          <Upload className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
+          <Upload className="w-10 h-10 mx-auto mb-3 text-neutral-500" />
           <p className="font-medium mb-1">이미지를 드래그하거나 클릭하여 업로드</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-neutral-500">
             JPEG, PNG, WEBP 지원 · 최대 {MAX_FILE_SIZE_MB}MB
           </p>
           <input
@@ -217,10 +217,10 @@ export function ImageUploader() {
       {images.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium text-muted-foreground">
+            <p className="text-sm font-medium text-neutral-500">
               {images.length} / {MAX_IMAGES}장
             </p>
-            <p className="text-xs text-muted-foreground">별 아이콘으로 대표 이미지 설정</p>
+            <p className="text-xs text-neutral-500">별 아이콘으로 대표 이미지 설정</p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {images.map((img, index) => {
@@ -231,7 +231,7 @@ export function ImageUploader() {
                 <div
                   key={img.clientId}
                   className={cn(
-                    "relative rounded-lg overflow-hidden border-2 group",
+                    "relative overflow-hidden border-2 group",
                     img.isCover ? "border-yellow-400" : "border-transparent"
                   )}
                 >
@@ -248,7 +248,7 @@ export function ImageUploader() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                        <ImageIcon className="w-8 h-8 text-neutral-500" />
                       </div>
                     )}
 
@@ -319,7 +319,7 @@ export function ImageUploader() {
       )}
 
       {images.length === 0 && (
-        <p className="text-center text-muted-foreground text-sm mt-4">
+        <p className="text-center text-neutral-500 text-sm mt-4">
           이미지를 1장 이상 업로드해야 합니다.
         </p>
       )}

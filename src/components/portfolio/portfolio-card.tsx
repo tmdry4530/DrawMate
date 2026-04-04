@@ -37,9 +37,9 @@ export function PortfolioCard({
   return (
     <Link
       href={`/portfolio/${slug}`}
-      className="portfolio-card break-inside-avoid relative group overflow-hidden rounded-xl bg-card mb-8 block"
+      className="portfolio-card break-inside-avoid relative group overflow-hidden bg-black mb-8 block border border-neutral-800"
     >
-      <div className={`overflow-hidden rounded-xl ${aspectRatio} relative bg-muted`}>
+      <div className={`overflow-hidden ${aspectRatio} relative bg-neutral-900`}>
         {thumbnailUrl ? (
           <Image
             src={thumbnailUrl}

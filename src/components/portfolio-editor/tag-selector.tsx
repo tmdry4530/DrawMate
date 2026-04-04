@@ -72,15 +72,15 @@ export function TagSelector() {
     return (
       <div>
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2">태그 선택</h2>
+          <h2 className="text-2xl font-bold mb-2 uppercase font-black">태그 선택</h2>
         </div>
         <div className="space-y-6">
           {(["field", "skill", "tool", "style"] as const).map((cat) => (
             <div key={cat}>
-              <div className="h-4 w-16 bg-muted rounded animate-pulse mb-3" />
+              <div className="h-4 w-16 bg-neutral-800 animate-pulse mb-3" />
               <div className="flex flex-wrap gap-2">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="h-7 w-16 bg-muted rounded-full animate-pulse" />
+                  <div key={i} className="h-7 w-16 bg-neutral-800 animate-pulse" />
                 ))}
               </div>
             </div>

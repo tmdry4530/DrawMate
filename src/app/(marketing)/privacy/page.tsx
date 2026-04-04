@@ -27,26 +27,28 @@ const sections = [
 
 export default function PrivacyPage() {
   return (
-    <div className="mx-auto max-w-4xl py-10">
-      <div className="rounded-2xl border bg-card p-6 md:p-8">
-        <p className="text-sm font-semibold text-primary">개인정보처리방침</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight">DrawMate 개인정보 안내</h1>
-        <p className="mt-3 text-sm leading-6 text-muted-foreground">
-          현재 서비스에 노출되는 개인정보 관련 핵심 항목을 정리한 초안입니다. 정식 배포 전에는
-          법적 검토를 거친 최종 문구와 사업자 정보를 반드시 반영해야 합니다.
-        </p>
+    <div className="bg-black min-h-screen">
+      <div className="mx-auto max-w-4xl py-10">
+        <div className="border border-neutral-800 p-6 md:p-8">
+          <p className="text-xs font-black uppercase tracking-widest text-neutral-400">개인정보처리방침</p>
+          <h1 className="mt-2 text-3xl font-black uppercase tracking-tighter text-white">DrawMate 개인정보 안내</h1>
+          <p className="mt-3 text-sm leading-6 text-neutral-400">
+            현재 서비스에 노출되는 개인정보 관련 핵심 항목을 정리한 초안입니다. 정식 배포 전에는
+            법적 검토를 거친 최종 문구와 사업자 정보를 반드시 반영해야 합니다.
+          </p>
 
-        <div className="mt-8 space-y-8">
-          {sections.map((section) => (
-            <section key={section.title}>
-              <h2 className="text-lg font-semibold">{section.title}</h2>
-              <ul className="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
-                {section.items.map((item) => (
-                  <li key={item}>• {item}</li>
-                ))}
-              </ul>
-            </section>
-          ))}
+          <div className="mt-8 space-y-8">
+            {sections.map((section) => (
+              <section key={section.title}>
+                <h2 className="text-lg font-black uppercase tracking-tighter text-white">{section.title}</h2>
+                <ul className="mt-3 space-y-2 text-sm leading-6 text-neutral-400">
+                  {section.items.map((item) => (
+                    <li key={item}>• {item}</li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
         </div>
       </div>
     </div>

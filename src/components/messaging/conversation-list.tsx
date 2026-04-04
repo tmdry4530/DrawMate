@@ -79,7 +79,7 @@ export function ConversationList({ activeId }: { activeId?: string }) {
     return (
       <div className="space-y-3 p-4">
         {Array.from({ length: 5 }).map((_, index) => (
-          <div key={index} className="h-20 animate-pulse rounded-3xl bg-muted" />
+          <div key={index} className="h-20 animate-pulse rounded-none bg-neutral-900" />
         ))}
       </div>
     )
@@ -93,7 +93,7 @@ export function ConversationList({ activeId }: { activeId?: string }) {
           <input
             type="text"
             placeholder="대화 검색..."
-            className="w-full rounded-2xl bg-muted border-none py-2.5 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground"
+            className="w-full rounded-none bg-[#1b1b1b] border border-neutral-800 py-2.5 pl-10 pr-4 text-sm outline-none focus:ring-0 placeholder:text-muted-foreground"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -120,24 +120,24 @@ export function ConversationList({ activeId }: { activeId?: string }) {
                   <button
                     type="button"
                     aria-label={`${conv.otherUser.name} 대화 열기`}
-                    className={`flex w-full items-center gap-3 p-4 rounded-3xl transition-all text-left ${
+                    className={`flex w-full items-center gap-3 p-4 rounded-none transition-all text-left ${
                       isActive
-                        ? "bg-card shadow-sm border border-primary/5"
-                        : "hover:bg-muted/50"
+                        ? "bg-[#2a2a2a] border-l-2 border-white"
+                        : "hover:bg-neutral-900"
                     }`}
                     onClick={() => router.push(`/messages/${conv.id}`)}
                   >
                     <div className="relative shrink-0">
-                      <Avatar className="h-14 w-14 rounded-2xl">
+                      <Avatar className="h-14 w-14 rounded-none">
                         <AvatarImage
                           src={conv.otherUser.profileImage ?? undefined}
-                          className="rounded-2xl object-cover"
+                          className="rounded-none object-cover"
                         />
-                        <AvatarFallback className="rounded-2xl text-base font-bold">
+                        <AvatarFallback className="rounded-none text-base font-bold">
                           {conv.otherUser.name.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-4 border-white rounded-full" />
+                      <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-4 border-black rounded-none" />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -169,7 +169,7 @@ export function ConversationList({ activeId }: { activeId?: string }) {
                           {conv.lastMessage?.content ?? "메시지가 없습니다"}
                         </p>
                         {conv.unreadCount > 0 && (
-                          <span className="shrink-0 w-5 h-5 bg-primary text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+                          <span className="shrink-0 w-5 h-5 bg-primary text-white text-[10px] rounded-none flex items-center justify-center font-bold">
                             {conv.unreadCount > 99 ? "99+" : conv.unreadCount}
                           </span>
                         )}

@@ -17,9 +17,7 @@ export function MobileNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 glass md:hidden">
-      {/* Gradient top border */}
-      <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-black border-t border-neutral-800 md:hidden">
       <div className="flex items-center justify-around h-16 px-2">
         {navItems.map(({ href, icon: Icon, label }) => {
           const isActive = pathname === href;
@@ -29,14 +27,14 @@ export function MobileNav() {
               href={href}
               aria-label={label}
               className={cn(
-                "relative flex flex-col items-center gap-1 px-3 py-2 text-center text-[11px] leading-tight transition-all duration-200 rounded-full",
+                "relative flex flex-col items-center gap-1 px-3 py-2 text-center text-[11px] leading-tight transition-all duration-200 rounded-none",
                 isActive
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
               {isActive && (
-                <span className="absolute inset-0 rounded-full bg-primary/10" />
+                <span className="absolute inset-0 rounded-none bg-primary/10" />
               )}
               <Icon
                 className={cn(

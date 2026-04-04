@@ -12,7 +12,7 @@ export function PortfolioGallery({ coverImage, images, title }: PortfolioGallery
   return (
     <section className="space-y-6">
       {/* Main hero image */}
-      <div className="relative group aspect-[16/10] overflow-hidden rounded-xl bg-muted">
+      <div className="relative group aspect-[16/10] overflow-hidden bg-neutral-900">
         <Image
           src={coverImage}
           alt={title}
@@ -27,7 +27,7 @@ export function PortfolioGallery({ coverImage, images, title }: PortfolioGallery
       {/* Asymmetric sub-images */}
       {otherImages.length >= 2 && (
         <div className="grid grid-cols-2 gap-6">
-          <div className="relative aspect-square overflow-hidden rounded-xl bg-muted translate-y-4">
+          <div className="relative aspect-square overflow-hidden bg-neutral-900 translate-y-4">
             <Image
               src={otherImages[0]}
               alt={`${title} 이미지 2`}
@@ -36,7 +36,7 @@ export function PortfolioGallery({ coverImage, images, title }: PortfolioGallery
               sizes="50vw"
             />
           </div>
-          <div className="relative aspect-square overflow-hidden rounded-xl bg-muted -translate-y-4">
+          <div className="relative aspect-square overflow-hidden bg-neutral-900 -translate-y-4">
             <Image
               src={otherImages[1]}
               alt={`${title} 이미지 3`}
@@ -50,7 +50,7 @@ export function PortfolioGallery({ coverImage, images, title }: PortfolioGallery
 
       {/* If only 1 other image */}
       {otherImages.length === 1 && (
-        <div className="relative aspect-[16/9] overflow-hidden rounded-xl bg-muted">
+        <div className="relative aspect-[16/9] overflow-hidden bg-neutral-900">
           <Image
             src={otherImages[0]}
             alt={`${title} 이미지 2`}
@@ -63,7 +63,7 @@ export function PortfolioGallery({ coverImage, images, title }: PortfolioGallery
 
       {/* Remaining images as panoramic strips */}
       {otherImages.slice(2).map((img, idx) => (
-        <div key={idx} className="relative aspect-[16/6] overflow-hidden rounded-xl bg-muted mt-8">
+        <div key={idx} className="relative aspect-[16/6] overflow-hidden bg-neutral-900 mt-8">
           <Image
             src={img}
             alt={`${title} 이미지 ${idx + 4}`}

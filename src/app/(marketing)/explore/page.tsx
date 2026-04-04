@@ -125,71 +125,77 @@ export default function ExplorePage() {
     !q.trim()
 
   return (
-    <div className="pt-12 pb-20 px-6 max-w-screen-2xl mx-auto">
-      {/* Hero */}
-      <section className="mb-12 animate-fade-up">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-          <div className="max-w-2xl">
-            <p className="font-headline font-bold text-[hsl(var(--tertiary,38_60%_45%))] text-sm tracking-widest uppercase mb-3">
-              Curated Selection
-            </p>
-            <h1 className="text-5xl md:text-7xl font-headline font-extrabold text-foreground tracking-tighter leading-tight">
-              Discover the{" "}
-              <span className="gradient-text italic">Moving Mind</span>.
-            </h1>
-          </div>
+    <div className="bg-black text-white -mt-20 pt-20 min-h-screen">
+      <div className="pb-20 px-6 max-w-screen-2xl mx-auto">
+        {/* Hero */}
+        <section className="pt-12 mb-12 animate-fade-up">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <div className="max-w-2xl">
+              <p className="font-mono text-neutral-500 text-xs tracking-widest uppercase mb-3">
+                Curated Selection
+              </p>
+              <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none text-white">
+                Discover the{" "}
+                <span className="text-neutral-400">Moving Mind.</span>
+              </h1>
+            </div>
 
-          {/* Filter Pills */}
-          <div className="flex flex-wrap gap-3 shrink-0">
-            {FILTER_PILLS.map((pill) => {
-              const isActive =
-                pill.fieldTag === null ? isAllActive : activePill === pill.fieldTag
-              return (
-                <button
-                  key={pill.label}
-                  onClick={() => handlePillClick(pill.fieldTag)}
-                  className={cn(
-                    "px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200",
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-card text-foreground hover:bg-muted border border-border/40"
-                  )}
+            {/* Filter Pills */}
+            <div className="flex flex-wrap gap-2 shrink-0">
+              {FILTER_PILLS.map((pill) => {
+                const isActive =
+                  pill.fieldTag === null ? isAllActive : activePill === pill.fieldTag
+                return (
+                  <button
+                    key={pill.label}
+                    onClick={() => handlePillClick(pill.fieldTag)}
+                    className={cn(
+                      "px-4 py-1.5 text-xs font-mono font-medium uppercase tracking-wider transition-colors duration-150",
+                      isActive
+                        ? "bg-white text-black border border-white"
+                        : "bg-transparent text-neutral-400 border border-neutral-800 hover:border-white hover:text-white"
+                    )}
+                  >
+                    {pill.label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Search + Mobile Filter */}
+        <section className="mb-10 animate-fade-up" style={{ animationDelay: "80ms" }}>
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <SearchBar />
+            </div>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 shrink-0 rounded-none border-neutral-800 bg-transparent text-neutral-400 hover:border-white hover:text-white hover:bg-transparent font-mono text-xs uppercase tracking-wider"
                 >
-                  {pill.label}
-                </button>
-              )
-            })}
+                  <SlidersHorizontal className="h-4 w-4" />
+                  필터
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-72 overflow-y-auto px-6 pt-8 bg-black border-neutral-800 text-white">
+                <SheetHeader>
+                  <SheetTitle className="text-white font-mono uppercase tracking-wider">필터</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6">
+                  <FilterPanel />
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Search + Mobile Filter */}
-      <section className="mb-10 animate-fade-up" style={{ animationDelay: "80ms" }}>
-        <div className="flex items-center gap-3">
-          <div className="flex-1">
-            <SearchBar />
-          </div>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-1.5 shrink-0 rounded-full border-none bg-muted">
-                <SlidersHorizontal className="h-4 w-4" />
-                필터
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-72 overflow-y-auto px-6 pt-8">
-              <SheetHeader>
-                <SheetTitle>필터</SheetTitle>
-              </SheetHeader>
-              <div className="mt-6">
-                <FilterPanel />
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </section>
-
-      {/* Grid */}
-      <PortfolioGrid />
+        {/* Grid */}
+        <PortfolioGrid />
+      </div>
     </div>
   )
 }

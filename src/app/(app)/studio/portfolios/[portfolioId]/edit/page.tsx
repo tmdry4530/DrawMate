@@ -87,22 +87,22 @@ export default function EditPortfolioPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-        <p className="text-sm text-muted-foreground">포트폴리오를 불러오는 중...</p>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3 bg-black text-white -mt-20 pt-20">
+        <Loader2 className="w-6 h-6 animate-spin text-neutral-500" />
+        <p className="text-sm text-neutral-500">포트폴리오를 불러오는 중...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 bg-black text-white -mt-20 pt-20">
         <p className="text-red-500 text-sm">{error}</p>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => router.push("/studio/portfolios")}
-          className="text-muted-foreground"
+          className="rounded-none border border-neutral-700 text-neutral-400 hover:text-white hover:bg-neutral-900 uppercase text-xs font-black tracking-widest"
         >
           <ArrowLeft className="w-4 h-4 mr-1.5" />
           목록으로 돌아가기
@@ -112,22 +112,22 @@ export default function EditPortfolioPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-black text-white -mt-20 pt-20">
       {/* 편집 상단 바 */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b px-4 py-2.5 flex items-center justify-between gap-3">
+      <div className="sticky top-0 z-20 bg-black border-b border-neutral-800 px-4 py-2.5 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <Button
             variant="ghost"
             size="icon"
             asChild
-            className="shrink-0 w-8 h-8 text-muted-foreground hover:text-foreground"
+            className="shrink-0 w-8 h-8 text-neutral-400 hover:text-white rounded-none"
           >
             <Link href="/studio/portfolios">
               <ArrowLeft className="w-4 h-4" />
             </Link>
           </Button>
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium hidden sm:block">
+            <p className="text-xs text-neutral-500 uppercase tracking-widest font-black hidden sm:block">
               포트폴리오 편집
             </p>
           </div>
@@ -135,7 +135,12 @@ export default function EditPortfolioPage() {
 
         <div className="flex items-center gap-2 shrink-0">
           {portfolioStatus === "published" && portfolioSlug && (
-            <Button variant="outline" size="sm" asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="rounded-none border border-neutral-700 bg-transparent text-neutral-400 hover:text-white hover:bg-neutral-900 uppercase text-xs font-black tracking-widest px-3"
+            >
               <Link href={`/portfolio/${portfolioSlug}`} target="_blank">
                 <Eye className="w-3.5 h-3.5 mr-1.5" />
                 미리보기

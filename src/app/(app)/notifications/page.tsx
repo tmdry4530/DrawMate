@@ -3,8 +3,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Bell } from "lucide-react"
 import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { NotificationItem } from "@/components/notifications/notification-item"
 import { unwrapApiData } from "@/lib/utils/client-api"
 
@@ -85,41 +83,46 @@ export default function NotificationsPage() {
   const hasUnread = notifications.some((n) => !n.isRead)
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-semibold">알림</h1>
-        {hasUnread && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => mutation.mutate()}
-            disabled={mutation.isPending}
-          >
-            모두 읽음
-          </Button>
+    <div className="bg-black text-white -mt-20 pt-20 min-h-screen">
+      <div className="max-w-2xl mx-auto px-4 py-10">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-4xl font-black uppercase tracking-tighter">알림</h1>
+          {hasUnread && (
+            <button
+              onClick={() => mutation.mutate()}
+              disabled={mutation.isPending}
+              className="text-sm font-bold uppercase tracking-tight text-white underline underline-offset-4 hover:text-neutral-300 transition-colors disabled:opacity-50"
+            >
+              모두 읽음
+            </button>
+          )}
+        </div>
+
+        {isLoading ? (
+          <div className="text-center py-12 text-neutral-500 text-sm uppercase tracking-widest">
+            불러오는 중...
+          </div>
+        ) : notifications.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-4 text-neutral-500">
+            <Bell className="h-10 w-10" />
+            <p className="text-sm uppercase tracking-widest">알림이 없습니다</p>
+          </div>
+        ) : (
+          <div className="border border-white">
+            {notifications.map((n, index) => (
+              <div
+                key={n.id}
+                className={index !== notifications.length - 1 ? "border-b border-neutral-700" : ""}
+              >
+                <NotificationItem
+                  notification={n}
+                  onMarkAsRead={(notificationId) => markOneMutation.mutate(notificationId)}
+                />
+              </div>
+            ))}
+          </div>
         )}
       </div>
-
-      {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground text-sm">
-          불러오는 중...
-        </div>
-      ) : notifications.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
-          <Bell className="h-10 w-10" />
-          <p className="text-sm">알림이 없습니다</p>
-        </div>
-      ) : (
-        <ScrollArea className="rounded-lg border">
-          {notifications.map((n) => (
-            <NotificationItem
-              key={n.id}
-              notification={n}
-              onMarkAsRead={(notificationId) => markOneMutation.mutate(notificationId)}
-            />
-          ))}
-        </ScrollArea>
-      )}
     </div>
   )
 }

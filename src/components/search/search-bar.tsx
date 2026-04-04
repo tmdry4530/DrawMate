@@ -35,13 +35,13 @@ export function SearchBar() {
         onChange={(e) => setInputValue(e.target.value)}
         placeholder="작업명, 분야, 작가 검색"
         aria-label="포트폴리오, 분야, 스타일, 작가 검색"
-        className="border-none rounded-full py-2.5 px-6 pr-12 bg-muted focus-visible:ring-2 focus-visible:ring-secondary/20"
+        className="rounded-none py-2.5 px-6 pr-12 bg-transparent border border-neutral-800 focus:border-white focus-visible:ring-0"
       />
       {inputValue ? (
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full"
+          className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-none"
           onClick={() => {
             setInputValue("")
             setQ("")

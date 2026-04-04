@@ -3,8 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Bell, MessageSquare, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Bell, Search } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -13,8 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createClient } from "@/lib/supabase/browser-client";
 import { unwrapApiData } from "@/lib/utils/client-api";
@@ -135,14 +132,8 @@ export function Header() {
     const rawQuery = formData.get("q");
     const query = typeof rawQuery === "string" ? rawQuery.trim() : "";
     const nextParams = new URLSearchParams();
-    if (query) {
-      nextParams.set("q", query);
-    }
-
-    const nextUrl = nextParams.toString()
-      ? `/explore?${nextParams.toString()}`
-      : "/explore";
-
+    if (query) nextParams.set("q", query);
+    const nextUrl = nextParams.toString() ? `/explore?${nextParams.toString()}` : "/explore";
     router.push(nextUrl);
   };
 
@@ -150,105 +141,93 @@ export function Header() {
     pathname === href || pathname.startsWith(href + "/");
 
   return (
-    <header className="fixed top-0 w-full z-50 h-20 bg-white/70 backdrop-blur-xl border-b border-border/40">
-      <div className="flex justify-between items-center px-8 h-full w-full mx-auto max-w-screen-2xl">
+    <header className="fixed top-0 w-full z-50 h-20 bg-black border-b border-white/10">
+      <div className="flex justify-between items-center px-6 md:px-12 h-full w-full">
         {/* Left: Logo + Nav */}
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-0 shrink-0">
-            <span className="text-2xl font-black text-primary italic font-headline tracking-tight">
-              Draw
-            </span>
-            <span className="text-2xl font-black italic font-headline tracking-tight bg-gradient-to-r from-primary to-primary-container bg-clip-text text-transparent">
-              Mate
-            </span>
+        <div className="flex items-center gap-8 md:gap-12 h-full">
+          <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter text-white uppercase shrink-0">
+            DRAWMATE.
           </Link>
 
-          {/* Nav links - desktop */}
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-8 h-full font-bold tracking-tighter uppercase">
             <Link
               href="/explore"
-              className={
+              className={`h-full flex items-center ${
                 isNavActive("/explore")
-                  ? "text-sm font-bold text-primary border-b-2 border-primary pb-1 transition-colors"
-                  : "text-sm font-medium text-foreground hover:scale-105 hover:text-primary transition-all duration-200"
-              }
+                  ? "text-white border-b-2 border-white pt-0.5"
+                  : "text-white/40 hover:text-white"
+              }`}
             >
-              탐색
+              Explore
+            </Link>
+            <Link
+              href="/studio/portfolios"
+              className={`h-full flex items-center ${
+                isNavActive("/studio")
+                  ? "text-white border-b-2 border-white pt-0.5"
+                  : "text-white/40 hover:text-white"
+              }`}
+            >
+              Portfolio
             </Link>
             <Link
               href="/messages"
-              className={
+              className={`h-full flex items-center ${
                 isNavActive("/messages")
-                  ? "text-sm font-bold text-primary border-b-2 border-primary pb-1 transition-colors"
-                  : "text-sm font-medium text-foreground hover:scale-105 hover:text-primary transition-all duration-200"
-              }
+                  ? "text-white border-b-2 border-white pt-0.5"
+                  : "text-white/40 hover:text-white"
+              }`}
             >
-              메시지
+              Messages
             </Link>
-            {user && (
-              <Link
-                href="/studio"
-                className={
-                  isNavActive("/studio")
-                    ? "text-sm font-bold text-primary border-b-2 border-primary pb-1 transition-colors"
-                    : "text-sm font-medium text-foreground hover:scale-105 hover:text-primary transition-all duration-200"
-                }
-              >
-                스튜디오
-              </Link>
-            )}
           </nav>
         </div>
 
-        {/* Right: Search + User actions */}
-        <div className="flex items-center gap-3">
+        {/* Right: Search + Actions */}
+        <div className="flex items-center gap-4 md:gap-6">
           <form
-            className="hidden md:flex"
+            className="hidden sm:block relative"
             onSubmit={handleSearchSubmit}
             role="search"
           >
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-              <Input
-                key={`${pathname}-${searchParams.get("q") ?? ""}`}
-                name="q"
-                type="search"
-                defaultValue={pathname === "/explore" ? searchParams.get("q") ?? "" : ""}
-                placeholder="포트폴리오, 분야, 스타일 검색"
-                aria-label="포트폴리오, 분야, 스타일, 작가 검색"
-                className="w-48 lg:w-64 rounded-full pl-10 pr-4 bg-muted border-border/40 focus-visible:border-primary/40 focus-visible:ring-primary/20 transition-all duration-300"
-              />
-            </div>
+            <input
+              key={`${pathname}-${searchParams.get("q") ?? ""}`}
+              name="q"
+              type="search"
+              defaultValue={pathname === "/explore" ? searchParams.get("q") ?? "" : ""}
+              placeholder="SEARCH CREATIVES"
+              aria-label="포트폴리오, 분야, 스타일, 작가 검색"
+              className="bg-transparent border border-white/20 text-xs px-4 py-2 w-48 lg:w-64 focus:outline-none focus:border-white text-white placeholder:text-white/30 tracking-widest uppercase rounded-none"
+            />
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
           </form>
 
           {loading ? (
             <div className="w-20" />
           ) : user ? (
             <>
-              {/* Bell icon with dropdown */}
+              {/* Notifications */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative rounded-full text-muted-foreground hover:text-foreground transition-colors duration-200" aria-label="알림">
+                  <button className="relative text-white/60 hover:text-white" aria-label="알림">
                     <Bell className="h-5 w-5" />
                     {unreadCount > 0 && (
-                      <Badge className="absolute -right-1 -top-1 h-4 min-w-4 rounded-full px-1 text-xs flex items-center justify-center">
-                        {unreadCount > 99 ? "99+" : unreadCount}
-                      </Badge>
+                      <span className="absolute -top-0.5 -right-0.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-black" />
                     )}
-                  </Button>
+                  </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80 p-0">
-                  <div className="flex items-center justify-between px-4 py-3 border-b">
-                    <span className="text-sm font-semibold">알림</span>
+                <DropdownMenuContent align="end" className="w-80 p-0 bg-[#1b1b1b] border-neutral-800 text-white">
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800">
+                    <span className="text-sm font-bold uppercase tracking-wider">알림</span>
                     {unreadCount > 0 && (
-                      <button type="button" onClick={handleMarkAllRead} className="text-xs text-primary hover:underline">
+                      <button type="button" onClick={handleMarkAllRead} className="text-xs text-neutral-400 hover:text-white uppercase tracking-wider">
                         모두 읽음
                       </button>
                     )}
                   </div>
                   <ScrollArea className="max-h-80">
                     {notifications.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
+                      <div className="flex flex-col items-center justify-center py-10 text-neutral-500">
                         <Bell className="h-8 w-8 mb-2" />
                         <p className="text-sm">알림이 없습니다</p>
                       </div>
@@ -265,32 +244,33 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Avatar + Dropdown */}
+              {/* Avatar */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="relative h-8 w-8 rounded-full p-0 ml-1 ring-0 hover:ring-2 hover:ring-primary/20 transition-all duration-200"
+                  <button
+                    className="w-10 h-10 bg-neutral-800 border border-white/10 overflow-hidden flex items-center justify-center"
                     aria-label="프로필 메뉴 열기"
                   >
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-10 w-10 rounded-none">
                       <AvatarImage src={user.profile?.avatarUrl ?? undefined} alt="프로필" />
-                      <AvatarFallback>{user.profile?.displayName?.[0] ?? "U"}</AvatarFallback>
+                      <AvatarFallback className="rounded-none bg-neutral-800 text-white font-black text-sm">
+                        {user.profile?.displayName?.[0] ?? "U"}
+                      </AvatarFallback>
                     </Avatar>
-                  </Button>
+                  </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem asChild>
+                <DropdownMenuContent align="end" className="w-48 bg-[#1b1b1b] border-neutral-800 text-white">
+                  <DropdownMenuItem asChild className="focus:bg-neutral-800 focus:text-white">
                     <Link href={`/users/${user.id}`}>프로필 보기</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem asChild className="focus:bg-neutral-800 focus:text-white">
                     <Link href="/studio">스튜디오</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem asChild className="focus:bg-neutral-800 focus:text-white">
                     <Link href="/settings">설정</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-600" onClick={handleLogout}>
+                  <DropdownMenuSeparator className="bg-neutral-800" />
+                  <DropdownMenuItem className="text-red-500 focus:text-red-400 focus:bg-neutral-800" onClick={handleLogout}>
                     로그아웃
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -298,12 +278,12 @@ export function Header() {
             </>
           ) : (
             <>
-              <Button variant="ghost" className="rounded-full text-muted-foreground hover:text-foreground transition-colors duration-200" asChild>
-                <Link href="/sign-in">로그인</Link>
-              </Button>
-              <Button className="rounded-full bg-primary hover:bg-primary/90 text-white" asChild>
-                <Link href="/sign-up">시작하기</Link>
-              </Button>
+              <Link href="/sign-in" className="text-white/60 hover:text-white font-bold text-sm uppercase tracking-wider">
+                Log in
+              </Link>
+              <Link href="/sign-up" className="bg-white text-black px-5 py-2 font-black text-xs uppercase tracking-widest hover:bg-neutral-200">
+                Sign up
+              </Link>
             </>
           )}
         </div>

@@ -4,8 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { SocialLoginButtons } from "@/components/auth/social-login-buttons";
 import { unwrapApiData } from "@/lib/utils/client-api";
 
@@ -60,97 +58,142 @@ export default function SignUpPage() {
   }
 
   return (
-    <>
-      <div className="mb-8">
-        <h1 className="font-headline font-extrabold text-3xl text-foreground tracking-tight">
-          시작하기
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          무료로 가입하고 포트폴리오를 공유해보세요.
-        </p>
-      </div>
-
-      <div className="space-y-6">
-        <SocialLoginButtons />
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-border/60" />
+    <main className="flex min-h-screen w-full">
+      {/* Left: Branding */}
+      <section className="hidden md:flex md:w-1/2 relative overflow-hidden flex-col justify-between p-16 bg-black border-r border-neutral-800/20">
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{
+            backgroundImage: "radial-gradient(#1a1a1a 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
+          }}
+        />
+        <div className="relative z-10">
+          <h1 className="text-3xl font-black tracking-tighter uppercase">
+            DRAWMATE.
+          </h1>
+        </div>
+        <div className="relative z-10 max-w-md">
+          <p className="text-5xl font-bold leading-tight mb-8">
+            당신의 상상을 캔버스에 담으세요.
+          </p>
+          <div className="h-1 w-24 bg-white mb-6" />
+          <p className="text-neutral-500 text-lg leading-relaxed">
+            디지털 브루탈리즘의 정수, DRAWMATE에서 창작의 새로운 기준을 경험하세요.
+          </p>
+        </div>
+        <div className="relative z-10 flex gap-4">
+          <div className="w-12 h-12 border border-neutral-700/30 flex items-center justify-center text-neutral-500 text-sm">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>
           </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-3 text-muted-foreground tracking-wider">
-              또는
-            </span>
+          <div className="w-12 h-12 border border-neutral-700/30 flex items-center justify-center text-neutral-500 text-sm">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+          </div>
+          <div className="w-12 h-12 border border-neutral-700/30 flex items-center justify-center text-neutral-500 text-sm">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
           </div>
         </div>
+      </section>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="displayName" className="text-sm font-medium text-foreground">
-              이름 <span className="text-muted-foreground font-normal">(선택)</span>
-            </label>
-            <Input
-              id="displayName"
-              name="displayName"
-              type="text"
-              placeholder="표시될 이름"
-              value={form.displayName}
-              onChange={handleChange}
-              autoComplete="name"
-              className="h-12 rounded-xl bg-muted border-0 focus:bg-card transition-colors"
-            />
+      {/* Right: Sign Up Form */}
+      <section className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-24 bg-black">
+        <div className="w-full max-w-md flex flex-col">
+          {/* Mobile header */}
+          <div className="md:hidden mb-12">
+            <h1 className="text-2xl font-black tracking-tighter uppercase">
+              DRAWMATE.
+            </h1>
           </div>
-          <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium text-foreground">
-              이메일
-            </label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="you@example.com"
-              value={form.email}
-              onChange={handleChange}
-              required
-              autoComplete="email"
-              className="h-12 rounded-xl bg-muted border-0 focus:bg-card transition-colors"
-            />
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="password" className="text-sm font-medium text-foreground">
-              비밀번호
-            </label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="8자 이상"
-              value={form.password}
-              onChange={handleChange}
-              required
-              autoComplete="new-password"
-              className="h-12 rounded-xl bg-muted border-0 focus:bg-card transition-colors"
-            />
-          </div>
-          <Button
-            type="submit"
-            className="w-full h-12 rounded-xl text-base font-bold shadow-lg shadow-primary/20 gradient-primary text-white mt-2"
-            disabled={loading}
-          >
-            {loading ? "처리 중..." : "회원가입"}
-          </Button>
-        </form>
 
-        <p className="text-center text-sm text-muted-foreground pt-2">
-          이미 계정이 있으신가요?{" "}
-          <Link
-            href="/sign-in"
-            className="font-medium text-primary hover:text-primary/80 transition-colors"
-          >
-            로그인
-          </Link>
-        </p>
-      </div>
-    </>
+          <h2 className="text-4xl font-bold mb-10 tracking-tight">시작하기</h2>
+
+          {/* Social Logins */}
+          <SocialLoginButtons />
+
+          {/* Divider */}
+          <div className="flex items-center gap-4 my-8">
+            <div className="flex-1 h-px bg-neutral-800/30" />
+            <span className="text-neutral-500 text-sm font-bold">또는</span>
+            <div className="flex-1 h-px bg-neutral-800/30" />
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">
+                디스플레이 네임 (선택)
+              </label>
+              <input
+                name="displayName"
+                type="text"
+                placeholder="홍길동"
+                value={form.displayName}
+                onChange={handleChange}
+                autoComplete="name"
+                className="bg-transparent border border-neutral-800 p-4 text-white placeholder:text-neutral-700 focus:border-white focus:ring-0 rounded-none"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">
+                이메일
+              </label>
+              <input
+                name="email"
+                type="email"
+                placeholder="name@example.com"
+                value={form.email}
+                onChange={handleChange}
+                required
+                autoComplete="email"
+                className="bg-transparent border border-neutral-800 p-4 text-white placeholder:text-neutral-700 focus:border-white focus:ring-0 rounded-none"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">
+                비밀번호
+              </label>
+              <input
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                value={form.password}
+                onChange={handleChange}
+                required
+                autoComplete="new-password"
+                className="bg-transparent border border-neutral-800 p-4 text-white placeholder:text-neutral-700 focus:border-white focus:ring-0 rounded-none"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-4 bg-white text-black py-5 px-8 font-bold text-lg uppercase tracking-widest hover:bg-neutral-200 disabled:opacity-50 rounded-none"
+            >
+              {loading ? "처리 중..." : "회원가입"}
+            </button>
+          </form>
+
+          {/* Footer */}
+          <div className="mt-8 text-center md:text-left">
+            <p className="text-neutral-500 text-sm">
+              이미 계정이 있나요?{" "}
+              <Link
+                href="/sign-in"
+                className="text-white font-bold ml-1 underline underline-offset-4 hover:text-neutral-400"
+              >
+                로그인
+              </Link>
+            </p>
+          </div>
+
+          {/* Compliance */}
+          <div className="mt-24 pt-8 border-t border-neutral-800/10 text-[10px] text-neutral-700 uppercase tracking-[0.2em] leading-relaxed">
+            <p>
+              &copy; 2025 DRAWMATE. ALL RIGHTS RESERVED. BY SIGNING UP, YOU AGREE
+              TO OUR TERMS OF SERVICE AND PRIVACY POLICY.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }

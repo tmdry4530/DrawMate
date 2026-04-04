@@ -4,9 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Camera, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -156,31 +153,30 @@ export default function ProfileSettingsPage() {
   return (
     <div className="mx-auto w-full max-w-3xl space-y-8 py-8 md:py-12 px-4">
       <section className="space-y-3 text-center">
-        <p className="text-sm font-semibold text-primary">프로필 관리</p>
-        <h1 className="text-3xl font-bold tracking-tight">프로필 편집</h1>
-        <p className="text-sm leading-6 text-muted-foreground max-w-xl mx-auto">
+        <p className="text-xs font-black uppercase tracking-widest text-neutral-400">프로필 관리</p>
+        <h1 className="text-3xl font-black uppercase tracking-tighter text-white">프로필 편집</h1>
+        <p className="text-sm leading-6 text-neutral-400 max-w-xl mx-auto">
           협업 요청을 받을 때 가장 먼저 보이는 정보입니다. 이름, 소개, 활동 상태를 정리해
           신뢰도와 응답률을 높여보세요.
         </p>
       </section>
 
-      <Card className="shadow-md rounded-2xl border-muted-foreground/10">
-
-        <CardHeader>
-          <CardTitle>기본 정보</CardTitle>
-          <CardDescription>
+      <div className="border border-neutral-800 bg-[#131313]">
+        <div className="border-b border-neutral-800 px-6 py-4">
+          <h2 className="font-black uppercase tracking-tighter text-white">기본 정보</h2>
+          <p className="text-sm text-neutral-400 mt-1">
             공개 프로필에 노출될 핵심 정보를 관리합니다.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+          </p>
+        </div>
+        <div className="px-6 py-6 space-y-6">
           {/* 프로필 이미지 */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">프로필 이미지</label>
+            <label className="text-xs font-black uppercase tracking-widest text-neutral-400">프로필 이미지</label>
             <div className="flex items-center gap-4">
               <div className="relative group">
-                <Avatar className="h-20 w-20">
+                <Avatar className="h-20 w-20 rounded-none">
                   <AvatarImage src={avatarUrl ?? undefined} alt={displayName || "프로필"} />
-                  <AvatarFallback className="text-xl">
+                  <AvatarFallback className="text-xl rounded-none bg-neutral-800 text-white">
                     {(displayName || "U").slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -188,33 +184,30 @@ export default function ProfileSettingsPage() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploadingAvatar}
-                  className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                 >
                   <Camera className="h-5 w-5 text-white" />
                 </button>
               </div>
               <div className="flex flex-col gap-2">
-                <Button
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploadingAvatar}
+                  className="border border-neutral-600 text-white text-xs font-black uppercase tracking-widest px-3 py-2 hover:border-white transition-colors disabled:opacity-50"
                 >
                   {isUploadingAvatar ? "업로드 중..." : "이미지 변경"}
-                </Button>
+                </button>
                 {avatarUrl && (
-                  <Button
+                  <button
                     type="button"
-                    variant="ghost"
-                    size="sm"
                     onClick={handleAvatarDelete}
                     disabled={isUploadingAvatar}
-                    className="text-destructive hover:text-destructive"
+                    className="flex items-center gap-1 text-xs font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition-colors disabled:opacity-50"
                   >
-                    <Trash2 className="h-3.5 w-3.5 mr-1" />
+                    <Trash2 className="h-3.5 w-3.5" />
                     삭제
-                  </Button>
+                  </button>
                 )}
               </div>
               <input
@@ -225,100 +218,105 @@ export default function ProfileSettingsPage() {
                 className="hidden"
               />
             </div>
-            <p className="text-xs text-muted-foreground">JPEG, PNG, WebP / 최대 5MB</p>
+            <p className="text-xs text-neutral-500">JPEG, PNG, WebP / 최대 5MB</p>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">이름 (2~40자)</label>
-            <Input
+            <label className="text-xs font-black uppercase tracking-widest text-neutral-400">이름 (2~40자)</label>
+            <input
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="표시할 이름을 입력하세요"
               maxLength={40}
+              className="w-full bg-transparent border-b-2 border-neutral-800 focus:border-white outline-none py-3 text-white placeholder:text-neutral-600 transition-colors"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">한 줄 소개 (최대 80자)</label>
-            <Input
+            <label className="text-xs font-black uppercase tracking-widest text-neutral-400">한 줄 소개 (최대 80자)</label>
+            <input
               value={headline}
               onChange={(e) => setHeadline(e.target.value)}
               placeholder="간단한 소개를 입력하세요"
               maxLength={80}
+              className="w-full bg-transparent border-b-2 border-neutral-800 focus:border-white outline-none py-3 text-white placeholder:text-neutral-600 transition-colors"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">자기소개 (최대 500자)</label>
+            <label className="text-xs font-black uppercase tracking-widest text-neutral-400">자기소개 (최대 500자)</label>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               placeholder="자세한 소개를 입력하세요"
               maxLength={500}
               rows={5}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+              className="w-full bg-transparent border border-neutral-800 focus:border-white outline-none px-3 py-2 text-sm text-white placeholder:text-neutral-600 resize-none transition-colors"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">SNS 링크 (최대 5개)</label>
+            <label className="text-xs font-black uppercase tracking-widest text-neutral-400">SNS 링크 (최대 5개)</label>
             <div className="space-y-2">
               {snsLinks.map((link, index) => (
                 <div key={index} className="flex gap-2">
-                  <Input
+                  <input
                     value={link}
                     onChange={(e) => handleSnsLinkChange(index, e.target.value)}
                     placeholder="https://..."
                     type="url"
+                    className="flex-1 bg-transparent border-b-2 border-neutral-800 focus:border-white outline-none py-2 text-white placeholder:text-neutral-600 transition-colors text-sm"
                   />
-                  <Button
+                  <button
                     type="button"
-                    variant="outline"
-                    size="sm"
                     onClick={() => handleRemoveSnsLink(index)}
                     disabled={snsLinks.length === 1}
+                    className="border border-neutral-700 text-neutral-400 text-xs font-black uppercase px-3 py-1 hover:border-white hover:text-white transition-colors disabled:opacity-30"
                   >
                     삭제
-                  </Button>
+                  </button>
                 </div>
               ))}
               {snsLinks.length < 5 && (
-                <Button
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
                   onClick={handleAddSnsLink}
+                  className="border border-neutral-700 text-neutral-400 text-xs font-black uppercase tracking-widest px-3 py-2 hover:border-white hover:text-white transition-colors"
                 >
                   링크 추가
-                </Button>
+                </button>
               )}
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">활동 상태</label>
+            <label className="text-xs font-black uppercase tracking-widest text-neutral-400">활동 상태</label>
             <Select
               value={availabilityStatus}
               onValueChange={(value) =>
                 setAvailabilityStatus(value as "open" | "busy" | "unavailable")
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="rounded-none border-neutral-800 bg-transparent text-white focus:border-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="open">활동 가능</SelectItem>
-                <SelectItem value="busy">바쁨</SelectItem>
-                <SelectItem value="unavailable">활동 불가</SelectItem>
+              <SelectContent className="rounded-none bg-[#131313] border-neutral-800">
+                <SelectItem value="open" className="text-white focus:bg-neutral-800">활동 가능</SelectItem>
+                <SelectItem value="busy" className="text-white focus:bg-neutral-800">바쁨</SelectItem>
+                <SelectItem value="unavailable" className="text-white focus:bg-neutral-800">활동 불가</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <Button onClick={handleSave} disabled={isSaving} className="w-full">
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="w-full bg-white text-black font-black uppercase tracking-widest py-3 text-sm hover:bg-neutral-200 transition-colors disabled:opacity-50"
+          >
             {isSaving ? "저장 중..." : "저장"}
-          </Button>
-        </CardContent>
-      </Card>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

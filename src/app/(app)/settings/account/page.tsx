@@ -4,9 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/browser-client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 export default function AccountSettingsPage() {
   const router = useRouter();
@@ -38,43 +35,52 @@ export default function AccountSettingsPage() {
 
   return (
     <div className="mx-auto w-full max-w-2xl py-8 space-y-4 px-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>계정 설정</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <div className="border border-neutral-800 bg-[#131313]">
+        <div className="border-b border-neutral-800 px-6 py-4">
+          <h2 className="font-black uppercase tracking-tighter text-white">계정 설정</h2>
+        </div>
+        <div className="px-6 py-6 space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium">이메일 변경</label>
-            <Input placeholder="현재 이메일 주소" type="email" disabled />
-            <p className="text-xs text-muted-foreground">준비 중</p>
+            <label className="text-xs font-black uppercase tracking-widest text-neutral-400">이메일 변경</label>
+            <input
+              placeholder="현재 이메일 주소"
+              type="email"
+              disabled
+              className="w-full bg-transparent border-b-2 border-neutral-800 outline-none py-3 text-neutral-600 placeholder:text-neutral-700 cursor-not-allowed text-sm"
+            />
+            <p className="text-xs text-neutral-600">준비 중</p>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">비밀번호 변경</label>
-            <Input placeholder="새 비밀번호" type="password" disabled />
-            <p className="text-xs text-muted-foreground">준비 중</p>
+            <label className="text-xs font-black uppercase tracking-widest text-neutral-400">비밀번호 변경</label>
+            <input
+              placeholder="새 비밀번호"
+              type="password"
+              disabled
+              className="w-full bg-transparent border-b-2 border-neutral-800 outline-none py-3 text-neutral-600 placeholder:text-neutral-700 cursor-not-allowed text-sm"
+            />
+            <p className="text-xs text-neutral-600">준비 중</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>프로필 삭제</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-sm text-muted-foreground">
+      <div className="border border-red-900/50 bg-[#131313]">
+        <div className="border-b border-red-900/50 px-6 py-4">
+          <h2 className="font-black uppercase tracking-tighter text-red-500">프로필 삭제</h2>
+        </div>
+        <div className="px-6 py-6 space-y-4">
+          <p className="text-sm text-neutral-400">
             프로필을 삭제하면 작성한 포트폴리오와 메시지 데이터도 함께 제거될 수 있습니다.
           </p>
-          <Button
-            variant="destructive"
+          <button
             onClick={handleDeleteProfile}
             disabled={deleting}
-            className="w-full"
+            className="w-full bg-red-600 text-white font-black uppercase tracking-widest py-3 text-sm hover:bg-red-700 transition-colors disabled:opacity-50"
           >
             {deleting ? "삭제 중..." : "프로필 삭제"}
-          </Button>
-        </CardContent>
-      </Card>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

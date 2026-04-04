@@ -9,12 +9,12 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative overflow-hidden grain-overlay">
-      <Suspense fallback={<div className="h-20 border-b bg-background" />}>
+    <div className="relative overflow-hidden bg-black">
+      <Suspense fallback={<div className="h-20 border-b border-neutral-800 bg-black" />}>
         <Header />
       </Suspense>
       <main className="flex-1 pt-20 pb-16 md:pb-0">
-        <div className="animate-fade-in">{children}</div>
+        {children}
       </main>
       <Footer />
       <MobileNav />

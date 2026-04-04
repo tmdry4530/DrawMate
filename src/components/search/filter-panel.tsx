@@ -81,7 +81,7 @@ export function FilterPanel() {
   return (
     <div className="space-y-6">
       {hasAnyTags && (
-        <div className="rounded-2xl bg-muted p-4">
+        <div className="rounded-none bg-[#1b1b1b] border border-neutral-800 p-4">
           <p className="text-sm font-semibold">필터 사용 팁</p>
           <p className="mt-1 text-sm text-muted-foreground">
             분야와 스타일을 함께 선택하면 원하는 작업자를 더 빠르게 좁힐 수 있습니다.

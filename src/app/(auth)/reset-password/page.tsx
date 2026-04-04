@@ -4,8 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/browser-client";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState("");
@@ -33,10 +31,10 @@ export default function ResetPasswordPage() {
   return (
     <>
       <div className="mb-8">
-        <h1 className="font-headline font-extrabold text-3xl text-foreground tracking-tight">
+        <h1 className="font-black text-3xl text-white uppercase tracking-tighter">
           비밀번호 찾기
         </h1>
-        <p className="mt-2 text-muted-foreground">
+        <p className="mt-2 text-neutral-400">
           가입한 이메일 주소로 재설정 링크를 보내드립니다.
         </p>
       </div>
@@ -44,10 +42,10 @@ export default function ResetPasswordPage() {
       <div className="space-y-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium text-foreground">
+            <label htmlFor="email" className="text-xs font-black uppercase tracking-widest text-neutral-400">
               이메일
             </label>
-            <Input
+            <input
               id="email"
               name="email"
               type="email"
@@ -56,22 +54,22 @@ export default function ResetPasswordPage() {
               required
               autoComplete="email"
               placeholder="you@example.com"
-              className="h-12 rounded-xl bg-muted border-0 focus:bg-card transition-colors"
+              className="w-full bg-transparent border-b-2 border-neutral-800 focus:border-white outline-none py-3 text-white placeholder:text-neutral-600 transition-colors"
             />
           </div>
-          <Button
+          <button
             type="submit"
-            className="w-full h-12 rounded-xl text-base font-bold shadow-lg shadow-primary/20 gradient-primary text-white mt-2"
             disabled={submitting}
+            className="w-full h-12 bg-white text-black font-black uppercase tracking-widest text-sm mt-2 hover:bg-neutral-200 transition-colors disabled:opacity-50"
           >
             {submitting ? "발송 중..." : "재설정 링크 보내기"}
-          </Button>
+          </button>
         </form>
 
-        <p className="text-center text-sm text-muted-foreground pt-2">
+        <p className="text-center text-sm text-neutral-500 pt-2">
           <Link
             href="/sign-in"
-            className="font-medium text-primary hover:text-primary/80 transition-colors"
+            className="font-black uppercase tracking-widest text-white hover:text-neutral-300 transition-colors"
           >
             로그인으로 돌아가기
           </Link>

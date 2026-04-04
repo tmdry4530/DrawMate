@@ -3,68 +3,40 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import {
-  User,
-  Briefcase,
-  Shield,
-  Bell,
-  CreditCard,
-  MapPin,
-  Camera,
-  Trash2,
-} from "lucide-react";
+import { Camera, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/browser-client";
 import { unwrapApiData } from "@/lib/utils/client-api";
-import { cn } from "@/lib/utils";
 
-type TabId = "account" | "portfolio" | "privacy" | "notifications" | "billing";
+type TabId = "account" | "portfolio" | "privacy" | "billing";
 
-const NAV_ITEMS: { id: TabId; label: string; icon: React.ReactNode }[] = [
-  { id: "account", label: "계정", icon: <User className="h-4 w-4" /> },
-  { id: "portfolio", label: "포트폴리오", icon: <Briefcase className="h-4 w-4" /> },
-  { id: "privacy", label: "개인정보", icon: <Shield className="h-4 w-4" /> },
-  { id: "notifications", label: "알림", icon: <Bell className="h-4 w-4" /> },
-  { id: "billing", label: "결제", icon: <CreditCard className="h-4 w-4" /> },
+const NAV_ITEMS: { id: TabId; label: string }[] = [
+  { id: "account", label: "계정" },
+  { id: "portfolio", label: "포트폴리오" },
+  { id: "privacy", label: "개인정보" },
+  { id: "billing", label: "결제" },
 ];
 
 export default function SettingsPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabId>("account");
 
-  // Profile state (Account tab)
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [location, setLocation] = useState("");
   const [headline, setHeadline] = useState("");
   const [snsLinks, setSnsLinks] = useState<string[]>([""]);
-  const [availabilityStatus, setAvailabilityStatus] = useState<
-    "open" | "busy" | "unavailable"
-  >("open");
+  const [availabilityStatus, setAvailabilityStatus] = useState<"open" | "busy" | "unavailable">("open");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Privacy state
   const [isProfilePublic, setIsProfilePublic] = useState(true);
-
-  // Notifications state
-  const [notifyNewMessage, setNotifyNewMessage] = useState(true);
-  const [notifyBookmark, setNotifyBookmark] = useState(true);
   const [emailNotifications, setEmailNotifications] = useState(true);
+  const [newsletterNotifications, setNewsletterNotifications] = useState(false);
 
-  // General state
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
@@ -102,8 +74,6 @@ export default function SettingsPage() {
           setAvailabilityStatus(p.availabilityStatus ?? "open");
           setAvatarUrl(p.avatarUrl ?? null);
           setIsProfilePublic(p.isProfilePublic ?? true);
-          setNotifyNewMessage(p.notifyNewMessage ?? true);
-          setNotifyBookmark(p.notifyBookmark ?? true);
         }
       } catch {
         if (mounted) toast.error("설정 정보를 불러오지 못했습니다.");
@@ -177,8 +147,6 @@ export default function SettingsPage() {
           snsLinks: filteredLinks.length > 0 ? filteredLinks : undefined,
           availabilityStatus,
           isProfilePublic,
-          notifyNewMessage,
-          notifyBookmark,
         }),
       });
       if (!res.ok) {
@@ -195,11 +163,6 @@ export default function SettingsPage() {
     }
   };
 
-  const handleDiscard = () => {
-    setIsDirty(false);
-    toast("변경사항이 취소되었습니다.");
-  };
-
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -209,32 +172,25 @@ export default function SettingsPage() {
   const markDirty = () => setIsDirty(true);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b bg-background px-6 py-8">
-        <div className="mx-auto max-w-5xl">
-          <h1 className="font-headline text-3xl font-bold tracking-tight">Settings</h1>
-          <p className="mt-1 text-sm text-muted-foreground">나만의 크리에이티브 공간을 관리하세요</p>
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-5xl px-6 py-8">
-        <div className="flex gap-8">
-          {/* Side Navigation */}
-          <aside className="w-52 shrink-0">
-            <nav className="flex flex-col gap-1">
+    <div className="min-h-screen bg-black text-white -mt-20 pt-20">
+      <div className="p-6 md:p-12 max-w-[1200px] mx-auto">
+        <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+          {/* Category Tabs */}
+          <aside className="md:w-48 shrink-0">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 mb-4">
+              Categories
+            </h2>
+            <nav className="flex md:flex-col gap-1">
               {NAV_ITEMS.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={cn(
-                    "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors text-left",
+                  className={`px-4 py-3 text-left text-sm font-bold uppercase tracking-wider ${
                     activeTab === item.id
-                      ? "bg-primary text-white"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
+                      ? "bg-white text-black"
+                      : "text-neutral-500 hover:text-white hover:bg-neutral-900"
+                  }`}
                 >
-                  {item.icon}
                   {item.label}
                 </button>
               ))}
@@ -242,226 +198,169 @@ export default function SettingsPage() {
           </aside>
 
           {/* Main Content */}
-          <main className="flex-1 min-w-0">
-            {/* Account Tab */}
+          <main className="flex-1 min-w-0 space-y-12">
             {activeTab === "account" && (
-              <div className="space-y-8">
-                {/* Profile Picture Section */}
-                <section className="rounded-2xl border bg-card p-6">
-                  <h2 className="mb-4 text-base font-semibold">프로필 사진</h2>
-                  <div className="flex items-center gap-5">
-                    <div className="relative group">
-                      <Avatar className="h-20 w-20">
-                        <AvatarImage src={avatarUrl ?? undefined} alt={displayName || "프로필"} />
-                        <AvatarFallback className="text-xl font-bold">
-                          {(displayName || "U").slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+              <>
+                {/* Avatar */}
+                <div className="flex items-center gap-6">
+                  <div className="relative group">
+                    <Avatar className="h-20 w-20 rounded-none">
+                      <AvatarImage src={avatarUrl ?? undefined} alt={displayName || "프로필"} />
+                      <AvatarFallback className="rounded-none text-xl font-black bg-neutral-800">
+                        {(displayName || "U").slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploadingAvatar}
+                      className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 cursor-pointer"
+                    >
+                      <Camera className="h-5 w-5" />
+                    </button>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploadingAvatar}
+                      className="text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white"
+                    >
+                      {isUploadingAvatar ? "업로드 중..." : "아바타 변경"}
+                    </button>
+                    {avatarUrl && (
                       <button
                         type="button"
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={handleAvatarDelete}
                         disabled={isUploadingAvatar}
-                        className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                        className="text-xs font-bold uppercase tracking-wider text-red-500 hover:text-red-400 flex items-center gap-1"
                       >
-                        <Camera className="h-5 w-5 text-white" />
+                        <Trash2 className="h-3 w-3" />
+                        삭제
                       </button>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isUploadingAvatar}
-                        className="rounded-xl"
-                      >
-                        {isUploadingAvatar ? "업로드 중..." : "아바타 변경"}
-                      </Button>
-                      {avatarUrl && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleAvatarDelete}
-                          disabled={isUploadingAvatar}
-                          className="text-destructive hover:text-destructive rounded-xl"
-                        >
-                          <Trash2 className="h-3.5 w-3.5 mr-1" />
-                          삭제
-                        </Button>
-                      )}
-                    </div>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      onChange={handleAvatarUpload}
-                      className="hidden"
-                    />
+                    )}
                   </div>
-                  <p className="mt-3 text-xs text-muted-foreground">JPEG, PNG, WebP / 최대 5MB</p>
-                </section>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                  />
+                </div>
 
-                {/* Personal Information */}
-                <section className="rounded-2xl border bg-card p-6">
-                  <div className="mb-5">
-                    <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">01</span>
-                    <h2 className="mt-1 text-base font-semibold">기본 정보</h2>
-                  </div>
-
-                  <div className="space-y-4">
-                    {/* Full Name + Username */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-medium">이름</label>
-                        <Input
+                {/* 01. Basic Info */}
+                <section>
+                  <h2 className="text-2xl font-black uppercase tracking-tighter mb-8">
+                    01. 기본 정보
+                  </h2>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">
+                          Display Name
+                        </label>
+                        <input
                           value={displayName}
                           onChange={(e) => { setDisplayName(e.target.value); markDirty(); }}
                           placeholder="표시 이름"
                           maxLength={40}
                           disabled={loading}
-                          className="bg-muted border-0 rounded-xl py-3 px-4"
+                          className="w-full bg-transparent border border-neutral-800 p-4 text-white placeholder:text-neutral-700 focus:border-white focus:ring-0 rounded-none disabled:opacity-50"
                         />
                       </div>
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-medium">사용자명</label>
-                        <Input
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">
+                          Username
+                        </label>
+                        <input
                           value={username}
                           onChange={(e) => { setUsername(e.target.value); markDirty(); }}
                           placeholder="@username"
                           maxLength={40}
                           disabled={loading}
-                          className="bg-muted border-0 rounded-xl py-3 px-4"
+                          className="w-full bg-transparent border border-neutral-800 p-4 text-white placeholder:text-neutral-700 focus:border-white focus:ring-0 rounded-none disabled:opacity-50"
                         />
                       </div>
                     </div>
 
-                    {/* Bio */}
-                    <div className="space-y-1.5">
-                      <label className="text-sm font-medium">자기소개</label>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">
+                        Bio
+                      </label>
                       <textarea
                         value={bio}
                         onChange={(e) => { setBio(e.target.value); markDirty(); }}
-                        placeholder="간단한 소개를 작성해보세요"
+                        placeholder="자기소개를 작성해보세요"
                         maxLength={500}
                         rows={4}
                         disabled={loading}
-                        className="w-full rounded-xl border-0 bg-muted px-4 py-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none disabled:opacity-50"
+                        className="w-full bg-transparent border border-neutral-800 p-4 text-white placeholder:text-neutral-700 focus:border-white focus:ring-0 rounded-none resize-none disabled:opacity-50"
                       />
                     </div>
 
-                    {/* Location */}
-                    <div className="space-y-1.5">
-                      <label className="text-sm font-medium">위치</label>
-                      <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">
+                          Location
+                        </label>
+                        <input
                           value={location}
                           onChange={(e) => { setLocation(e.target.value); markDirty(); }}
-                          placeholder="도시, 국가"
+                          placeholder="Seoul, South Korea"
                           maxLength={100}
                           disabled={loading}
-                          className="bg-muted border-0 rounded-xl py-3 pl-9 pr-4"
+                          className="w-full bg-transparent border border-neutral-800 p-4 text-white placeholder:text-neutral-700 focus:border-white focus:ring-0 rounded-none disabled:opacity-50"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">
+                          Headline
+                        </label>
+                        <input
+                          value={headline}
+                          onChange={(e) => { setHeadline(e.target.value); markDirty(); }}
+                          placeholder="Senior Digital Architect"
+                          maxLength={80}
+                          disabled={loading}
+                          className="w-full bg-transparent border border-neutral-800 p-4 text-white placeholder:text-neutral-700 focus:border-white focus:ring-0 rounded-none disabled:opacity-50"
                         />
                       </div>
                     </div>
 
-                    {/* Headline */}
-                    <div className="space-y-1.5">
-                      <label className="text-sm font-medium">한 줄 소개</label>
-                      <Input
-                        value={headline}
-                        onChange={(e) => { setHeadline(e.target.value); markDirty(); }}
-                        placeholder="일러스트레이터 / 브랜드 디자이너"
-                        maxLength={80}
-                        disabled={loading}
-                        className="bg-muted border-0 rounded-xl py-3 px-4"
-                      />
-                    </div>
-
-                    {/* Availability */}
-                    <div className="space-y-1.5">
-                      <label className="text-sm font-medium">활동 상태</label>
-                      <Select
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">
+                        Availability Status
+                      </label>
+                      <select
                         value={availabilityStatus}
-                        onValueChange={(v) => {
-                          setAvailabilityStatus(v as "open" | "busy" | "unavailable");
+                        onChange={(e) => {
+                          setAvailabilityStatus(e.target.value as "open" | "busy" | "unavailable");
                           markDirty();
                         }}
                         disabled={loading}
+                        className="w-full bg-black border border-neutral-800 p-4 text-white focus:border-white focus:ring-0 rounded-none disabled:opacity-50"
                       >
-                        <SelectTrigger className="bg-muted border-0 rounded-xl py-3 px-4">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="open">활동 가능</SelectItem>
-                          <SelectItem value="busy">바쁨</SelectItem>
-                          <SelectItem value="unavailable">활동 불가</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* SNS Links */}
-                    <div className="space-y-1.5">
-                      <label className="text-sm font-medium">SNS 링크 (최대 5개)</label>
-                      <div className="space-y-2">
-                        {snsLinks.map((link, index) => (
-                          <div key={index} className="flex gap-2">
-                            <Input
-                              value={link}
-                              onChange={(e) => {
-                                const updated = [...snsLinks];
-                                updated[index] = e.target.value;
-                                setSnsLinks(updated);
-                                markDirty();
-                              }}
-                              placeholder="https://..."
-                              type="url"
-                              className="bg-muted border-0 rounded-xl py-3 px-4"
-                            />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setSnsLinks(snsLinks.filter((_, i) => i !== index));
-                                markDirty();
-                              }}
-                              disabled={snsLinks.length === 1}
-                              className="rounded-xl"
-                            >
-                              삭제
-                            </Button>
-                          </div>
-                        ))}
-                        {snsLinks.length < 5 && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => { setSnsLinks([...snsLinks, ""]); markDirty(); }}
-                            className="rounded-xl"
-                          >
-                            링크 추가
-                          </Button>
-                        )}
-                      </div>
+                        <option value="open">Available for Work</option>
+                        <option value="busy">Busy</option>
+                        <option value="unavailable">Unavailable</option>
+                      </select>
                     </div>
                   </div>
                 </section>
 
-                {/* Preferences */}
-                <section className="rounded-2xl border bg-card p-6">
-                  <div className="mb-5">
-                    <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">02</span>
-                    <h2 className="mt-1 text-base font-semibold">환경설정</h2>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                {/* 02. Preferences */}
+                <section>
+                  <h2 className="text-2xl font-black uppercase tracking-tighter mb-8">
+                    02. 환경설정
+                  </h2>
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between py-4 border-b border-neutral-800">
                       <div>
-                        <p className="text-sm font-medium">이메일 알림</p>
-                        <p className="text-xs text-muted-foreground">중요한 업데이트를 이메일로 받습니다</p>
+                        <p className="font-bold">Email Notifications</p>
+                        <p className="text-sm text-neutral-500">
+                          Receive updates about your portfolio performance.
+                        </p>
                       </div>
                       <Switch
                         checked={emailNotifications}
@@ -469,158 +368,98 @@ export default function SettingsPage() {
                         disabled={loading}
                       />
                     </div>
-
-                    <div className="flex items-center justify-between opacity-50">
+                    <div className="flex items-center justify-between py-4 border-b border-neutral-800">
                       <div>
-                        <p className="text-sm font-medium">다크 모드</p>
-                        <p className="text-xs text-muted-foreground">준비 중</p>
+                        <p className="font-bold">Newsletter &amp; Marketing</p>
+                        <p className="text-sm text-neutral-500">
+                          Get curated updates about new features and events.
+                        </p>
                       </div>
-                      <Switch checked={false} disabled />
+                      <Switch
+                        checked={newsletterNotifications}
+                        onCheckedChange={(v) => { setNewsletterNotifications(v); markDirty(); }}
+                        disabled={loading}
+                      />
                     </div>
                   </div>
                 </section>
 
                 {/* Danger Zone */}
-                <section className="rounded-2xl border border-destructive/20 bg-card p-6">
-                  <h2 className="mb-2 text-base font-semibold text-destructive">위험 영역</h2>
-                  <p className="mb-4 text-sm text-muted-foreground">
-                    계정을 삭제하면 모든 포트폴리오와 메시지 데이터가 함께 삭제됩니다.
-                  </p>
-                  <div className="flex gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={handleLogout}
-                      className="rounded-xl"
-                    >
-                      로그아웃
-                    </Button>
-                  </div>
-                </section>
-              </div>
-            )}
-
-            {/* Portfolio Tab */}
-            {activeTab === "portfolio" && (
-              <div className="rounded-2xl border bg-card p-6">
-                <div className="mb-5">
-                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">01</span>
-                  <h2 className="mt-1 text-base font-semibold">포트폴리오 설정</h2>
-                </div>
-                <p className="text-sm text-muted-foreground">포트폴리오 관련 설정은 준비 중입니다.</p>
-              </div>
-            )}
-
-            {/* Privacy Tab */}
-            {activeTab === "privacy" && (
-              <div className="space-y-6">
-                <section className="rounded-2xl border bg-card p-6">
-                  <div className="mb-5">
-                    <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">01</span>
-                    <h2 className="mt-1 text-base font-semibold">공개 설정</h2>
-                  </div>
-                  <div className="flex items-center justify-between">
+                <section className="border-t border-neutral-800 pt-12">
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-red-500/60 mb-6">
+                    Danger Zone
+                  </h2>
+                  <div className="flex items-center justify-between bg-neutral-900/50 border border-neutral-800 p-6">
                     <div>
-                      <p className="text-sm font-medium">프로필 공개</p>
-                      <p className="text-xs text-muted-foreground">
-                        다른 사용자가 내 프로필을 볼 수 있습니다.
+                      <p className="font-bold">Terminate Session</p>
+                      <p className="text-sm text-neutral-500">
+                        Log out of all devices and clear session cache.
                       </p>
                     </div>
-                    <Switch
-                      checked={isProfilePublic}
-                      onCheckedChange={(v) => { setIsProfilePublic(v); markDirty(); }}
-                      disabled={loading}
-                    />
+                    <button
+                      onClick={handleLogout}
+                      className="bg-red-600 text-white px-6 py-3 font-bold uppercase tracking-wider text-sm hover:bg-red-700"
+                    >
+                      로그아웃
+                    </button>
                   </div>
                 </section>
-              </div>
-            )}
 
-            {/* Notifications Tab */}
-            {activeTab === "notifications" && (
-              <div className="space-y-6">
-                <section className="rounded-2xl border bg-card p-6">
-                  <div className="mb-5">
-                    <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">01</span>
-                    <h2 className="mt-1 text-base font-semibold">알림 설정</h2>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium">새 메시지 알림</p>
-                        <p className="text-xs text-muted-foreground">새 메시지가 도착하면 알림을 받습니다</p>
-                      </div>
-                      <Switch
-                        checked={notifyNewMessage}
-                        onCheckedChange={(v) => { setNotifyNewMessage(v); markDirty(); }}
-                        disabled={loading}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium">북마크 알림</p>
-                        <p className="text-xs text-muted-foreground">누군가 내 포트폴리오를 북마크하면 알림을 받습니다</p>
-                      </div>
-                      <Switch
-                        checked={notifyBookmark}
-                        onCheckedChange={(v) => { setNotifyBookmark(v); markDirty(); }}
-                        disabled={loading}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between opacity-50">
-                      <div>
-                        <p className="text-sm font-medium">Push 알림</p>
-                        <p className="text-xs text-muted-foreground">준비 중</p>
-                      </div>
-                      <Switch checked={false} disabled />
-                    </div>
-                  </div>
-                </section>
-              </div>
-            )}
-
-            {/* Billing Tab */}
-            {activeTab === "billing" && (
-              <div className="rounded-2xl border bg-card p-6">
-                <div className="mb-5">
-                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">01</span>
-                  <h2 className="mt-1 text-base font-semibold">결제 및 구독</h2>
+                {/* Save / Discard */}
+                <div className="flex gap-4 pt-8 border-t border-neutral-800">
+                  <button
+                    onClick={handleSave}
+                    disabled={isSaving || !isDirty}
+                    className="bg-white text-black px-10 py-4 font-black uppercase tracking-wider hover:bg-neutral-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    {isSaving ? "저장 중..." : "Save Changes"}
+                  </button>
+                  <button
+                    onClick={() => { setIsDirty(false); toast("변경사항이 취소되었습니다."); }}
+                    disabled={isSaving || !isDirty}
+                    className="border border-neutral-800 px-10 py-4 font-bold uppercase tracking-wider hover:border-white disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    Discard
+                  </button>
                 </div>
-                <p className="text-sm text-muted-foreground">결제 관련 기능은 준비 중입니다.</p>
+              </>
+            )}
+
+            {activeTab === "portfolio" && (
+              <div className="py-16 text-center border border-dashed border-neutral-800">
+                <p className="text-neutral-500 font-bold uppercase">준비 중</p>
+              </div>
+            )}
+
+            {activeTab === "privacy" && (
+              <section>
+                <h2 className="text-2xl font-black uppercase tracking-tighter mb-8">
+                  공개 설정
+                </h2>
+                <div className="flex items-center justify-between py-4 border-b border-neutral-800">
+                  <div>
+                    <p className="font-bold">프로필 공개</p>
+                    <p className="text-sm text-neutral-500">
+                      다른 사용자가 내 프로필을 볼 수 있습니다.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={isProfilePublic}
+                    onCheckedChange={(v) => { setIsProfilePublic(v); markDirty(); }}
+                    disabled={loading}
+                  />
+                </div>
+              </section>
+            )}
+
+            {activeTab === "billing" && (
+              <div className="py-16 text-center border border-dashed border-neutral-800">
+                <p className="text-neutral-500 font-bold uppercase">준비 중</p>
               </div>
             )}
           </main>
         </div>
       </div>
-
-      {/* Bottom Save Bar */}
-      {isDirty && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur-sm px-6 py-4">
-          <div className="mx-auto flex max-w-5xl items-center justify-between">
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              저장하지 않은 변경사항이 있습니다
-            </p>
-            <div className="flex gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleDiscard}
-                disabled={isSaving}
-                className="rounded-xl"
-              >
-                취소
-              </Button>
-              <Button
-                size="sm"
-                onClick={handleSave}
-                disabled={isSaving}
-                className="gradient-primary rounded-xl text-white"
-              >
-                {isSaving ? "저장 중..." : "변경사항 저장"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -20,23 +20,23 @@ export function MessageBubble({ message, isMine }: MessageBubbleProps) {
     <div className={`flex ${isMine ? "justify-end" : "justify-start"} mb-3`}>
       <div className={`max-w-[70%] flex flex-col ${isMine ? "items-end" : "items-start"}`}>
         {message.imageUrl && (
-          <div className="mb-1 bg-card p-2 rounded-2xl shadow-sm border border-primary/10">
+          <div className="mb-1 bg-[#1f1f1f] p-2 rounded-none border border-neutral-800">
             <Image
               src={message.imageUrl}
               alt="첨부 이미지"
               width={240}
               height={180}
-              className="rounded-xl object-cover"
+              className="rounded-none object-cover"
             />
           </div>
         )}
 
         {message.content && (
           <div
-            className={`px-5 py-3.5 rounded-2xl text-sm leading-relaxed break-words ${
+            className={`px-5 py-3.5 rounded-none text-sm leading-relaxed break-words ${
               isMine
-                ? "bg-primary text-white rounded-br-none shadow-md"
-                : "bg-card text-foreground rounded-bl-none shadow-sm"
+                ? "bg-[#353535] text-white"
+                : "bg-[#1f1f1f] text-foreground"
             }`}
           >
             {message.content}

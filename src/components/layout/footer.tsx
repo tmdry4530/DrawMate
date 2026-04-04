@@ -10,36 +10,30 @@ const footerLinks = [
 
 export function Footer() {
   return (
-    <footer className="animate-fade-up bg-muted/20">
-      {/* Gradient top border */}
-      <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 md:flex-row md:items-end md:justify-between">
+    <footer className="bg-black border-t border-neutral-800">
+      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-6 md:px-12 py-10 md:flex-row md:items-end md:justify-between">
         <div className="max-w-md space-y-2.5">
-          <p className="text-lg font-medium">
-            <span>Draw</span><span className="font-bold gradient-text">Mate</span>
+          <p className="text-lg font-black uppercase tracking-tighter text-white">
+            DRAWMATE.
           </p>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-sm text-neutral-500 leading-relaxed">
             웹툰, 일러스트, 애니메이션 작업에 맞는 작가와 어시스턴트를 연결하고,
             포트폴리오 탐색부터 협업 문의까지 이어주는 플랫폼입니다.
           </p>
-          <p className="text-xs text-muted-foreground/60">
-            &copy; 2025 DrawMate. All rights reserved.
+          <p className="text-xs text-neutral-700 uppercase tracking-widest">
+            &copy; 2025 DRAWMATE. ALL RIGHTS RESERVED.
           </p>
         </div>
 
-        <nav aria-label="푸터 메뉴" className="flex flex-wrap items-center gap-x-1 gap-y-2">
-          {footerLinks.map((link, index) => (
-            <span key={link.href} className="flex items-center">
-              {index > 0 && (
-                <span className="mr-1 text-border select-none" aria-hidden="true">·</span>
-              )}
-              <Link
-                href={link.href}
-                className="text-sm text-muted-foreground transition-all duration-200 hover:text-foreground relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-primary/50 after:transition-all after:duration-200 hover:after:w-full"
-              >
-                {link.label}
-              </Link>
-            </span>
+        <nav aria-label="푸터 메뉴" className="flex flex-wrap items-center gap-x-6 gap-y-2">
+          {footerLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="text-sm text-neutral-500 hover:text-white uppercase tracking-wider"
+            >
+              {link.label}
+            </Link>
           ))}
         </nav>
       </div>

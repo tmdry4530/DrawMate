@@ -12,20 +12,18 @@ export function OwnerCard({ userId, displayName, headline, avatarUrl }: OwnerCar
   const initials = displayName.slice(0, 2).toUpperCase()
 
   return (
-    <div className="bg-card p-8 rounded-xl shadow-[0px_24px_48px_rgba(22,29,31,0.06)]">
+    <div className="bg-black p-8 border border-neutral-800">
       <Link href={`/users/${userId}`} className="flex flex-col items-center text-center space-y-4 group">
-        <div className="relative">
-          <div className="w-24 h-24 rounded-full p-0.5 bg-gradient-to-tr from-primary to-tertiary">
-            <Avatar className="w-full h-full border-4 border-white">
-              <AvatarImage src={avatarUrl ?? undefined} alt={displayName} />
-              <AvatarFallback className="text-lg">{initials}</AvatarFallback>
-            </Avatar>
-          </div>
+        <div className="w-24 h-24 border border-neutral-700">
+          <Avatar className="w-full h-full rounded-none">
+            <AvatarImage src={avatarUrl ?? undefined} alt={displayName} />
+            <AvatarFallback className="rounded-none text-lg font-black bg-neutral-900 text-white">{initials}</AvatarFallback>
+          </Avatar>
         </div>
         <div className="space-y-1">
-          <h2 className="text-xl font-black font-headline text-foreground group-hover:underline">{displayName}</h2>
+          <h2 className="text-xl font-black text-white group-hover:underline underline-offset-4">{displayName}</h2>
           {headline && (
-            <p className="text-sm font-medium text-muted-foreground uppercase tracking-tight">{headline}</p>
+            <p className="text-sm font-bold text-neutral-500 uppercase tracking-wider">{headline}</p>
           )}
         </div>
       </Link>

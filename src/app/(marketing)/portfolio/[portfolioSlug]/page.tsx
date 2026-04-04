@@ -222,93 +222,107 @@ export default async function PortfolioDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="pb-20 px-4 md:px-8 max-w-screen-2xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        {/* Main Content */}
-        <div className="lg:col-span-8 space-y-12">
-          {/* Project Header */}
-          <header className="space-y-4">
-            <div className="flex items-center gap-2 text-tertiary text-sm font-bold tracking-widest uppercase font-headline">
-              Featured Project
-            </div>
-            <h1 className="text-5xl md:text-7xl font-black font-headline text-foreground tracking-tighter leading-none">
-              {portfolio.title}
-            </h1>
-          </header>
-
-          {/* Gallery */}
-          <PortfolioGallery
-            coverImage={portfolio.coverImage}
-            images={portfolio.images}
-            title={portfolio.title}
-          />
-
-          {/* Description */}
-          {portfolio.description && (
-            <article className="space-y-8">
-              <p className="text-2xl font-medium leading-relaxed">
-                {portfolio.description}
-              </p>
-            </article>
-          )}
-
-          {/* Tags */}
-          {portfolio.tags.length > 0 && (
-            <section className="space-y-4 pt-8">
-              <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Project Tags</h4>
-              <TagChips tags={portfolio.tags} />
-            </section>
-          )}
-        </div>
-
-        {/* Sticky Sidebar */}
-        <aside className="lg:col-span-4">
-          <div className="sticky top-28 space-y-8">
-            <OwnerCard
-              userId={portfolio.owner.id}
-              displayName={portfolio.owner.displayName}
-              headline={portfolio.owner.headline}
-              avatarUrl={portfolio.owner.avatarUrl}
-            />
-
-            {/* Price & Duration */}
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-muted">
-              <div>
-                <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                  <DollarSign className="h-4 w-4" />
-                  Price
-                </p>
-                <p className="mt-2 text-xl font-black font-headline tracking-tight">{formatPrice(portfolio.price)}</p>
+    <div className="bg-black text-white -mt-20 pt-20">
+      <div className="pb-20 px-4 md:px-8 max-w-screen-2xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-12">
+          {/* Main Content */}
+          <div className="lg:col-span-8 space-y-0">
+            {/* Project Header */}
+            <header className="py-12 border-b border-neutral-800">
+              <div className="text-xs font-bold tracking-widest uppercase text-neutral-500 mb-4">
+                Featured Project
               </div>
-              <div>
-                <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  Time
-                </p>
-                <p className="mt-2 text-xl font-black font-headline tracking-tight">
-                  {portfolio.durationDays ? `${portfolio.durationDays}일` : "협의"}
-                </p>
-              </div>
-            </div>
+              <h1 className="text-5xl md:text-7xl font-black font-headline text-white tracking-tighter leading-none uppercase">
+                {portfolio.title}
+              </h1>
+            </header>
 
-            {/* CTA */}
-            <ContactCta
-              targetUserId={portfolio.owner.id}
-              isOwner={portfolio.isOwnerByViewer}
-              className="w-full"
-            />
-
-            {/* Bookmark */}
-            <div className="flex items-center justify-between px-2">
-              <span className="text-sm font-medium text-muted-foreground">저장하기</span>
-              <BookmarkButton
-                portfolioId={portfolio.id}
-                initialBookmarked={portfolio.isBookmarkedByViewer}
-                initialCount={portfolio.bookmarkCount}
+            {/* Gallery */}
+            <div className="py-12 border-b border-neutral-800">
+              <PortfolioGallery
+                coverImage={portfolio.coverImage}
+                images={portfolio.images}
+                title={portfolio.title}
               />
             </div>
+
+            {/* Description */}
+            {portfolio.description && (
+              <article className="py-12 border-b border-neutral-800 space-y-6">
+                <h2 className="text-xs font-black uppercase tracking-widest text-neutral-500">
+                  Project Philosophy
+                </h2>
+                <p className="text-xl font-medium leading-relaxed text-neutral-200">
+                  {portfolio.description}
+                </p>
+              </article>
+            )}
+
+            {/* Tags */}
+            {portfolio.tags.length > 0 && (
+              <section className="py-12 space-y-6">
+                <h4 className="text-xs font-black uppercase tracking-widest text-neutral-500">Project Tags</h4>
+                <TagChips tags={portfolio.tags} />
+              </section>
+            )}
           </div>
-        </aside>
+
+          {/* Sticky Sidebar */}
+          <aside className="lg:col-span-4 border-t border-neutral-800 lg:border-t-0 lg:border-l lg:border-neutral-800 mt-0 pt-8 lg:pt-0 lg:pl-8">
+            <div className="sticky top-28 space-y-0">
+              {/* Owner Card */}
+              <div className="pb-8 border-b border-neutral-800">
+                <OwnerCard
+                  userId={portfolio.owner.id}
+                  displayName={portfolio.owner.displayName}
+                  headline={portfolio.owner.headline}
+                  avatarUrl={portfolio.owner.avatarUrl}
+                />
+              </div>
+
+              {/* Price & Duration */}
+              <div className="grid grid-cols-2 border-b border-neutral-800">
+                <div className="py-6 pr-4 border-r border-neutral-800">
+                  <p className="text-xs font-black uppercase tracking-widest text-neutral-500 flex items-center gap-1.5 mb-3">
+                    <DollarSign className="h-3.5 w-3.5" />
+                    Price
+                  </p>
+                  <p className="text-xl font-black font-headline tracking-tight text-white">
+                    {formatPrice(portfolio.price)}
+                  </p>
+                </div>
+                <div className="py-6 pl-4">
+                  <p className="text-xs font-black uppercase tracking-widest text-neutral-500 flex items-center gap-1.5 mb-3">
+                    <Clock className="h-3.5 w-3.5" />
+                    Time
+                  </p>
+                  <p className="text-xl font-black font-headline tracking-tight text-white">
+                    {portfolio.durationDays ? `${portfolio.durationDays}일` : "협의"}
+                  </p>
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="py-8 border-b border-neutral-800">
+                <ContactCta
+                  targetUserId={portfolio.owner.id}
+                  isOwner={portfolio.isOwnerByViewer}
+                  className="w-full rounded-none uppercase tracking-widest font-black border border-white bg-white text-black hover:bg-black hover:text-white transition-colors"
+                />
+              </div>
+
+              {/* Bookmark */}
+              <div className="py-6 flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-widest text-neutral-500">저장하기</span>
+                <BookmarkButton
+                  portfolioId={portfolio.id}
+                  initialBookmarked={portfolio.isBookmarkedByViewer}
+                  initialCount={portfolio.bookmarkCount}
+                />
+              </div>
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   );

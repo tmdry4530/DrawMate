@@ -193,54 +193,53 @@ export default function ConversationPage() {
   }, [queryClient, conversationId])
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full bg-black">
       {/* Left: conversation list (desktop only) */}
-      <aside className="hidden md:flex w-80 lg:w-96 shrink-0 flex-col bg-background">
-        <div className="p-6 pb-0">
-          <h1 className="font-headline text-2xl font-extrabold tracking-tight mb-6">메시지</h1>
+      <aside className="hidden md:flex w-80 lg:w-96 shrink-0 flex-col bg-[#131313] border-r border-white/10">
+        <div className="px-5 py-5 border-b border-white/10">
+          <h1 className="font-mono text-xs font-bold tracking-[0.2em] uppercase text-white">메시지</h1>
         </div>
-        <div className="flex-1 overflow-y-auto chat-scrollbar px-3 pb-6">
+        <div className="flex-1 overflow-y-auto chat-scrollbar">
           <ConversationList activeId={conversationId} />
         </div>
       </aside>
 
       {/* Right: message thread */}
-      <main className="flex flex-col flex-1 min-w-0">
+      <main className="flex flex-col flex-1 min-w-0 bg-black">
         {/* Header */}
-        <div className="h-20 flex-shrink-0 flex items-center justify-between px-8 bg-white/50 backdrop-blur-md border-b border-primary/5">
+        <div className="h-16 flex-shrink-0 flex items-center justify-between px-6 bg-[#0d0d0d] border-b border-white/10">
           <div className="flex items-center gap-3 min-w-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
+            <button
+              type="button"
+              className="md:hidden flex items-center justify-center w-8 h-8 text-white/60 hover:text-white transition-colors"
               aria-label="메시지 목록으로 돌아가기"
               onClick={() => router.push("/messages")}
             >
               <ArrowLeft className="h-4 w-4" />
-            </Button>
+            </button>
             {conversationMeta?.peer ? (
               <>
-                <div className="relative">
-                  <Avatar className="h-10 w-10">
+                <div className="relative shrink-0">
+                  <Avatar className="h-8 w-8 rounded-none">
                     <AvatarImage src={conversationMeta.peer.avatarUrl ?? undefined} />
-                    <AvatarFallback>
+                    <AvatarFallback className="rounded-none bg-[#2a2a2a] text-white font-mono text-xs">
                       {(conversationMeta.peer.displayName ?? "U").charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 border border-black" />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-headline font-extrabold text-lg leading-tight truncate">
+                  <p className="font-mono text-sm font-bold text-white truncate">
                     {conversationMeta.peer.displayName ?? "알 수 없음"}
                   </p>
                   <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-xs text-green-600 font-medium">온라인</span>
+                    <span className="w-1.5 h-1.5 bg-green-500" />
+                    <span className="font-mono text-[10px] text-green-500 tracking-wider">온라인</span>
                   </div>
                 </div>
               </>
             ) : (
-              <span className="font-headline font-extrabold text-lg">대화</span>
+              <span className="font-mono text-sm font-bold text-white">대화</span>
             )}
           </div>
         </div>
@@ -248,7 +247,7 @@ export default function ConversationPage() {
         {/* Messages */}
         <div
           ref={messagesContainerRef}
-          className="flex-1 overflow-y-auto chat-scrollbar p-8 space-y-6 flex flex-col justify-end"
+          className="flex-1 overflow-y-auto chat-scrollbar px-6 py-6 space-y-3 flex flex-col justify-end"
         >
           {hasNextPage && (
             <div className="flex justify-center">
@@ -256,7 +255,7 @@ export default function ConversationPage() {
                 type="button"
                 onClick={() => fetchNextPage()}
                 disabled={isFetchingNextPage}
-                className="px-4 py-1 bg-muted rounded-full text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:bg-muted/80 transition-colors disabled:opacity-50"
+                className="px-4 py-1.5 bg-[#1f1f1f] border border-white/10 text-[10px] font-mono font-bold uppercase tracking-widest text-white/40 hover:text-white/60 hover:border-white/20 transition-colors disabled:opacity-30"
               >
                 {isFetchingNextPage ? "불러오는 중..." : "이전 메시지 보기"}
               </button>
@@ -264,28 +263,28 @@ export default function ConversationPage() {
           )}
 
           {isLoading ? (
-            <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+            <div className="flex items-center justify-center h-full font-mono text-xs text-white/30 tracking-widest uppercase">
               불러오는 중...
             </div>
           ) : isError ? (
-            <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
-              <p className="text-sm text-muted-foreground">
+            <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
+              <p className="font-mono text-xs text-white/40">
                 {error.status === 403
                   ? "접근 권한이 없는 대화입니다."
                   : error.message}
               </p>
-              <Button
-                variant="outline"
-                size="sm"
+              <button
+                type="button"
                 onClick={() => router.push("/messages")}
+                className="px-4 py-2 bg-[#1f1f1f] border border-white/10 font-mono text-xs text-white/60 hover:text-white hover:border-white/20 transition-colors"
               >
                 대화 목록으로 돌아가기
-              </Button>
+              </button>
             </div>
           ) : allMessages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
-              <p className="text-sm font-headline font-semibold">아직 메시지가 없습니다</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="font-mono text-xs font-bold tracking-widest uppercase text-white/60">아직 메시지가 없습니다</p>
+              <p className="font-mono text-[10px] text-white/30">
                 첫 문의 내용을 남기면 이 대화방에서 협업을 이어갈 수 있습니다.
               </p>
             </div>

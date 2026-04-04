@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/browser-client";
 import { SocialLoginButtons } from "@/components/auth/social-login-buttons";
 
@@ -45,7 +43,6 @@ export default function SignInPage() {
         return;
       }
 
-      // Check if onboarding is needed
       const { data: profile } = await supabase
         .from("profiles")
         .select("role")
@@ -68,90 +65,116 @@ export default function SignInPage() {
   }
 
   return (
-    <>
-      <div className="mb-8">
-        <h1 className="font-headline font-extrabold text-3xl text-foreground tracking-tight">
-          다시 만나서 반가워요
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          계정에 로그인하고 작업을 이어가세요.
-        </p>
-      </div>
+    <main className="flex min-h-screen w-full">
+      {/* Left: Branding */}
+      <section className="hidden md:flex md:w-1/2 relative items-center justify-center overflow-hidden bg-black">
+        <div
+          className="absolute inset-0 opacity-50"
+          style={{
+            backgroundImage:
+              "linear-gradient(#1a1a1a 1px, transparent 1px), linear-gradient(90deg, #1a1a1a 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+        <div className="z-10 flex flex-col items-center">
+          <h1 className="text-6xl font-black tracking-tighter uppercase">
+            DRAWMATE.
+          </h1>
+          <p className="mt-4 text-neutral-500 font-bold tracking-widest uppercase text-sm">
+            The Monolithic Canvas
+          </p>
+        </div>
+      </section>
 
-      <div className="space-y-6">
-        <SocialLoginButtons nextPath={nextPath} />
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-border/60" />
+      {/* Right: Login Form */}
+      <section className="w-full md:w-1/2 flex items-center justify-center bg-black p-8 md:p-24">
+        <div className="w-full max-w-md">
+          {/* Heading */}
+          <div className="mb-12">
+            <h2 className="text-4xl font-bold mb-2 leading-tight">
+              다시 만나서 반가워요
+            </h2>
+            <div className="w-12 h-1 bg-white" />
           </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-3 text-muted-foreground tracking-wider">
+
+          {/* Social Logins */}
+          <SocialLoginButtons nextPath={nextPath} />
+
+          {/* Divider */}
+          <div className="flex items-center gap-4 my-8">
+            <div className="flex-grow h-px bg-neutral-800" />
+            <span className="text-neutral-500 text-sm font-bold uppercase">
               또는
             </span>
+            <div className="flex-grow h-px bg-neutral-800" />
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="block text-xs font-bold uppercase tracking-widest text-neutral-500">
+                Email Address
+              </label>
+              <input
+                name="email"
+                type="email"
+                placeholder="name@example.com"
+                value={form.email}
+                onChange={handleChange}
+                required
+                autoComplete="email"
+                className="w-full bg-transparent border-b-2 border-neutral-800 border-x-0 border-t-0 focus:ring-0 focus:border-white text-white py-3 px-0 placeholder:text-neutral-700 rounded-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold uppercase tracking-widest text-neutral-500">
+                  Password
+                </label>
+                <Link
+                  href="/reset-password"
+                  className="text-xs text-neutral-500 hover:text-white uppercase tracking-wider"
+                >
+                  비밀번호 찾기
+                </Link>
+              </div>
+              <input
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                value={form.password}
+                onChange={handleChange}
+                required
+                autoComplete="current-password"
+                className="w-full bg-transparent border-b-2 border-neutral-800 border-x-0 border-t-0 focus:ring-0 focus:border-white text-white py-3 px-0 placeholder:text-neutral-700 rounded-none"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-white text-black font-black py-5 uppercase tracking-tighter text-lg hover:bg-neutral-200 disabled:opacity-50 mt-4"
+            >
+              {loading ? "로그인 중..." : "로그인"}
+            </button>
+          </form>
+
+          {/* Footer */}
+          <div className="mt-12 text-center">
+            <p className="text-neutral-500 text-sm">
+              계정이 없으신가요?{" "}
+              <Link
+                href="/sign-up"
+                className="text-white font-bold underline underline-offset-4 hover:text-neutral-400 ml-1"
+              >
+                회원가입
+              </Link>
+            </p>
           </div>
         </div>
+      </section>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium text-foreground">
-              이메일
-            </label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="you@example.com"
-              value={form.email}
-              onChange={handleChange}
-              required
-              autoComplete="email"
-              className="h-12 rounded-xl bg-muted border-0 focus:bg-card transition-colors"
-            />
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label htmlFor="password" className="text-sm font-medium text-foreground">
-                비밀번호
-              </label>
-              <Link
-                href="/reset-password"
-                className="text-xs text-muted-foreground hover:text-primary transition-colors"
-              >
-                비밀번호 찾기
-              </Link>
-            </div>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="비밀번호 입력"
-              value={form.password}
-              onChange={handleChange}
-              required
-              autoComplete="current-password"
-              className="h-12 rounded-xl bg-muted border-0 focus:bg-card transition-colors"
-            />
-          </div>
-          <Button
-            type="submit"
-            className="w-full h-12 rounded-xl text-base font-bold shadow-lg shadow-primary/20 gradient-primary text-white mt-2"
-            disabled={loading}
-          >
-            {loading ? "로그인 중..." : "로그인"}
-          </Button>
-        </form>
-
-        <p className="text-center text-sm text-muted-foreground pt-2">
-          아직 계정이 없으신가요?{" "}
-          <Link
-            href="/sign-up"
-            className="font-medium text-primary hover:text-primary/80 transition-colors"
-          >
-            회원가입
-          </Link>
-        </p>
-      </div>
-    </>
+      {/* Mobile bottom accent */}
+      <div className="md:hidden fixed bottom-0 left-0 w-full h-1 bg-white" />
+    </main>
   );
 }

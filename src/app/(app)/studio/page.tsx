@@ -4,20 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Plus,
   ImageIcon,
-  Eye,
-  Heart,
   MessageSquare,
   Share2,
   BarChart3,
   UserCog,
-  TrendingUp,
-  TrendingDown,
-  Clock,
+  Upload,
+  Star,
+  ArrowRight,
 } from "lucide-react";
 import { unwrapApiData } from "@/lib/utils/client-api";
 
@@ -68,114 +64,81 @@ export default function StudioPage() {
   const publishedCount = portfolios.filter((p) => p.status === "published").length;
   const featuredPortfolio = portfolios.find((p) => p.status === "published") ?? portfolios[0];
   const totalViews = portfolios.reduce((sum, p) => sum + (p.viewCount ?? 0), 0);
+  const completionPercent = Math.min(100, publishedCount > 0 ? 85 : 40);
 
-  // 프로필 완성도 (포트폴리오 등록 기준 간단 계산)
-  const completionPercent = Math.min(100, publishedCount > 0 ? 80 : 40);
-  const circumference = 2 * Math.PI * 36;
-  const strokeDashoffset = circumference - (completionPercent / 100) * circumference;
-
-  // 최근 활동 (포트폴리오 기반 모의 데이터)
-  const recentActivity = portfolios.slice(0, 4).map((p) => ({
-    id: p.id,
-    type: "view" as const,
-    label: `"${p.title || "제목 없음"}" 포트폴리오가 조회되었습니다`,
-    time: p.createdAt,
-  }));
+  const recentActivity = [
+    { id: "1", icon: Upload, label: "새 에셋이 업로드됨", time: "2시간 전" },
+    { id: "2", icon: MessageSquare, label: "새 메시지 수신", time: "5시간 전" },
+    { id: "3", icon: Star, label: "포트폴리오가 추천됨", time: "어제" },
+  ];
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
-      {/* 헤더 */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-headline font-bold">Studio Dashboard</h1>
-          <p className="text-muted-foreground mt-1">
-            안녕하세요! 오늘도 창작 활동을 이어가세요.
-          </p>
-        </div>
-        <Button
-          asChild
-          className="shrink-0 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 shadow-md"
-        >
-          <Link href="/studio/portfolios/new">
-            <Plus className="w-4 h-4 mr-2" />
+    <div className="min-h-screen bg-black text-white -mt-20 pt-20">
+      <div className="p-6 md:p-12 space-y-12 max-w-[1600px] mx-auto">
+        {/* Header */}
+        <section className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b-4 border-white pb-8">
+          <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase">
+            Studio Dashboard
+          </h1>
+          <Link
+            href="/studio/portfolios/new"
+            className="bg-white text-black px-8 md:px-10 py-4 md:py-5 font-black text-base md:text-lg tracking-tighter uppercase hover:bg-neutral-200 shrink-0"
+          >
             새 포트폴리오
           </Link>
-        </Button>
-      </div>
+        </section>
 
-      {/* 통계 카드 */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* 조회수 */}
-        <Card className="bg-card rounded-xl shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                <Eye className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
-                <TrendingUp className="w-3.5 h-3.5" />
-                +12%
+        {/* Metrics */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-0">
+          <div className="border border-neutral-800 p-8 space-y-4 bg-[#0e0e0e]">
+            <span className="text-neutral-400 text-sm font-bold uppercase tracking-widest">
+              Views
+            </span>
+            <div className="flex items-baseline justify-between">
+              <span className="text-4xl md:text-5xl font-black">
+                {loading ? "—" : totalViews.toLocaleString()}
               </span>
+              <span className="text-white text-sm font-bold">+12%</span>
             </div>
-            <p className="text-3xl font-bold">{loading ? "—" : totalViews.toLocaleString()}</p>
-            <p className="text-sm text-muted-foreground mt-1">전체 조회수</p>
-          </CardContent>
-        </Card>
-
-        {/* 북마크 */}
-        <Card className="bg-card rounded-xl shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 rounded-lg bg-pink-100 dark:bg-pink-900/30">
-                <Heart className="w-5 h-5 text-pink-600 dark:text-pink-400" />
-              </div>
-              <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
-                <TrendingDown className="w-3.5 h-3.5" />
-                -3%
+          </div>
+          <div className="border border-neutral-800 md:border-l-0 p-8 space-y-4 bg-[#0e0e0e]">
+            <span className="text-neutral-400 text-sm font-bold uppercase tracking-widest">
+              Bookmarks
+            </span>
+            <div className="flex items-baseline justify-between">
+              <span className="text-4xl md:text-5xl font-black">
+                {loading ? "—" : (publishedCount * 2).toLocaleString()}
               </span>
+              <span className="text-white text-sm font-bold">+5.2%</span>
             </div>
-            <p className="text-3xl font-bold">{loading ? "—" : publishedCount * 2}</p>
-            <p className="text-sm text-muted-foreground mt-1">북마크</p>
-          </CardContent>
-        </Card>
-
-        {/* 메시지 */}
-        <Card className="bg-card rounded-xl shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                <MessageSquare className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
-                <TrendingUp className="w-3.5 h-3.5" />
-                +5%
+          </div>
+          <div className="border border-neutral-800 md:border-l-0 p-8 space-y-4 bg-[#0e0e0e]">
+            <span className="text-neutral-400 text-sm font-bold uppercase tracking-widest">
+              Messages
+            </span>
+            <div className="flex items-baseline justify-between">
+              <span className="text-4xl md:text-5xl font-black">
+                {loading ? "—" : "0"}
               </span>
+              <span className="text-neutral-500 text-sm font-bold">—</span>
             </div>
-            <p className="text-3xl font-bold">{loading ? "—" : 0}</p>
-            <p className="text-sm text-muted-foreground mt-1">새 메시지</p>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </section>
 
-      {/* 메인 콘텐츠 그리드 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* 왼쪽: 대표 포트폴리오 + 최근 활동 */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* 대표 포트폴리오 */}
-          <Card className="bg-card rounded-xl shadow-sm overflow-hidden">
-            <CardContent className="p-0">
-              <div className="px-6 pt-5 pb-3 flex items-center justify-between">
-                <h2 className="font-semibold text-base">대표 포트폴리오</h2>
-                <Button asChild variant="ghost" size="sm" className="text-xs text-muted-foreground">
-                  <Link href="/studio/portfolios">전체 보기</Link>
-                </Button>
-              </div>
-
+        {/* Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 items-start">
+          {/* Left Column */}
+          <div className="lg:col-span-2 space-y-12">
+            {/* Featured Work */}
+            <div className="bg-[#1b1b1b] p-6 md:p-10 space-y-8">
+              <h3 className="text-2xl font-black uppercase tracking-tighter">
+                Featured Work
+              </h3>
               {loading ? (
-                <div className="mx-6 mb-6 aspect-video bg-muted rounded-lg animate-pulse" />
+                <div className="aspect-video bg-neutral-800 animate-pulse" />
               ) : featuredPortfolio ? (
-                <div className="mx-6 mb-6">
-                  <div className="aspect-video bg-muted rounded-lg relative overflow-hidden group">
+                <>
+                  <div className="aspect-video bg-neutral-900 relative overflow-hidden">
                     {featuredPortfolio.coverImageUrl ? (
                       <Image
                         src={featuredPortfolio.coverImageUrl}
@@ -186,181 +149,158 @@ export default function StudioPage() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <ImageIcon className="w-12 h-12 text-muted-foreground" />
+                        <ImageIcon className="w-12 h-12 text-neutral-700" />
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                      <div className="w-full flex items-end justify-between">
-                        <p className="text-white font-medium truncate">
-                          {featuredPortfolio.title || "제목 없음"}
-                        </p>
-                        {featuredPortfolio.status === "published" && (
-                          <Button size="sm" variant="secondary" asChild className="shrink-0 ml-2">
-                            <Link href={`/portfolio/${featuredPortfolio.slug}`}>
-                              전체 갤러리 보기
-                            </Link>
-                          </Button>
-                        )}
-                      </div>
-                    </div>
                   </div>
-                  <p className="mt-3 font-medium truncate">
-                    {featuredPortfolio.title || "제목 없음"}
-                  </p>
-                  {featuredPortfolio.status === "published" && (
-                    <Link
-                      href={`/portfolio/${featuredPortfolio.slug}`}
-                      className="text-sm text-primary hover:underline"
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                      <h4 className="text-2xl md:text-3xl font-black uppercase">
+                        {featuredPortfolio.title || "제목 없음"}
+                      </h4>
+                      <p className="text-neutral-500 font-bold uppercase mt-2 text-sm">
+                        {featuredPortfolio.status === "published" ? "PUBLISHED" : "DRAFT"} / {new Date(featuredPortfolio.createdAt).getFullYear()}
+                      </p>
+                    </div>
+                    {featuredPortfolio.status === "published" && (
+                      <Link
+                        href={`/portfolio/${featuredPortfolio.slug}`}
+                        className="border-2 border-white px-8 py-3 font-bold uppercase tracking-tighter hover:bg-white hover:text-black shrink-0"
+                      >
+                        갤러리 보기
+                      </Link>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="py-16 text-center border border-dashed border-neutral-700">
+                  <ImageIcon className="w-10 h-10 mx-auto mb-3 text-neutral-600" />
+                  <p className="text-neutral-500 mb-4">아직 포트폴리오가 없습니다</p>
+                  <Link
+                    href="/studio/portfolios/new"
+                    className="inline-block bg-white text-black px-8 py-3 font-black uppercase"
+                  >
+                    <Plus className="w-4 h-4 inline mr-2" />
+                    포트폴리오 등록
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Recent Activity */}
+            <div className="space-y-6">
+              <h3 className="text-2xl font-black uppercase tracking-tighter">
+                Recent Activity
+              </h3>
+              <div className="border-y border-neutral-800">
+                {recentActivity.map((item, i) => {
+                  const Icon = item.icon;
+                  return (
+                    <div
+                      key={item.id}
+                      className={`py-6 flex items-center justify-between group cursor-pointer hover:bg-[#1f1f1f] px-4 ${i > 0 ? "border-t border-neutral-800" : ""}`}
                     >
-                      전체 갤러리 보기 →
-                    </Link>
-                  )}
-                </div>
-              ) : (
-                <div className="mx-6 mb-6 py-12 border-2 border-dashed rounded-xl text-center">
-                  <ImageIcon className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground mb-3">아직 포트폴리오가 없습니다</p>
-                  <Button asChild size="sm">
-                    <Link href="/studio/portfolios/new">
-                      <Plus className="w-4 h-4 mr-1" />
-                      포트폴리오 등록
-                    </Link>
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* 최근 활동 */}
-          <Card className="bg-card rounded-xl shadow-sm">
-            <CardContent className="p-6">
-              <h2 className="font-semibold text-base mb-4">최근 활동</h2>
-              {loading ? (
-                <div className="space-y-3">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="h-10 bg-muted rounded animate-pulse" />
-                  ))}
-                </div>
-              ) : recentActivity.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">
-                  아직 활동 내역이 없습니다
-                </p>
-              ) : (
-                <ul className="space-y-3">
-                  {recentActivity.map((item) => (
-                    <li key={item.id} className="flex items-start gap-3">
-                      <div className="mt-0.5 p-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 shrink-0">
-                        <Eye className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                      <div className="flex items-center gap-6">
+                        <Icon className="w-5 h-5 text-neutral-600" />
+                        <div>
+                          <p className="font-bold uppercase tracking-tight text-sm">
+                            {item.label}
+                          </p>
+                          <p className="text-xs text-neutral-500">{item.time}</p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm line-clamp-1">{item.label}</p>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                          <Clock className="w-3 h-3" />
-                          {new Date(item.time).toLocaleDateString("ko-KR")}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                      <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100" />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
 
-        {/* 오른쪽: 프로필 완성도 + 빠른 실행 */}
-        <div className="space-y-6">
-          {/* 프로필 완성도 */}
-          <Card className="bg-card rounded-xl shadow-sm">
-            <CardContent className="p-6 text-center">
-              <h2 className="font-semibold text-base mb-4">포트폴리오 완성도</h2>
-              <div className="relative inline-flex items-center justify-center">
-                <svg className="w-24 h-24 -rotate-90" viewBox="0 0 80 80">
+          {/* Right Column */}
+          <div className="space-y-12">
+            {/* Gauge */}
+            <div className="bg-[#2a2a2a] p-6 md:p-10 space-y-8">
+              <h3 className="text-2xl font-black uppercase tracking-tighter">
+                완성도 게이지
+              </h3>
+              <div className="relative h-52 md:h-64 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-5xl md:text-7xl font-black">
+                    {completionPercent}%
+                  </span>
+                </div>
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
                   <circle
-                    cx="40"
-                    cy="40"
-                    r="36"
+                    cx="50"
+                    cy="50"
+                    r="40"
                     fill="none"
-                    stroke="currentColor"
-                    strokeWidth="6"
-                    className="text-muted"
+                    stroke="#353535"
+                    strokeWidth="12"
                   />
                   <circle
-                    cx="40"
-                    cy="40"
-                    r="36"
+                    cx="50"
+                    cy="50"
+                    r="40"
                     fill="none"
-                    stroke="url(#progressGradient)"
-                    strokeWidth="6"
-                    strokeLinecap="round"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={strokeDashoffset}
-                    className="transition-all duration-700"
+                    stroke="#FFFFFF"
+                    strokeWidth="12"
+                    strokeDasharray={`${(completionPercent / 100) * 251} 251`}
+                    strokeLinecap="butt"
                   />
-                  <defs>
-                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#a855f7" />
-                      <stop offset="100%" stopColor="#ec4899" />
-                    </linearGradient>
-                  </defs>
                 </svg>
-                <span className="absolute text-xl font-bold">{completionPercent}%</span>
               </div>
-              <p className="text-sm text-muted-foreground mt-3">
-                {completionPercent < 100
-                  ? "포트폴리오를 등록하면 완성도가 올라갑니다"
-                  : "프로필이 완성되었습니다"}
+              <p className="text-center text-neutral-500 font-bold uppercase text-sm">
+                Portfolio Completion Status
               </p>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* 빠른 실행 */}
-          <Card className="bg-card rounded-xl shadow-sm">
-            <CardContent className="p-6">
-              <h2 className="font-semibold text-base mb-4">빠른 실행</h2>
-              <div className="grid grid-cols-2 gap-3">
-                <Button
-                  asChild
-                  variant="outline"
-                  className="h-auto flex-col gap-2 py-4 hover:bg-muted"
+            {/* Quick Actions */}
+            <div className="space-y-6">
+              <h3 className="text-2xl font-black uppercase tracking-tighter">
+                Quick Actions
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <Link
+                  href="/studio/portfolios/new"
+                  className="bg-[#1b1b1b] border border-neutral-800 aspect-square flex flex-col items-center justify-center gap-4 hover:bg-white hover:text-black group"
                 >
-                  <Link href="/studio/portfolios/new">
-                    <Plus className="w-5 h-5 text-primary" />
-                    <span className="text-xs font-medium">작품 추가</span>
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="h-auto flex-col gap-2 py-4 hover:bg-muted"
+                  <Plus className="w-10 h-10" />
+                  <span className="font-black uppercase tracking-widest text-xs">
+                    작업추가
+                  </span>
+                </Link>
+                <Link
+                  href="/studio/portfolios"
+                  className="bg-[#1b1b1b] border border-neutral-800 aspect-square flex flex-col items-center justify-center gap-4 hover:bg-white hover:text-black group"
                 >
-                  <Link href="/studio/portfolios">
-                    <Share2 className="w-5 h-5 text-primary" />
-                    <span className="text-xs font-medium">작품 공유</span>
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="h-auto flex-col gap-2 py-4 hover:bg-muted"
+                  <Share2 className="w-10 h-10" />
+                  <span className="font-black uppercase tracking-widest text-xs">
+                    공유
+                  </span>
+                </Link>
+                <Link
+                  href="/studio/portfolios"
+                  className="bg-[#1b1b1b] border border-neutral-800 aspect-square flex flex-col items-center justify-center gap-4 hover:bg-white hover:text-black group"
                 >
-                  <Link href="/studio/portfolios">
-                    <BarChart3 className="w-5 h-5 text-primary" />
-                    <span className="text-xs font-medium">인사이트</span>
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="h-auto flex-col gap-2 py-4 hover:bg-muted"
+                  <BarChart3 className="w-10 h-10" />
+                  <span className="font-black uppercase tracking-widest text-xs">
+                    인사이트
+                  </span>
+                </Link>
+                <Link
+                  href="/settings"
+                  className="bg-[#1b1b1b] border border-neutral-800 aspect-square flex flex-col items-center justify-center gap-4 hover:bg-white hover:text-black group"
                 >
-                  <Link href="/settings">
-                    <UserCog className="w-5 h-5 text-primary" />
-                    <span className="text-xs font-medium">프로필 편집</span>
-                  </Link>
-                </Button>
+                  <UserCog className="w-10 h-10" />
+                  <span className="font-black uppercase tracking-widest text-xs">
+                    프로필
+                  </span>
+                </Link>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>

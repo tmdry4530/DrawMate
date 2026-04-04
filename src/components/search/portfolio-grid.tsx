@@ -64,7 +64,7 @@ function PortfolioCardSkeleton({ index }: { index: number }) {
   const aspect = aspects[index % aspects.length]
   return (
     <div className="break-inside-avoid mb-8">
-      <Skeleton className={`${aspect} w-full rounded-xl`} />
+      <Skeleton className={`${aspect} w-full rounded-none`} />
     </div>
   )
 }
@@ -131,7 +131,7 @@ export function PortfolioGrid() {
 
   if (allItems.length === 0) {
     return (
-      <div className="rounded-2xl bg-muted px-6 py-16 text-center">
+      <div className="rounded-none bg-neutral-900 px-6 py-16 text-center">
         <p className="text-lg font-semibold">조건에 맞는 포트폴리오를 찾지 못했어요</p>
         <p className="mt-2 text-sm text-muted-foreground">
           {hasActiveFilters
@@ -140,7 +140,7 @@ export function PortfolioGrid() {
         </p>
         <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
           {hasActiveFilters && (
-            <Button variant="outline" onClick={() => reset()} className="rounded-full border-none bg-muted">
+            <Button variant="outline" onClick={() => reset()} className="rounded-none border border-neutral-800 bg-neutral-900">
               조건 초기화
             </Button>
           )}
@@ -155,7 +155,7 @@ export function PortfolioGrid() {
   return (
     <div className="relative">
       {isFetching && !isFetchingNextPage && !isLoading && (
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
+        <div className="mb-4 inline-flex items-center gap-2 rounded-none bg-neutral-900 px-3 py-1 text-xs text-muted-foreground">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
           <span>결과 업데이트 중...</span>
         </div>

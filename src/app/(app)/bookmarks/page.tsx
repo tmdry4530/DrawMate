@@ -34,11 +34,11 @@ interface BookmarkApiItem {
 function PortfolioCardSkeleton() {
   return (
     <div className="space-y-2">
-      <Skeleton className="aspect-video w-full rounded-xl" />
-      <Skeleton className="h-4 w-3/4" />
+      <Skeleton className="aspect-video w-full rounded-none bg-neutral-800" />
+      <Skeleton className="h-4 w-3/4 rounded-none bg-neutral-800" />
       <div className="flex items-center gap-2">
-        <Skeleton className="h-6 w-6 rounded-full" />
-        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-6 w-6 rounded-none bg-neutral-800" />
+        <Skeleton className="h-3 w-20 rounded-none bg-neutral-800" />
       </div>
     </div>
   )
@@ -82,34 +82,36 @@ export default function BookmarksPage() {
   }, [])
 
   return (
-    <div className="container max-w-4xl px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">북마크</h1>
+    <div className="bg-black text-white min-h-screen -mt-20 pt-20">
+      <div className="container max-w-4xl px-4 py-8">
+        <h1 className="text-2xl font-black uppercase tracking-tighter mb-6">북마크</h1>
 
-      {loading ? (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <PortfolioCardSkeleton key={i} />
-          ))}
-        </div>
-      ) : portfolios.length === 0 ? (
-        <div className="py-24 text-center text-muted-foreground">
-          아직 북마크한 포트폴리오가 없습니다.
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-          {portfolios.map((portfolio) => (
-            <PortfolioCard
-              key={portfolio.id}
-              slug={portfolio.slug}
-              title={portfolio.title}
-              thumbnailUrl={portfolio.thumbnailUrl}
-              ownerName={portfolio.ownerName}
-              ownerAvatarUrl={portfolio.ownerAvatarUrl}
-              bookmarkCount={portfolio.bookmarkCount}
-            />
-          ))}
-        </div>
-      )}
+        {loading ? (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <PortfolioCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : portfolios.length === 0 ? (
+          <div className="py-24 text-center text-neutral-500">
+            아직 북마크한 포트폴리오가 없습니다.
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            {portfolios.map((portfolio) => (
+              <PortfolioCard
+                key={portfolio.id}
+                slug={portfolio.slug}
+                title={portfolio.title}
+                thumbnailUrl={portfolio.thumbnailUrl}
+                ownerName={portfolio.ownerName}
+                ownerAvatarUrl={portfolio.ownerAvatarUrl}
+                bookmarkCount={portfolio.bookmarkCount}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
