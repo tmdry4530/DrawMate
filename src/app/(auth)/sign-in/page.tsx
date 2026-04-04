@@ -172,9 +172,6 @@ export default function SignInPage() {
           </div>
         </div>
       </section>
-
-      {/* Mobile bottom accent */}
-      <div className="md:hidden fixed bottom-0 left-0 w-full h-1 bg-white" />
     </main>
   );
 }

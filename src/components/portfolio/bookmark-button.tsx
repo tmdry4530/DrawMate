@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Heart } from "lucide-react"
+import { Bookmark } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -11,6 +11,7 @@ interface BookmarkButtonProps {
   portfolioId: string
   initialBookmarked?: boolean
   initialCount?: number
+  className?: string
 }
 
 interface BookmarkToggleResponse {
@@ -24,6 +25,7 @@ export function BookmarkButton({
   portfolioId,
   initialBookmarked = false,
   initialCount = 0,
+  className,
 }: BookmarkButtonProps) {
   const router = useRouter()
   const [bookmarked, setBookmarked] = useState(initialBookmarked)
@@ -76,17 +78,34 @@ export function BookmarkButton({
 
   return (
     <Button
+      type="button"
       variant="outline"
       size="sm"
       onClick={handleToggle}
       disabled={loading}
-      className={cn("gap-1.5", bookmarked && "text-red-500 border-red-200 bg-red-50 hover:bg-red-100 hover:text-red-600")}
+      className={cn(
+        "h-auto w-full justify-between rounded-none border border-neutral-800 bg-black px-4 py-4 text-white shadow-none cursor-pointer hover:border-white hover:bg-neutral-950 hover:text-white active:scale-[0.98]",
+        bookmarked &&
+          "border-white text-white hover:border-white hover:text-white",
+        className
+      )}
       aria-label={bookmarked ? "북마크 해제" : "북마크 추가"}
+      aria-pressed={bookmarked}
     >
-      <Heart
-        className={cn("h-4 w-4", bookmarked && "fill-current")}
-      />
-      <span>{count}</span>
+      <span className="flex items-center gap-3">
+        <span
+          className={cn(
+            "flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-colors",
+            bookmarked && "bg-white text-black"
+          )}
+        >
+          <Bookmark className={cn("h-5 w-5 shrink-0", bookmarked && "fill-current")} />
+        </span>
+        <span className="text-sm font-black uppercase tracking-widest text-current">
+          {loading ? "처리 중..." : bookmarked ? "저장됨" : "저장하기"}
+        </span>
+      </span>
+      <span className="text-sm font-black tabular-nums text-current">{count}</span>
     </Button>
   )
 }

@@ -45,17 +45,23 @@ export function ContactCta({ targetUserId, isOwner, className }: ContactCtaProps
 
   if (isOwner) {
     return (
-      <div className={cn("text-center space-y-2", className)}>
+      <div className="space-y-3">
         <button
           disabled
-          className="w-full py-4 bg-neutral-900 text-neutral-500 font-black font-headline uppercase tracking-widest border border-neutral-800 flex items-center justify-center gap-2 opacity-60 cursor-not-allowed"
+          className={cn(
+            "flex w-full cursor-not-allowed items-center justify-center gap-2 border border-neutral-800 bg-neutral-900 py-4 font-black font-headline uppercase tracking-widest text-neutral-500 opacity-70",
+            className,
+            "border-neutral-800 bg-neutral-900 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-500"
+          )}
         >
           <MessageSquare className="h-4 w-4" />
           내 포트폴리오
         </button>
-        <p className="text-xs text-neutral-600 whitespace-pre-wrap">
-          자신의 포트폴리오에는{"\n"}메시지를 보낼 수 없습니다.
-        </p>
+        <div className="border border-dashed border-neutral-800 bg-neutral-950 px-4 py-3 text-center">
+          <p className="whitespace-pre-wrap text-xs font-medium text-neutral-500">
+            자신의 포트폴리오에는{"\n"}메시지를 보낼 수 없습니다.
+          </p>
+        </div>
       </div>
     )
   }

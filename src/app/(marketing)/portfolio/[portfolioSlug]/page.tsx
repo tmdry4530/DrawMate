@@ -312,12 +312,12 @@ export default async function PortfolioDetailPage({ params }: Props) {
               </div>
 
               {/* Bookmark */}
-              <div className="py-6 flex items-center justify-between">
-                <span className="text-xs font-black uppercase tracking-widest text-neutral-500">저장하기</span>
+              <div className="py-6">
                 <BookmarkButton
                   portfolioId={portfolio.id}
                   initialBookmarked={portfolio.isBookmarkedByViewer}
                   initialCount={portfolio.bookmarkCount}
+                  className="w-full justify-center py-4 font-black uppercase tracking-widest"
                 />
               </div>
             </div>
