@@ -88,6 +88,10 @@ export async function GET(
   const ownerProfile = p.profiles
     ? (toCamelCaseKeys(p.profiles) as Record<string, unknown>)
     : null;
+  const ownerAvatarPath = (ownerProfile?.avatarPath as string | null | undefined) ?? null;
+  const ownerAvatarUrl = ownerAvatarPath
+    ? supabase.storage.from("profile-avatars").getPublicUrl(ownerAvatarPath).data.publicUrl
+    : null;
 
   const result = {
     ...toCamelCaseKeys({
@@ -114,7 +118,7 @@ export async function GET(
     owner: ownerProfile
       ? {
           ...ownerProfile,
-          avatarUrl: ownerProfile.avatarPath ?? null,
+          avatarUrl: ownerAvatarUrl,
         }
       : null,
     isBookmarked,

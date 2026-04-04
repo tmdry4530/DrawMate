@@ -10,7 +10,7 @@ const navItems = [
   { href: "/explore", icon: Search, label: "탐색" },
   { href: "/studio/portfolios/new", icon: PlusCircle, label: "포트폴리오 등록" },
   { href: "/messages", icon: MessageSquare, label: "메시지" },
-  { href: "/settings/profile", icon: User, label: "프로필" },
+  { href: "/settings/profile", icon: User, label: "설정" },
 ];
 
 export function MobileNav() {

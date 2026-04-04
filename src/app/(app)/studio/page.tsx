@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import {
   Plus,
   ImageIcon,
-  MessageSquare,
   Share2,
   BarChart3,
   UserCog,
@@ -24,7 +23,24 @@ interface Portfolio {
   status: "draft" | "published" | "archived";
   coverImageUrl?: string;
   viewCount?: number;
+  bookmarkCount?: number;
   createdAt: string;
+  updatedAt?: string;
+}
+
+function formatRelativeTime(dateString: string) {
+  const diffMs = Date.now() - new Date(dateString).getTime();
+  const diffMinutes = Math.max(1, Math.floor(diffMs / (1000 * 60)));
+
+  if (diffMinutes < 60) return `${diffMinutes}분 전`;
+
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours}시간 전`;
+
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) return `${diffDays}일 전`;
+
+  return new Date(dateString).toLocaleDateString("ko-KR");
 }
 
 export default function StudioPage() {
@@ -62,15 +78,22 @@ export default function StudioPage() {
   }, []);
 
   const publishedCount = portfolios.filter((p) => p.status === "published").length;
+  const draftCount = portfolios.filter((p) => p.status === "draft").length;
   const featuredPortfolio = portfolios.find((p) => p.status === "published") ?? portfolios[0];
   const totalViews = portfolios.reduce((sum, p) => sum + (p.viewCount ?? 0), 0);
-  const completionPercent = Math.min(100, publishedCount > 0 ? 85 : 40);
+  const totalBookmarks = portfolios.reduce((sum, p) => sum + (p.bookmarkCount ?? 0), 0);
+  const completionPercent =
+    portfolios.length === 0 ? 0 : Math.round((publishedCount / portfolios.length) * 100);
 
-  const recentActivity = [
-    { id: "1", icon: Upload, label: "새 에셋이 업로드됨", time: "2시간 전" },
-    { id: "2", icon: MessageSquare, label: "새 메시지 수신", time: "5시간 전" },
-    { id: "3", icon: Star, label: "포트폴리오가 추천됨", time: "어제" },
-  ];
+  const recentActivity = portfolios.slice(0, 3).map((portfolio) => ({
+    id: portfolio.id,
+    icon: portfolio.status === "published" ? Star : Upload,
+    label:
+      portfolio.status === "published"
+        ? `${portfolio.title || "제목 없음"} 게시 완료`
+        : `${portfolio.title || "제목 없음"} 최근 저장`,
+    time: formatRelativeTime(portfolio.updatedAt ?? portfolio.createdAt),
+  }));
 
   return (
     <div className="min-h-screen bg-black text-white -mt-20 pt-20">
@@ -98,7 +121,7 @@ export default function StudioPage() {
               <span className="text-4xl md:text-5xl font-black">
                 {loading ? "—" : totalViews.toLocaleString()}
               </span>
-              <span className="text-white text-sm font-bold">+12%</span>
+              <span className="text-neutral-500 text-sm font-bold">실데이터</span>
             </div>
           </div>
           <div className="border border-neutral-800 md:border-l-0 p-8 space-y-4 bg-[#0e0e0e]">
@@ -107,20 +130,20 @@ export default function StudioPage() {
             </span>
             <div className="flex items-baseline justify-between">
               <span className="text-4xl md:text-5xl font-black">
-                {loading ? "—" : (publishedCount * 2).toLocaleString()}
+                {loading ? "—" : totalBookmarks.toLocaleString()}
               </span>
-              <span className="text-white text-sm font-bold">+5.2%</span>
+              <span className="text-neutral-500 text-sm font-bold">실데이터</span>
             </div>
           </div>
           <div className="border border-neutral-800 md:border-l-0 p-8 space-y-4 bg-[#0e0e0e]">
             <span className="text-neutral-400 text-sm font-bold uppercase tracking-widest">
-              Messages
+              Drafts
             </span>
             <div className="flex items-baseline justify-between">
               <span className="text-4xl md:text-5xl font-black">
-                {loading ? "—" : "0"}
+                {loading ? "—" : draftCount.toLocaleString()}
               </span>
-              <span className="text-neutral-500 text-sm font-bold">—</span>
+              <span className="text-neutral-500 text-sm font-bold">초안 수</span>
             </div>
           </div>
         </section>
@@ -193,26 +216,32 @@ export default function StudioPage() {
                 Recent Activity
               </h3>
               <div className="border-y border-neutral-800">
-                {recentActivity.map((item, i) => {
-                  const Icon = item.icon;
-                  return (
-                    <div
-                      key={item.id}
-                      className={`py-6 flex items-center justify-between group cursor-pointer hover:bg-[#1f1f1f] px-4 ${i > 0 ? "border-t border-neutral-800" : ""}`}
-                    >
-                      <div className="flex items-center gap-6">
-                        <Icon className="w-5 h-5 text-neutral-600" />
-                        <div>
-                          <p className="font-bold uppercase tracking-tight text-sm">
-                            {item.label}
-                          </p>
-                          <p className="text-xs text-neutral-500">{item.time}</p>
+                {recentActivity.length === 0 ? (
+                  <div className="px-4 py-10 text-sm text-neutral-500">
+                    최근 활동은 포트폴리오를 만들거나 수정하면 표시됩니다.
+                  </div>
+                ) : (
+                  recentActivity.map((item, i) => {
+                    const Icon = item.icon;
+                    return (
+                      <div
+                        key={item.id}
+                        className={`py-6 flex items-center justify-between group px-4 ${i > 0 ? "border-t border-neutral-800" : ""}`}
+                      >
+                        <div className="flex items-center gap-6">
+                          <Icon className="w-5 h-5 text-neutral-600" />
+                          <div>
+                            <p className="font-bold uppercase tracking-tight text-sm">
+                              {item.label}
+                            </p>
+                            <p className="text-xs text-neutral-500">{item.time}</p>
+                          </div>
                         </div>
+                        <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100" />
                       </div>
-                      <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100" />
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </div>
             </div>
           </div>
@@ -252,7 +281,7 @@ export default function StudioPage() {
                 </svg>
               </div>
               <p className="text-center text-neutral-500 font-bold uppercase text-sm">
-                Portfolio Completion Status
+                Published Portfolio Ratio
               </p>
             </div>
 
@@ -290,7 +319,7 @@ export default function StudioPage() {
                   </span>
                 </Link>
                 <Link
-                  href="/settings"
+                  href="/settings/profile"
                   className="bg-[#1b1b1b] border border-neutral-800 aspect-square flex flex-col items-center justify-center gap-4 hover:bg-white hover:text-black group"
                 >
                   <UserCog className="w-10 h-10" />

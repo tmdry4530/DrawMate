@@ -26,6 +26,27 @@ export async function GET() {
     return response.notFound("프로필을 찾을 수 없습니다.");
   }
 
+  const [
+    { count: portfolioCount },
+    { count: unreadNotificationCount },
+    { data: conversationParticipants },
+  ] = await Promise.all([
+    supabase
+      .from("portfolios")
+      .select("id", { count: "exact", head: true })
+      .eq("owner_id", user.id)
+      .is("deleted_at", null),
+    supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .is("read_at", null),
+    supabase
+      .from("conversation_participants")
+      .select("last_read_at, conversations!inner(last_message_at)")
+      .eq("user_id", user.id),
+  ]);
+
   const camelProfile = toCamelCaseKeys(profile) as {
     role: string;
     displayName: string;
@@ -41,6 +62,22 @@ export async function GET() {
   const avatarUrl = camelProfile.avatarPath
     ? supabase.storage.from("profile-avatars").getPublicUrl(camelProfile.avatarPath).data.publicUrl
     : null;
+  const unreadConversationCount = (conversationParticipants ?? []).reduce(
+    (count, participant) => {
+      const conversation = Array.isArray(participant.conversations)
+        ? participant.conversations[0]
+        : participant.conversations;
+      const lastMessageAt = conversation?.last_message_at ?? null;
+      const lastReadAt = participant.last_read_at ?? null;
+
+      if (!lastMessageAt) return count;
+      if (!lastReadAt || new Date(lastMessageAt) > new Date(lastReadAt)) {
+        return count + 1;
+      }
+      return count;
+    },
+    0
+  );
 
   return response.success({
     userId: user.id,
@@ -57,9 +94,9 @@ export async function GET() {
       notifyBookmark: camelProfile.notifyBookmark,
     },
     counts: {
-      portfolios: 0,
-      unreadNotifications: 0,
-      unreadConversations: 0,
+      portfolios: portfolioCount ?? 0,
+      unreadNotifications: unreadNotificationCount ?? 0,
+      unreadConversations: unreadConversationCount,
     },
   });
 }

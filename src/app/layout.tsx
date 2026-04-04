@@ -19,6 +19,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "DrawMate",
   description: "작가와 어시스턴트를 연결해 포트폴리오 탐색, 메시지, 협업 문의를 돕는 플랫폼",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
 };
 
 export default function RootLayout({

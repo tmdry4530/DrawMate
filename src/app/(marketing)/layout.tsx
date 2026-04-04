@@ -9,11 +9,11 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative overflow-hidden bg-black">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-black">
       <Suspense fallback={<div className="h-20 border-b border-neutral-800 bg-black" />}>
         <Header />
       </Suspense>
-      <main className="flex-1 pt-20 pb-16 md:pb-0">
+      <main className="flex flex-1 flex-col pt-20 pb-16 md:pb-0">
         {children}
       </main>
       <Footer />

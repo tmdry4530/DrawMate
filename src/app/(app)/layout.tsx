@@ -16,11 +16,23 @@ export default function AppLayout({
   const isEditorPage = pathname.includes("/edit");
 
   return (
-    <div className={isMessagesPage ? "flex flex-col h-dvh overflow-hidden" : ""}>
+    <div
+      className={
+        isMessagesPage
+          ? "flex h-dvh flex-col overflow-hidden"
+          : "flex min-h-screen flex-col overflow-hidden bg-black"
+      }
+    >
       <Suspense fallback={<div className="h-20 border-b bg-black" />}>
         <Header />
       </Suspense>
-      <main className={isMessagesPage ? "flex-1 min-h-0 pt-20" : "flex-1 pt-20 pb-16 md:pb-0"}>
+      <main
+        className={
+          isMessagesPage
+            ? "flex-1 min-h-0 pt-20"
+            : "flex flex-1 flex-col pt-20 pb-16 md:pb-0"
+        }
+      >
         {isMessagesPage ? (
           <div className="h-full bg-black">
             {children}

@@ -267,7 +267,7 @@ export function Header() {
                     <Link href="/studio">스튜디오</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild className="focus:bg-neutral-800 focus:text-white">
-                    <Link href="/settings">설정</Link>
+                    <Link href="/settings/profile">설정</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-neutral-800" />
                   <DropdownMenuItem className="text-red-500 focus:text-red-400 focus:bg-neutral-800" onClick={handleLogout}>

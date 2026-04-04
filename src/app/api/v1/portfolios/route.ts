@@ -22,6 +22,7 @@ const ISO_CURSOR_REGEX = /^[0-9T:.+\-Z]+$/;
 interface CursorPayload {
   published_at: string;
   id: string;
+  bookmark_count?: number;
 }
 
 interface PortfolioQueryRow {
@@ -236,11 +237,17 @@ export async function GET(request: Request) {
         `published_at.lt.${decoded.published_at},and(published_at.eq.${decoded.published_at},id.lt.${decoded.id})`
       );
     } else if (sort === "popular") {
-      const bookmarkCursor = Number(decoded.published_at);
-      if (!Number.isFinite(bookmarkCursor)) {
+      const bookmarkCursor = Number(decoded.bookmark_count ?? decoded.published_at);
+      if (
+        !Number.isFinite(bookmarkCursor) ||
+        !UUID_REGEX.test(decoded.id) ||
+        !isSafeIsoCursor(decoded.published_at)
+      ) {
         return response.validationError("유효하지 않은 커서 형식입니다.");
       }
-      query = query.lt("bookmark_count", bookmarkCursor); // reuse field as bookmark_count cursor
+      query = query.or(
+        `bookmark_count.lt.${bookmarkCursor},and(bookmark_count.eq.${bookmarkCursor},published_at.lt.${decoded.published_at}),and(bookmark_count.eq.${bookmarkCursor},published_at.eq.${decoded.published_at},id.lt.${decoded.id})`
+      );
     } else if (sort === "price_asc") {
       const priceCursor = Number(decoded.published_at);
       if (!Number.isFinite(priceCursor) || !UUID_REGEX.test(decoded.id)) {
@@ -264,7 +271,10 @@ export async function GET(request: Request) {
   if (sort === "latest") {
     query = query.order("published_at", { ascending: false }).order("id", { ascending: false });
   } else if (sort === "popular") {
-    query = query.order("bookmark_count", { ascending: false }).order("published_at", { ascending: false });
+    query = query
+      .order("bookmark_count", { ascending: false })
+      .order("published_at", { ascending: false })
+      .order("id", { ascending: false });
   } else if (sort === "price_asc") {
     query = query
       .order("starting_price_krw", { ascending: true, nullsFirst: false })
@@ -289,10 +299,17 @@ export async function GET(request: Request) {
   if (hasMore && pageItems.length > 0) {
     const last = pageItems[pageItems.length - 1];
     let cursorValue = last.published_at;
-    if (sort === "popular") cursorValue = String(last.bookmark_count);
+    let bookmarkCursor: number | undefined;
+    if (sort === "popular") {
+      bookmarkCursor = last.bookmark_count;
+    }
     else if (sort === "price_asc" || sort === "price_desc") cursorValue = String(last.starting_price_krw);
 
-    nextCursor = encodeCursor({ published_at: cursorValue, id: last.id });
+    nextCursor = encodeCursor({
+      published_at: cursorValue,
+      id: last.id,
+      ...(bookmarkCursor !== undefined ? { bookmark_count: bookmarkCursor } : {}),
+    });
   }
 
   const portfolioIds = pageItems.map((item) => item.id);

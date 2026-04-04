@@ -1,7 +1,25 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, PlusCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server-client";
+
+export const metadata: Metadata = {
+  openGraph: {
+    images: [
+      {
+        url: "/meta/homepage-og.png",
+        width: 1200,
+        height: 630,
+        alt: "DrawMate 메인페이지 썸네일",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/meta/homepage-og.png"],
+  },
+};
 
 interface PortfolioRow {
   id: string;

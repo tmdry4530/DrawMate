@@ -1,38 +1,4 @@
-"use client";
-
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { createClient } from "@/lib/supabase/browser-client";
-
 export default function AccountSettingsPage() {
-  const router = useRouter();
-  const [deleting, setDeleting] = useState(false);
-
-  async function handleDeleteProfile() {
-    if (!confirm("프로필을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
-      return;
-    }
-
-    setDeleting(true);
-    try {
-      const res = await fetch("/api/v1/me/profile", { method: "DELETE" });
-      if (!res.ok) {
-        const payload = await res.json().catch(() => null);
-        throw new Error(payload?.error?.message ?? "프로필 삭제에 실패했습니다.");
-      }
-
-      const supabase = createClient();
-      await supabase.auth.signOut();
-      toast.success("프로필이 삭제되었습니다.");
-      router.replace("/sign-up");
-    } catch (err) {
-      toast.error((err as Error).message);
-    } finally {
-      setDeleting(false);
-    }
-  }
-
   return (
     <div className="mx-auto w-full max-w-2xl py-8 space-y-4 px-4">
       <div className="border border-neutral-800 bg-[#131313]">
@@ -64,21 +30,18 @@ export default function AccountSettingsPage() {
         </div>
       </div>
 
-      <div className="border border-red-900/50 bg-[#131313]">
-        <div className="border-b border-red-900/50 px-6 py-4">
-          <h2 className="font-black uppercase tracking-tighter text-red-500">프로필 삭제</h2>
+      <div className="border border-neutral-800 bg-[#131313]">
+        <div className="border-b border-neutral-800 px-6 py-4">
+          <h2 className="font-black uppercase tracking-tighter text-white">계정 삭제</h2>
         </div>
         <div className="px-6 py-6 space-y-4">
-          <p className="text-sm text-neutral-400">
-            프로필을 삭제하면 작성한 포트폴리오와 메시지 데이터도 함께 제거될 수 있습니다.
+          <p className="text-sm leading-6 text-neutral-400">
+            현재 계정 삭제는 비활성화되어 있습니다. 기존 구현은 프로필 레코드만 제거하는 방식이어서
+            인증 계정 및 연관 데이터의 정합성을 깨뜨릴 수 있어 노출을 중단했습니다.
           </p>
-          <button
-            onClick={handleDeleteProfile}
-            disabled={deleting}
-            className="w-full bg-red-600 text-white font-black uppercase tracking-widest py-3 text-sm hover:bg-red-700 transition-colors disabled:opacity-50"
-          >
-            {deleting ? "삭제 중..." : "프로필 삭제"}
-          </button>
+          <div className="rounded-none border border-neutral-800 bg-black/40 px-4 py-3 text-xs text-neutral-500">
+            계정 삭제가 필요하면 운영 지원 채널을 통해 요청해주세요.
+          </div>
         </div>
       </div>
     </div>

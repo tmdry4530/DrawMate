@@ -30,12 +30,12 @@ export function MessageInput({ conversationId, currentUserId, onMessageSent, onO
     setFilePreview(url)
   }
 
-  function removeFile() {
+  const removeFile = useCallback(() => {
     setFile(null)
     if (filePreview) URL.revokeObjectURL(filePreview)
     setFilePreview(null)
     if (fileRef.current) fileRef.current.value = ""
-  }
+  }, [filePreview])
 
   const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault()
@@ -88,7 +88,7 @@ export function MessageInput({ conversationId, currentUserId, onMessageSent, onO
       sendingRef.current = false
       setSending(false)
     }
-  }, [content, file, conversationId, currentUserId, onMessageSent, onOptimisticMessage])
+  }, [content, file, conversationId, currentUserId, onMessageSent, onOptimisticMessage, removeFile])
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey && !composingRef.current) {

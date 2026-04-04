@@ -48,27 +48,3 @@ export async function PATCH(request: Request) {
 
   return response.success(toCamelCaseKeys(updated));
 }
-
-export async function DELETE() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return response.unauthorized();
-  }
-
-  const { error: deleteError } = await supabase
-    .from("profiles")
-    .delete()
-    .eq("id", user.id);
-
-  if (deleteError) {
-    return response.error("INTERNAL_ERROR", "프로필 삭제에 실패했습니다.", 500);
-  }
-
-  return response.success({ deleted: true });
-}
